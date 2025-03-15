@@ -1,4 +1,5 @@
 import 'package:carely/screens/home_screen.dart';
+import 'package:carely/screens/onboarding/login_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -16,8 +17,11 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Pretendard',
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      initialRoute: HomeScreen.id,
-      routes: {HomeScreen.id: (context) => const HomeScreen()},
+      initialRoute: LoginScreen.id,
+      routes: {
+        HomeScreen.id: (context) => const HomeScreen(),
+        LoginScreen.id: (context) => const LoginScreen(),
+      },
     );
   }
 }
