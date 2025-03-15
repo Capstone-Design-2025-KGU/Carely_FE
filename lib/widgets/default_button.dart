@@ -24,11 +24,7 @@ class DefaultButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         foregroundColor: Colors.white,
         backgroundColor: AppColors.mainPrimary,
-        textStyle: const TextStyle(
-          fontFamily: 'Pretendard',
-          fontSize: 16.0,
-          fontWeight: FontWeight.w600,
-        ),
+        textStyle: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600),
       ),
       child: Text(content),
     );
