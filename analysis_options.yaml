@@ -1,0 +1,14 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart" # 자동 생성된 파일 제외
+    - "**/*.freezed.dart"
+
+linter:
+  rules:
+    - prefer_const_constructors # const 생성자 사용 권장
+    - avoid_print # print 사용 금지
+    - always_use_package_imports # 패키지 임포트 사용 강제
+    - prefer_single_quotes # 작은따옴표 사용 권장
+
