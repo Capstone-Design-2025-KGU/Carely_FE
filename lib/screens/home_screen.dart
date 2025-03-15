@@ -18,7 +18,14 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () {
             logger.i('앱 시작됨');
           },
-          child: const Text('Home Screen'),
+          child: const Text(
+            '홈 스크린',
+            style: TextStyle(
+              fontSize: 50.0,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
       ),
     );
