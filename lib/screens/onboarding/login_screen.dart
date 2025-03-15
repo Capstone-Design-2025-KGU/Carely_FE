@@ -2,6 +2,7 @@ import 'package:carely/widgets/default_button.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
+  static String id = 'login-screen';
   const LoginScreen({super.key});
 
   @override
@@ -11,6 +12,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: DefaultButton(content: '시작하기', onPressed: () {}));
+    return Scaffold(
+      body: Center(child: DefaultButton(content: '시작하기', onPressed: () {})),
+    );
   }
 }
