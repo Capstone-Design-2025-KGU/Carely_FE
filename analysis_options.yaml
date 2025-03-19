@@ -7,8 +7,8 @@ analyzer:
 
 linter:
   rules:
-    - prefer_const_constructors # const 생성자 사용 권장
     - avoid_print # print 사용 금지
     - always_use_package_imports # 패키지 임포트 사용 강제
     - prefer_single_quotes # 작은따옴표 사용 권장
+    - prefer_const_constructors: false # 🔥 자동 const 붙이기 비활성화
 
