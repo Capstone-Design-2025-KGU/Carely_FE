@@ -11,6 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  google_maps_flutter: 2.10.0
+  location: ^8.0.0
 
   cupertino_icons: ^1.0.8
   logger: ^2.5.0
