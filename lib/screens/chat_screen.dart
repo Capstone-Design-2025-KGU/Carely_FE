@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:carely/models/chat_message.dart';
 import 'package:carely/utils/logger_config.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/theme/colors.dart';
@@ -16,6 +17,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final List<ChatMessage> _messages = [];
   late StompClient stompClient;
 
   @override
@@ -44,8 +46,12 @@ class _ChatScreenState extends State<ChatScreen> {
       callback: (frame) {
         if (frame.body != null) {
           final data = jsonDecode(frame.body!);
-          logger.i('수신된 메시지: $data');
-          // setState로 메시지 리스트 갱신 가능
+          final message = ChatMessage.fromJson(data);
+          logger.i('수신된 메시지: $message');
+
+          setState(() {
+            _messages.add(message);
+          });
         }
       },
     );

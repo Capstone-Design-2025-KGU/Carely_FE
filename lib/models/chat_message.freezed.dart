@@ -15,6 +15,10 @@ final _privateConstructorUsedError = UnsupportedError(
   'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
 );
 
+ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) {
+  return _ChatMessage.fromJson(json);
+}
+
 /// @nodoc
 mixin _$ChatMessage {
   int get senderId => throw _privateConstructorUsedError;
@@ -23,6 +27,9 @@ mixin _$ChatMessage {
   String get content => throw _privateConstructorUsedError;
   MessageType get messageType => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
+
+  /// Serializes this ChatMessage to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
   /// Create a copy of ChatMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -187,6 +194,7 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
 
 /// @nodoc
 
+@JsonSerializable(explicitToJson: true)
 class _$ChatMessageImpl implements _ChatMessage {
   const _$ChatMessageImpl({
     required this.senderId,
@@ -196,6 +204,9 @@ class _$ChatMessageImpl implements _ChatMessage {
     required this.messageType,
     required this.createdAt,
   });
+
+  factory _$ChatMessageImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ChatMessageImplFromJson(json);
 
   @override
   final int senderId;
@@ -232,6 +243,7 @@ class _$ChatMessageImpl implements _ChatMessage {
                 other.createdAt == createdAt));
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
     runtimeType,
@@ -250,6 +262,11 @@ class _$ChatMessageImpl implements _ChatMessage {
   @pragma('vm:prefer-inline')
   _$$ChatMessageImplCopyWith<_$ChatMessageImpl> get copyWith =>
       __$$ChatMessageImplCopyWithImpl<_$ChatMessageImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ChatMessageImplToJson(this);
+  }
 }
 
 abstract class _ChatMessage implements ChatMessage {
@@ -261,6 +278,9 @@ abstract class _ChatMessage implements ChatMessage {
     required final MessageType messageType,
     required final DateTime createdAt,
   }) = _$ChatMessageImpl;
+
+  factory _ChatMessage.fromJson(Map<String, dynamic> json) =
+      _$ChatMessageImpl.fromJson;
 
   @override
   int get senderId;

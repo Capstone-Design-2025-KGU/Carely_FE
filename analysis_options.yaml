@@ -1,6 +1,8 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
+  errors:
+    invalid_annotation_target: ignore
   exclude:
     - "**/*.g.dart" # 자동 생성된 파일 제외
     - "**/*.freezed.dart"
