@@ -1,6 +1,4 @@
-import 'package:carely/utils/member_type.dart';
 import 'package:flutter/material.dart';
-
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
