@@ -93,7 +93,16 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        stompClient.send(destination: 'app/chat.sendMessage');
+                        stompClient.send(
+                          destination: '/app/chat.sendMessage',
+                          body: jsonEncode({
+                            'chatroomId': 1,
+                            'senderId': 123,
+                            'sender': '성민',
+                            'content': 'Flutter에서 보낸 테스트 메시지!',
+                            'messageType': 'CHAT',
+                          }),
+                        );
                       },
                       child: Text('send!'),
                     ),
