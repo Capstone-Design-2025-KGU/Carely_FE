@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
+import 'package:intl/intl.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -104,7 +105,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   'sender': '성민',
                   'content': '성민이 보낸 테스트 메시지!',
                   'messageType': 'CHAT',
-                  'createdAt': DateTime.now().toIso8601String(),
                 }),
               );
             },
@@ -185,8 +185,9 @@ class ChatBubble extends StatelessWidget {
     );
 
     // Time Stamp
+    final formattedTime = DateFormat('HH:mm').format(timeStamp);
     final time = Text(
-      timeStamp.toString(),
+      formattedTime,
       style: TextStyle(
         fontWeight: FontWeight.w400,
         color: AppColors.gray600,
