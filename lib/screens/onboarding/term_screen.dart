@@ -1,8 +1,8 @@
+import 'package:carely/widgets/default_app_bar.dart';
+import 'package:flutter/material.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
 import 'package:carely/widgets/default_button.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class TermScreen extends StatefulWidget {
   const TermScreen({super.key});
@@ -52,18 +52,7 @@ class _TermScreenState extends State<TermScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          '회원가입',
-          style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
-        ),
-        leading: IconButton(
-          icon: const Icon(CupertinoIcons.back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        backgroundColor: Colors.white,
-      ),
+      appBar: DefaultAppBar(title: '회원가입'),
       body: Column(
         children: [
           Expanded(
