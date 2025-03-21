@@ -1,7 +1,11 @@
+import 'dart:convert';
+
+import 'package:carely/utils/logger_config.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat-screen';
@@ -12,36 +16,93 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  late StompClient stompClient;
+
+  @override
+  void initState() {
+    super.initState();
+    initWebSocket();
+  }
+
+  void initWebSocket() {
+    stompClient = StompClient(
+      config: StompConfig.sockJS(
+        url: 'http://10.0.2.2:8080/ws',
+        onConnect: onConnectCallback,
+        onWebSocketError: (error) => logger.i('WebSocket error: $error'),
+      ),
+    );
+    stompClient.activate();
+  }
+
+  void onConnectCallback(StompFrame frame) {
+    logger.i('WebSocket 연결 성공');
+
+    // 구독
+    stompClient.subscribe(
+      destination: '/topic/public',
+      callback: (frame) {
+        if (frame.body != null) {
+          final data = jsonDecode(frame.body!);
+          logger.i('수신된 메시지: $data');
+          // setState로 메시지 리스트 갱신 가능
+        }
+      },
+    );
+
+    // 메시지 전송 테스트
+    stompClient.send(
+      destination: '/app/chat.sendMessage',
+      body: jsonEncode({
+        'chatroomId': 1,
+        'senderId': 123,
+        'sender': '성민',
+        'content': 'Flutter에서 보낸 테스트 메시지!',
+        'messageType': 'CHAT',
+      }),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: DefaultAppBar(title: '( ) 님과의 채팅방'),
-      body: Expanded(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              children: [
-                ChatTimeStamp(timeStamp: '2025년 03월 21일'),
-                ChatBubble(
-                  content: '안녕하십니까?',
-                  isMine: true,
-                  timeStamp: '18:57',
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  children: [
+                    ChatTimeStamp(timeStamp: '2025년 03월 21일'),
+                    ChatBubble(
+                      content: '안녕하십니까?',
+                      isMine: true,
+                      timeStamp: '18:57',
+                    ),
+                    ChatBubble(
+                      content: '안녕하십니까?안녕하십니까?안녕하십니까?안녕하십니까?안녕하십니까?',
+                      isMine: false,
+                      timeStamp: '19:00',
+                    ),
+                    ChatBubble(
+                      content: 'Stand By Me',
+                      isMine: true,
+                      timeStamp: '20:10',
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        stompClient.send(destination: 'app/chat.sendMessage');
+                      },
+                      child: Text('send!'),
+                    ),
+                  ],
                 ),
-                ChatBubble(
-                  content: '안녕하십니까?안녕하십니까?안녕하십니까?안녕하십니까?안녕하십니까?',
-                  isMine: false,
-                  timeStamp: '19:00',
-                ),
-                ChatBubble(
-                  content: 'Stand By Me',
-                  isMine: true,
-                  timeStamp: '20:10',
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
