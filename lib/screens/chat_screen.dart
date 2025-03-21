@@ -19,6 +19,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final List<ChatMessage> _messages = [];
   late StompClient stompClient;
+  final memberId = 1; // Test용 임시
 
   @override
   void initState() {
@@ -62,9 +63,10 @@ class _ChatScreenState extends State<ChatScreen> {
       body: jsonEncode({
         'chatroomId': 1,
         'senderId': 123,
-        'sender': '성민',
+        'sender': 'Flutter',
         'content': 'Flutter에서 보낸 테스트 메시지!',
         'messageType': 'CHAT',
+        'createdAt': '2025-03-21T17:45:34.658',
       }),
     );
   }
@@ -75,47 +77,38 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: DefaultAppBar(title: '( ) 님과의 채팅방'),
       body: Column(
         children: [
+          ChatTimeStamp(timeStamp: '2025년 03월 21일'),
           Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
-                  children: [
-                    ChatTimeStamp(timeStamp: '2025년 03월 21일'),
-                    ChatBubble(
-                      content: '안녕하십니까?',
-                      isMine: true,
-                      timeStamp: '18:57',
-                    ),
-                    ChatBubble(
-                      content: '안녕하십니까?안녕하십니까?안녕하십니까?안녕하십니까?안녕하십니까?',
-                      isMine: false,
-                      timeStamp: '19:00',
-                    ),
-                    ChatBubble(
-                      content: 'Stand By Me',
-                      isMine: true,
-                      timeStamp: '20:10',
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        stompClient.send(
-                          destination: '/app/chat.sendMessage',
-                          body: jsonEncode({
-                            'chatroomId': 1,
-                            'senderId': 123,
-                            'sender': '성민',
-                            'content': 'Flutter에서 보낸 테스트 메시지!',
-                            'messageType': 'CHAT',
-                          }),
-                        );
-                      },
-                      child: Text('send!'),
-                    ),
-                  ],
-                ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ListView.builder(
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final message = _messages[index];
+                  return ChatBubble(
+                    content: message.content,
+                    isMine: message.senderId == memberId,
+                    timeStamp: message.createdAt,
+                  );
+                },
               ),
             ),
+          ),
+          TextButton(
+            onPressed: () {
+              stompClient.send(
+                destination: '/app/chat.sendMessage',
+                body: jsonEncode({
+                  'chatroomId': 1,
+                  'senderId': memberId,
+                  'sender': '성민',
+                  'content': '성민이 보낸 테스트 메시지!',
+                  'messageType': 'CHAT',
+                  'createdAt': DateTime.now().toIso8601String(),
+                }),
+              );
+            },
+            child: Text('send!'),
           ),
         ],
       ),
@@ -159,7 +152,7 @@ class ChatTimeStamp extends StatelessWidget {
 
 class ChatBubble extends StatelessWidget {
   final String content;
-  final String timeStamp;
+  final DateTime timeStamp;
   final bool isMine;
 
   const ChatBubble({
@@ -193,7 +186,7 @@ class ChatBubble extends StatelessWidget {
 
     // Time Stamp
     final time = Text(
-      timeStamp,
+      timeStamp.toString(),
       style: TextStyle(
         fontWeight: FontWeight.w400,
         color: AppColors.gray600,
