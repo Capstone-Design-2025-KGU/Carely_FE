@@ -11,7 +11,7 @@ class WebSocketService {
   void connect({required void Function(ChatMessage) onMessage}) {
     _stompClient = StompClient(
       config: StompConfig.sockJS(
-        url: _url,
+        url: '$_url/ws',
         onConnect: (frame) {
           logger.i('WebSocket 연결 성공');
           _subscribe(onMessage);

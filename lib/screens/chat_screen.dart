@@ -1,13 +1,12 @@
 import 'package:carely/models/chat_message.dart';
+import 'package:carely/services/chat/chat_service.dart';
 import 'package:carely/services/chat/web_socket_service.dart';
+import 'package:carely/utils/logger_config.dart';
 import 'package:carely/widgets/chat/chat_bubble.dart';
 import 'package:carely/widgets/chat/chat_time_stamp.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-// 서버에서 DB저장 및 Timestamp찍는 것으로 바뀌면 그거 테스트.
-// 그 다음 원하는 텍스트 입력 추가.
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat-screen';
@@ -21,12 +20,14 @@ class _ChatScreenState extends State<ChatScreen> {
   final wsUrl = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8080/ws';
   final List<ChatMessage> _messages = [];
   final memberId = 1; // Test용 임시
+  final chatRoomId = 1;
 
   late final WebSocketService _webSocektService;
 
   @override
   void initState() {
     super.initState();
+    fetchPreviousMessages();
     _webSocektService = WebSocketService();
     _webSocektService.connect(
       onMessage: (msg) {
@@ -35,6 +36,17 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       },
     );
+  }
+
+  void fetchPreviousMessages() async {
+    try {
+      final previous = await ChatService.instance.fetchMessages(chatRoomId);
+      setState(() {
+        _messages.addAll(previous);
+      });
+    } catch (e) {
+      logger.e('채팅 내역을 불러올 수 없습니다 : $e');
+    }
   }
 
   @override

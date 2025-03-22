@@ -10,7 +10,7 @@ class APIService {
   APIService._singleton();
   static final APIService instance = APIService._singleton();
 
-  final wsUrl = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8080/ws';
+  final serverURL = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8080/ws';
 
   final logger = PrettyDioLogger(
     requestHeader: true,
@@ -22,9 +22,9 @@ class APIService {
 
   String get baseUrl {
     if (kDebugMode) {
-      return wsUrl;
+      return '$serverURL/api';
     } else {
-      return wsUrl;
+      return '$serverURL/api';
     }
   }
 
