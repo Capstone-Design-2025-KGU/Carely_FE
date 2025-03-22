@@ -1,3 +1,4 @@
+import 'package:carely/screens/chat_screen.dart';
 import 'package:carely/screens/home_screen.dart';
 import 'package:carely/screens/onboarding/login_screen.dart';
 import 'package:carely/theme/colors.dart';
@@ -22,10 +23,11 @@ class MyApp extends StatelessWidget {
         ),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      initialRoute: LoginScreen.id,
+      initialRoute: ChatScreen.id,
       routes: {
         HomeScreen.id: (context) => const HomeScreen(),
         LoginScreen.id: (context) => const LoginScreen(),
+        ChatScreen.id: (context) => const ChatScreen(),
       },
     );
   }
