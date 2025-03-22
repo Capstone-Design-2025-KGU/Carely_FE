@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
@@ -21,6 +22,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final wsUrl = dotenv.env['WS_URL'] ?? 'http://10.0.2.2:8080/ws';
   final List<ChatMessage> _messages = [];
   late StompClient stompClient;
   final memberId = 1; // Test용 임시
@@ -34,7 +36,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initWebSocket() {
     stompClient = StompClient(
       config: StompConfig.sockJS(
-        url: 'http://10.0.2.2:8080/ws',
+        url: wsUrl,
         onConnect: onConnectCallback,
         onWebSocketError: (error) => logger.i('WebSocket error: $error'),
       ),
