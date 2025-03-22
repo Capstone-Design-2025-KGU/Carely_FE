@@ -55,21 +55,10 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: DefaultAppBar(title: '( ) 님과의 채팅방'),
       body: Column(
         children: [
-          ChatTimeStamp(timeStamp: '2025년 03월 21일'),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ListView.builder(
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  return ChatBubble(
-                    content: message.content,
-                    isMine: message.senderId == memberId,
-                    timeStamp: message.createdAt,
-                  );
-                },
-              ),
+              child: ListView(children: _buildChatItems()),
             ),
           ),
           TextButton(
@@ -99,5 +88,37 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildChatItems() {
+    final List<Widget> chatItems = [];
+    DateTime? lastDate;
+
+    for (final message in _messages) {
+      final currentDate = DateTime(
+        message.createdAt!.year,
+        message.createdAt!.month,
+        message.createdAt!.day,
+      );
+
+      if (lastDate == null || currentDate != lastDate) {
+        chatItems.add(
+          ChatTimeStamp(
+            timeStamp:
+                '${currentDate.year}년 ${currentDate.month.toString().padLeft(2, '0')}월 ${currentDate.day.toString().padLeft(2, '0')}일',
+          ),
+        );
+        lastDate = currentDate;
+      }
+
+      chatItems.add(
+        ChatBubble(
+          content: message.content,
+          isMine: message.senderId == memberId,
+          timeStamp: message.createdAt,
+        ),
+      );
+    }
+    return chatItems;
   }
 }
