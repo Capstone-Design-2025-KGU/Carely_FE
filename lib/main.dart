@@ -1,4 +1,4 @@
-import 'package:carely/screens/chat_screen.dart';
+import 'package:carely/screens/chat/chat_screen.dart';
 import 'package:carely/screens/home_screen.dart';
 import 'package:carely/screens/nav_screen.dart';
 import 'package:carely/screens/onboarding/login_screen.dart';
@@ -19,8 +19,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Carely',
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
         fontFamily: 'Pretendard',
         appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
           iconTheme: IconThemeData(color: AppColors.gray800, size: 20.0),
         ),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
