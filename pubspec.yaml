@@ -11,8 +11,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_maps_flutter: 2.10.0
-  location: ^8.0.0
+  google_maps_flutter: ^2.10.1
+  location: ^5.0.0
+  google_maps_cluster_manager: ^3.1.0
 
   cupertino_icons: ^1.0.8
   logger: ^2.5.0
@@ -38,9 +39,12 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+<<<<<<< HEAD
     - assets/images/temp-user-image.png
     - assets/images/no-chat-room.png
     - .env
+=======
+>>>>>>> 803dd41 (feat : import map marker)
 
 fonts:
   - family: Pretendard
