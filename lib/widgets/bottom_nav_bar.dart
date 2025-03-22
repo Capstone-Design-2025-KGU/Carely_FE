@@ -1,4 +1,6 @@
+import 'package:carely/theme/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -12,39 +14,56 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      onTap: onTap,
-      items: [
-        BottomNavigationBarItem(
-          icon: Image.asset('assets/icons/house.png', width: 28, height: 28),
-          label: '홈',
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: AppColors.gray50, width: 1)),
         ),
-        BottomNavigationBarItem(
-          icon: Image.asset('assets/icons/map-pin.png', width: 28, height: 28),
-          label: '이웃',
-        ),
-        BottomNavigationBarItem(
-          icon: Image.asset(
-            'assets/icons/users-three.png',
-            width: 28,
-            height: 28,
+        child: BottomNavigationBar(
+          currentIndex: currentIndex,
+          onTap: onTap,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          selectedItemColor: AppColors.gray800,
+          selectedLabelStyle: TextStyle(
+            fontSize: 12.0,
+            fontWeight: FontWeight.w500,
+            color: AppColors.gray800,
           ),
-          label: '모임',
-        ),
-        BottomNavigationBarItem(
-          icon: Image.asset(
-            'assets/icons/chats-fill.png',
-            width: 28,
-            height: 28,
+          unselectedLabelStyle: TextStyle(
+            fontSize: 12.0,
+            fontWeight: FontWeight.w500,
+            color: AppColors.gray300,
           ),
-          label: '채팅',
+
+          items: [
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.house),
+              label: '홈',
+            ),
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.locationPin),
+              label: '이웃',
+            ),
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.users),
+              label: '모임',
+            ),
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.message),
+              label: '채팅',
+            ),
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.user),
+              label: '마이페이지',
+            ),
+          ],
         ),
-        BottomNavigationBarItem(
-          icon: Image.asset('assets/icons/user.png', width: 28, height: 28),
-          label: '마이페이지',
-        ),
-      ],
+      ),
     );
   }
 }

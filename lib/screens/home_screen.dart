@@ -1,4 +1,3 @@
-import 'package:carely/utils/logger_config.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,17 +13,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: TextButton(
-          onPressed: () {
-            logger.i('앱 시작됨');
-          },
-          child: const Text(
-            '홈 스크린',
-            style: TextStyle(
-              fontSize: 50.0,
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w500,
-            ),
+        child: const Text(
+          '홈 스크린',
+          style: TextStyle(
+            fontSize: 50.0,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
