@@ -25,7 +25,7 @@ mixin _$ChatMessage {
   int get chatroomId => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   MessageType get messageType => throw _privateConstructorUsedError;
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime? get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this ChatMessage to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -49,7 +49,7 @@ abstract class $ChatMessageCopyWith<$Res> {
     int chatroomId,
     String content,
     MessageType messageType,
-    DateTime createdAt,
+    DateTime? createdAt,
   });
 }
 
@@ -72,7 +72,7 @@ class _$ChatMessageCopyWithImpl<$Res, $Val extends ChatMessage>
     Object? chatroomId = null,
     Object? content = null,
     Object? messageType = null,
-    Object? createdAt = null,
+    Object? createdAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -97,10 +97,10 @@ class _$ChatMessageCopyWithImpl<$Res, $Val extends ChatMessage>
                     : messageType // ignore: cast_nullable_to_non_nullable
                         as MessageType,
             createdAt:
-                null == createdAt
+                freezed == createdAt
                     ? _value.createdAt
                     : createdAt // ignore: cast_nullable_to_non_nullable
-                        as DateTime,
+                        as DateTime?,
           )
           as $Val,
     );
@@ -121,7 +121,7 @@ abstract class _$$ChatMessageImplCopyWith<$Res>
     int chatroomId,
     String content,
     MessageType messageType,
-    DateTime createdAt,
+    DateTime? createdAt,
   });
 }
 
@@ -143,7 +143,7 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
     Object? chatroomId = null,
     Object? content = null,
     Object? messageType = null,
-    Object? createdAt = null,
+    Object? createdAt = freezed,
   }) {
     return _then(
       _$ChatMessageImpl(
@@ -168,10 +168,10 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
                 : messageType // ignore: cast_nullable_to_non_nullable
                     as MessageType,
         createdAt:
-            null == createdAt
+            freezed == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
-                    as DateTime,
+                    as DateTime?,
       ),
     );
   }
@@ -186,7 +186,7 @@ class _$ChatMessageImpl implements _ChatMessage {
     required this.chatroomId,
     required this.content,
     required this.messageType,
-    required this.createdAt,
+    this.createdAt,
   });
 
   factory _$ChatMessageImpl.fromJson(Map<String, dynamic> json) =>
@@ -201,7 +201,7 @@ class _$ChatMessageImpl implements _ChatMessage {
   @override
   final MessageType messageType;
   @override
-  final DateTime createdAt;
+  final DateTime? createdAt;
 
   @override
   String toString() {
@@ -255,7 +255,7 @@ abstract class _ChatMessage implements ChatMessage {
     required final int chatroomId,
     required final String content,
     required final MessageType messageType,
-    required final DateTime createdAt,
+    final DateTime? createdAt,
   }) = _$ChatMessageImpl;
 
   factory _ChatMessage.fromJson(Map<String, dynamic> json) =
@@ -270,7 +270,7 @@ abstract class _ChatMessage implements ChatMessage {
   @override
   MessageType get messageType;
   @override
-  DateTime get createdAt;
+  DateTime? get createdAt;
 
   /// Create a copy of ChatMessage
   /// with the given fields replaced by the non-null parameter values.

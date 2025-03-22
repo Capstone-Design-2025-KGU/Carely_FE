@@ -12,7 +12,10 @@ _$ChatMessageImpl _$$ChatMessageImplFromJson(Map<String, dynamic> json) =>
       chatroomId: (json['chatroomId'] as num).toInt(),
       content: json['content'] as String,
       messageType: $enumDecode(_$MessageTypeEnumMap, json['messageType']),
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt:
+          json['createdAt'] == null
+              ? null
+              : DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$$ChatMessageImplToJson(_$ChatMessageImpl instance) =>
@@ -21,7 +24,7 @@ Map<String, dynamic> _$$ChatMessageImplToJson(_$ChatMessageImpl instance) =>
       'chatroomId': instance.chatroomId,
       'content': instance.content,
       'messageType': _$MessageTypeEnumMap[instance.messageType]!,
-      'createdAt': instance.createdAt.toIso8601String(),
+      'createdAt': instance.createdAt?.toIso8601String(),
     };
 
 const _$MessageTypeEnumMap = {

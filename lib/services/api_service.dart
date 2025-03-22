@@ -10,7 +10,7 @@ class APIService {
   APIService._singleton();
   static final APIService instance = APIService._singleton();
 
-  final wsUrl = dotenv.env['WS_URL'] ?? 'http://10.0.2.2:8080/ws';
+  final wsUrl = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8080/ws';
 
   final logger = PrettyDioLogger(
     requestHeader: true,
@@ -56,6 +56,7 @@ class APIService {
         return dio.put(endpoint, data: param ?? formData);
       case DioMethod.delete:
         return dio.delete(endpoint, data: param ?? formData);
+      // ignore: unreachable_switch_default
       default:
         return dio.post(endpoint, data: param ?? formData);
     }
