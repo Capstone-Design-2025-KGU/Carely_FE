@@ -1,12 +1,12 @@
-import 'dart:convert';
-
 import 'package:carely/models/chat_message.dart';
+import 'package:carely/services/chat/chat_service.dart';
+import 'package:carely/services/chat/web_socket_service.dart';
 import 'package:carely/utils/logger_config.dart';
+import 'package:carely/widgets/chat/chat_bubble.dart';
+import 'package:carely/widgets/chat/chat_time_stamp.dart';
 import 'package:flutter/material.dart';
-import 'package:carely/theme/colors.dart';
-import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
-import 'package:stomp_dart_client/stomp_dart_client.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat-screen';
@@ -17,58 +17,36 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final wsUrl = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8080/ws';
   final List<ChatMessage> _messages = [];
-  late StompClient stompClient;
   final memberId = 1; // Test용 임시
+  final chatRoomId = 1;
+
+  late final WebSocketService _webSocektService;
 
   @override
   void initState() {
     super.initState();
-    initWebSocket();
-  }
-
-  void initWebSocket() {
-    stompClient = StompClient(
-      config: StompConfig.sockJS(
-        url: 'http://10.0.2.2:8080/ws',
-        onConnect: onConnectCallback,
-        onWebSocketError: (error) => logger.i('WebSocket error: $error'),
-      ),
-    );
-    stompClient.activate();
-  }
-
-  void onConnectCallback(StompFrame frame) {
-    logger.i('WebSocket 연결 성공');
-
-    // 구독
-    stompClient.subscribe(
-      destination: '/topic/public',
-      callback: (frame) {
-        if (frame.body != null) {
-          final data = jsonDecode(frame.body!);
-          final message = ChatMessage.fromJson(data);
-          logger.i('수신된 메시지: $message');
-
-          setState(() {
-            _messages.add(message);
-          });
-        }
+    fetchPreviousMessages();
+    _webSocektService = WebSocketService();
+    _webSocektService.connect(
+      onMessage: (msg) {
+        setState(() {
+          _messages.add(msg);
+        });
       },
     );
+  }
 
-    // 메시지 전송 테스트
-    stompClient.send(
-      destination: '/app/chat.sendMessage',
-      body: jsonEncode({
-        'chatroomId': 1,
-        'senderId': 123,
-        'sender': 'Flutter',
-        'content': 'Flutter에서 보낸 테스트 메시지!',
-        'messageType': 'CHAT',
-        'createdAt': '2025-03-21T17:45:34.658',
-      }),
-    );
+  void fetchPreviousMessages() async {
+    try {
+      final previous = await ChatService.instance.fetchMessages(chatRoomId);
+      setState(() {
+        _messages.addAll(previous);
+      });
+    } catch (e) {
+      logger.e('채팅 내역을 불러올 수 없습니다 : $e');
+    }
   }
 
   @override
@@ -77,134 +55,70 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: DefaultAppBar(title: '( ) 님과의 채팅방'),
       body: Column(
         children: [
-          ChatTimeStamp(timeStamp: '2025년 03월 21일'),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ListView.builder(
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  return ChatBubble(
-                    content: message.content,
-                    isMine: message.senderId == memberId,
-                    timeStamp: message.createdAt,
-                  );
-                },
-              ),
+              child: ListView(children: _buildChatItems()),
             ),
           ),
           TextButton(
             onPressed: () {
-              stompClient.send(
-                destination: '/app/chat.sendMessage',
-                body: jsonEncode({
-                  'chatroomId': 1,
-                  'senderId': memberId,
-                  'sender': '성민',
-                  'content': '성민이 보낸 테스트 메시지!',
-                  'messageType': 'CHAT',
-                  'createdAt': DateTime.now().toIso8601String(),
-                }),
+              final message = ChatMessage(
+                senderId: memberId,
+                chatroomId: 1,
+                content: '성민이 보낸 테스트 메시지!',
+                messageType: MessageType.CHAT,
               );
+              _webSocektService.sendMessage(message);
             },
-            child: Text('send!'),
+            child: Text('send mine'),
+          ),
+          TextButton(
+            onPressed: () {
+              final message = ChatMessage(
+                senderId: 2,
+                chatroomId: 1,
+                content: '유저 2가 보낸 테스트 메시지!',
+                messageType: MessageType.CHAT,
+              );
+              _webSocektService.sendMessage(message);
+            },
+            child: Text('send user 2'),
           ),
         ],
       ),
     );
   }
-}
 
-class ChatTimeStamp extends StatelessWidget {
-  final String timeStamp;
-  const ChatTimeStamp({super.key, required this.timeStamp});
+  List<Widget> _buildChatItems() {
+    final List<Widget> chatItems = [];
+    DateTime? lastDate;
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20.0),
-      child: Align(
-        child: Container(
-          constraints: BoxConstraints(
-            maxWidth: ScreenSize.width(context, 200.0),
+    for (final message in _messages) {
+      final currentDate = DateTime(
+        message.createdAt!.year,
+        message.createdAt!.month,
+        message.createdAt!.day,
+      );
+
+      if (lastDate == null || currentDate != lastDate) {
+        chatItems.add(
+          ChatTimeStamp(
+            timeStamp:
+                '${currentDate.year}년 ${currentDate.month.toString().padLeft(2, '0')}월 ${currentDate.day.toString().padLeft(2, '0')}일',
           ),
-          decoration: BoxDecoration(
-            color: AppColors.gray700,
-            borderRadius: BorderRadius.circular(24.0),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-            child: Text(
-              timeStamp,
-              style: TextStyle(
-                fontSize: 12.0,
-                fontWeight: FontWeight.w400,
-                color: Colors.white,
-              ),
-            ),
-          ),
+        );
+        lastDate = currentDate;
+      }
+
+      chatItems.add(
+        ChatBubble(
+          content: message.content,
+          isMine: message.senderId == memberId,
+          timeStamp: message.createdAt,
         ),
-      ),
-    );
-  }
-}
-
-class ChatBubble extends StatelessWidget {
-  final String content;
-  final DateTime timeStamp;
-  final bool isMine;
-
-  const ChatBubble({
-    super.key,
-    required this.content,
-    required this.isMine,
-    required this.timeStamp,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // Message Bubble
-    final bubble = Container(
-      constraints: BoxConstraints(maxWidth: ScreenSize.width(context, 200.0)),
-      decoration: BoxDecoration(
-        color: isMine ? AppColors.mainPrimary : Colors.white,
-        borderRadius: BorderRadius.circular(24.0),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Text(
-          content,
-          style: TextStyle(
-            fontSize: 15.0,
-            fontWeight: FontWeight.w400,
-            color: isMine ? Colors.white : AppColors.gray800,
-          ),
-        ),
-      ),
-    );
-
-    // Time Stamp
-    final time = Text(
-      timeStamp.toString(),
-      style: TextStyle(
-        fontWeight: FontWeight.w400,
-        color: AppColors.gray600,
-        fontSize: 12.0,
-      ),
-    );
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
-      child: Row(
-        mainAxisAlignment:
-            isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children:
-            isMine
-                ? [time, SizedBox(width: 6.0), bubble]
-                : [bubble, SizedBox(width: 6.0), time],
-      ),
-    );
+      );
+    }
+    return chatItems;
   }
 }

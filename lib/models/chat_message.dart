@@ -11,11 +11,10 @@ class ChatMessage with _$ChatMessage {
   @JsonSerializable(explicitToJson: true)
   const factory ChatMessage({
     required int senderId,
-    required String sender,
     required int chatroomId,
     required String content,
     required MessageType messageType,
-    required DateTime createdAt,
+    DateTime? createdAt,
   }) = _ChatMessage;
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) =>
