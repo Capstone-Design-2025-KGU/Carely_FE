@@ -9,6 +9,9 @@ import 'package:carely/widgets/default_app_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
+// 서버에서 DB저장 및 Timestamp찍는 것으로 바뀌면 그거 테스트.
+// 그 다음 원하는 텍스트 입력 추가.
+
 class ChatScreen extends StatefulWidget {
   static String id = 'chat-screen';
   const ChatScreen({super.key});
@@ -62,12 +65,10 @@ class _ChatScreenState extends State<ChatScreen> {
     stompClient.send(
       destination: '/app/chat.sendMessage',
       body: jsonEncode({
+        'senderId': 10,
         'chatroomId': 1,
-        'senderId': 123,
-        'sender': 'Flutter',
         'content': 'Flutter에서 보낸 테스트 메시지!',
         'messageType': 'CHAT',
-        'createdAt': '2025-03-21T17:45:34.658',
       }),
     );
   }
@@ -100,9 +101,8 @@ class _ChatScreenState extends State<ChatScreen> {
               stompClient.send(
                 destination: '/app/chat.sendMessage',
                 body: jsonEncode({
-                  'chatroomId': 1,
                   'senderId': memberId,
-                  'sender': '성민',
+                  'chatroomId': 1,
                   'content': '성민이 보낸 테스트 메시지!',
                   'messageType': 'CHAT',
                 }),

@@ -22,7 +22,6 @@ ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ChatMessage {
   int get senderId => throw _privateConstructorUsedError;
-  String get sender => throw _privateConstructorUsedError;
   int get chatroomId => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   MessageType get messageType => throw _privateConstructorUsedError;
@@ -47,7 +46,6 @@ abstract class $ChatMessageCopyWith<$Res> {
   @useResult
   $Res call({
     int senderId,
-    String sender,
     int chatroomId,
     String content,
     MessageType messageType,
@@ -71,7 +69,6 @@ class _$ChatMessageCopyWithImpl<$Res, $Val extends ChatMessage>
   @override
   $Res call({
     Object? senderId = null,
-    Object? sender = null,
     Object? chatroomId = null,
     Object? content = null,
     Object? messageType = null,
@@ -84,11 +81,6 @@ class _$ChatMessageCopyWithImpl<$Res, $Val extends ChatMessage>
                     ? _value.senderId
                     : senderId // ignore: cast_nullable_to_non_nullable
                         as int,
-            sender:
-                null == sender
-                    ? _value.sender
-                    : sender // ignore: cast_nullable_to_non_nullable
-                        as String,
             chatroomId:
                 null == chatroomId
                     ? _value.chatroomId
@@ -126,7 +118,6 @@ abstract class _$$ChatMessageImplCopyWith<$Res>
   @useResult
   $Res call({
     int senderId,
-    String sender,
     int chatroomId,
     String content,
     MessageType messageType,
@@ -149,7 +140,6 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? senderId = null,
-    Object? sender = null,
     Object? chatroomId = null,
     Object? content = null,
     Object? messageType = null,
@@ -162,11 +152,6 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
                 ? _value.senderId
                 : senderId // ignore: cast_nullable_to_non_nullable
                     as int,
-        sender:
-            null == sender
-                ? _value.sender
-                : sender // ignore: cast_nullable_to_non_nullable
-                    as String,
         chatroomId:
             null == chatroomId
                 ? _value.chatroomId
@@ -198,7 +183,6 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
 class _$ChatMessageImpl implements _ChatMessage {
   const _$ChatMessageImpl({
     required this.senderId,
-    required this.sender,
     required this.chatroomId,
     required this.content,
     required this.messageType,
@@ -211,8 +195,6 @@ class _$ChatMessageImpl implements _ChatMessage {
   @override
   final int senderId;
   @override
-  final String sender;
-  @override
   final int chatroomId;
   @override
   final String content;
@@ -223,7 +205,7 @@ class _$ChatMessageImpl implements _ChatMessage {
 
   @override
   String toString() {
-    return 'ChatMessage(senderId: $senderId, sender: $sender, chatroomId: $chatroomId, content: $content, messageType: $messageType, createdAt: $createdAt)';
+    return 'ChatMessage(senderId: $senderId, chatroomId: $chatroomId, content: $content, messageType: $messageType, createdAt: $createdAt)';
   }
 
   @override
@@ -233,7 +215,6 @@ class _$ChatMessageImpl implements _ChatMessage {
             other is _$ChatMessageImpl &&
             (identical(other.senderId, senderId) ||
                 other.senderId == senderId) &&
-            (identical(other.sender, sender) || other.sender == sender) &&
             (identical(other.chatroomId, chatroomId) ||
                 other.chatroomId == chatroomId) &&
             (identical(other.content, content) || other.content == content) &&
@@ -248,7 +229,6 @@ class _$ChatMessageImpl implements _ChatMessage {
   int get hashCode => Object.hash(
     runtimeType,
     senderId,
-    sender,
     chatroomId,
     content,
     messageType,
@@ -272,7 +252,6 @@ class _$ChatMessageImpl implements _ChatMessage {
 abstract class _ChatMessage implements ChatMessage {
   const factory _ChatMessage({
     required final int senderId,
-    required final String sender,
     required final int chatroomId,
     required final String content,
     required final MessageType messageType,
@@ -284,8 +263,6 @@ abstract class _ChatMessage implements ChatMessage {
 
   @override
   int get senderId;
-  @override
-  String get sender;
   @override
   int get chatroomId;
   @override
