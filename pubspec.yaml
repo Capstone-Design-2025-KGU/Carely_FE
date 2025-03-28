@@ -35,8 +35,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/
+    - assets/images/
     - assets/images/temp-user-image.png
+    - assets/images/no-chat-room.png
     - .env
 
 fonts:

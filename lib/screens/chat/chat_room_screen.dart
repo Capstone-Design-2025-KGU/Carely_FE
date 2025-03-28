@@ -68,28 +68,38 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               ),
               child: RefreshIndicator(
                 onRefresh: loadChatRoom,
+                color: AppColors.gray900,
+                backgroundColor: AppColors.gray100,
                 child: ListView(
-                  children: [
-                    Text(
-                      '이웃 대화',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(height: 20.0),
-                    ..._buildChatRoomList(neighborChats),
-                    SizedBox(height: 32.0),
-                    Text(
-                      '모임 대화',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(height: 20.0),
-                    ..._buildChatRoomList(groupChats),
-                  ],
+                  children:
+                      chatRooms.isEmpty
+                          ? [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.2,
+                            ),
+                            Center(child: NoChatRoomWidget()),
+                          ]
+                          : [
+                            Text(
+                              '이웃 대화',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(height: 20.0),
+                            ..._buildChatRoomList(neighborChats),
+                            SizedBox(height: 32.0),
+                            Text(
+                              '모임 대화',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(height: 20.0),
+                            ..._buildChatRoomList(groupChats),
+                          ],
                 ),
               ),
             ),
