@@ -1,4 +1,5 @@
 import 'package:carely/models/chat_room.dart';
+import 'package:carely/screens/chat/chat_screen.dart';
 import 'package:carely/services/chat/chat_service.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:flutter/material.dart';
@@ -133,50 +134,65 @@ class ChatRoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: ScreenSize.height(context, 48.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Image(image: AssetImage('assets/images/temp-user-image.png')),
-          SizedBox(width: 16.0),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      displayName,
-                      style: TextStyle(
-                        color: AppColors.gray800,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      _formatTime(chatRoom.createdAt),
-                      style: TextStyle(
-                        color: AppColors.gray500,
-                        fontSize: 11.0,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => ChatScreen(
+                  chatRoomId: chatRoom.chatRoomId,
+                  senderId: 1, // Test 현재 로그인한 사용자 Id
+                  opponentName: displayName,
                 ),
-                Text(
-                  chatRoom.content,
-                  style: TextStyle(
-                    color: AppColors.gray500,
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
           ),
-        ],
+        );
+      },
+      child: SizedBox(
+        height: ScreenSize.height(context, 48.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image(image: AssetImage('assets/images/temp-user-image.png')),
+            SizedBox(width: 16.0),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        displayName,
+                        style: TextStyle(
+                          color: AppColors.gray800,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        _formatTime(chatRoom.createdAt),
+                        style: TextStyle(
+                          color: AppColors.gray500,
+                          fontSize: 11.0,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    chatRoom.content,
+                    style: TextStyle(
+                      color: AppColors.gray500,
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

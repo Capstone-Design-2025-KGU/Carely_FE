@@ -31,7 +31,9 @@ class MyApp extends StatelessWidget {
       routes: {
         HomeScreen.id: (context) => const HomeScreen(),
         LoginScreen.id: (context) => const LoginScreen(),
-        ChatScreen.id: (context) => const ChatScreen(),
+        ChatScreen.id:
+            (context) =>
+                const ChatScreen(chatRoomId: 1, senderId: 1, opponentName: ''),
         NavScreen.id: (context) => const NavScreen(),
       },
     );
