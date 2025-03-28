@@ -23,9 +23,10 @@ ChatRoom _$ChatRoomFromJson(Map<String, dynamic> json) {
 mixin _$ChatRoom {
   int get memberId => throw _privateConstructorUsedError;
   String get memberName => throw _privateConstructorUsedError;
+  @MemberTypeConverter()
   MemberType get memberType => throw _privateConstructorUsedError;
   String get profileImage => throw _privateConstructorUsedError;
-  int get chatroomId => throw _privateConstructorUsedError;
+  int get chatRoomId => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   int get participantCount => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
@@ -48,9 +49,9 @@ abstract class $ChatRoomCopyWith<$Res> {
   $Res call({
     int memberId,
     String memberName,
-    MemberType memberType,
+    @MemberTypeConverter() MemberType memberType,
     String profileImage,
-    int chatroomId,
+    int chatRoomId,
     String content,
     int participantCount,
     DateTime? createdAt,
@@ -76,7 +77,7 @@ class _$ChatRoomCopyWithImpl<$Res, $Val extends ChatRoom>
     Object? memberName = null,
     Object? memberType = null,
     Object? profileImage = null,
-    Object? chatroomId = null,
+    Object? chatRoomId = null,
     Object? content = null,
     Object? participantCount = null,
     Object? createdAt = freezed,
@@ -103,10 +104,10 @@ class _$ChatRoomCopyWithImpl<$Res, $Val extends ChatRoom>
                     ? _value.profileImage
                     : profileImage // ignore: cast_nullable_to_non_nullable
                         as String,
-            chatroomId:
-                null == chatroomId
-                    ? _value.chatroomId
-                    : chatroomId // ignore: cast_nullable_to_non_nullable
+            chatRoomId:
+                null == chatRoomId
+                    ? _value.chatRoomId
+                    : chatRoomId // ignore: cast_nullable_to_non_nullable
                         as int,
             content:
                 null == content
@@ -141,9 +142,9 @@ abstract class _$$ChatRoomImplCopyWith<$Res>
   $Res call({
     int memberId,
     String memberName,
-    MemberType memberType,
+    @MemberTypeConverter() MemberType memberType,
     String profileImage,
-    int chatroomId,
+    int chatRoomId,
     String content,
     int participantCount,
     DateTime? createdAt,
@@ -168,7 +169,7 @@ class __$$ChatRoomImplCopyWithImpl<$Res>
     Object? memberName = null,
     Object? memberType = null,
     Object? profileImage = null,
-    Object? chatroomId = null,
+    Object? chatRoomId = null,
     Object? content = null,
     Object? participantCount = null,
     Object? createdAt = freezed,
@@ -195,10 +196,10 @@ class __$$ChatRoomImplCopyWithImpl<$Res>
                 ? _value.profileImage
                 : profileImage // ignore: cast_nullable_to_non_nullable
                     as String,
-        chatroomId:
-            null == chatroomId
-                ? _value.chatroomId
-                : chatroomId // ignore: cast_nullable_to_non_nullable
+        chatRoomId:
+            null == chatRoomId
+                ? _value.chatRoomId
+                : chatRoomId // ignore: cast_nullable_to_non_nullable
                     as int,
         content:
             null == content
@@ -227,9 +228,9 @@ class _$ChatRoomImpl implements _ChatRoom {
   const _$ChatRoomImpl({
     required this.memberId,
     required this.memberName,
-    required this.memberType,
+    @MemberTypeConverter() required this.memberType,
     required this.profileImage,
-    required this.chatroomId,
+    required this.chatRoomId,
     required this.content,
     required this.participantCount,
     this.createdAt,
@@ -243,11 +244,12 @@ class _$ChatRoomImpl implements _ChatRoom {
   @override
   final String memberName;
   @override
+  @MemberTypeConverter()
   final MemberType memberType;
   @override
   final String profileImage;
   @override
-  final int chatroomId;
+  final int chatRoomId;
   @override
   final String content;
   @override
@@ -257,7 +259,7 @@ class _$ChatRoomImpl implements _ChatRoom {
 
   @override
   String toString() {
-    return 'ChatRoom(memberId: $memberId, memberName: $memberName, memberType: $memberType, profileImage: $profileImage, chatroomId: $chatroomId, content: $content, participantCount: $participantCount, createdAt: $createdAt)';
+    return 'ChatRoom(memberId: $memberId, memberName: $memberName, memberType: $memberType, profileImage: $profileImage, chatRoomId: $chatRoomId, content: $content, participantCount: $participantCount, createdAt: $createdAt)';
   }
 
   @override
@@ -273,8 +275,8 @@ class _$ChatRoomImpl implements _ChatRoom {
                 other.memberType == memberType) &&
             (identical(other.profileImage, profileImage) ||
                 other.profileImage == profileImage) &&
-            (identical(other.chatroomId, chatroomId) ||
-                other.chatroomId == chatroomId) &&
+            (identical(other.chatRoomId, chatRoomId) ||
+                other.chatRoomId == chatRoomId) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.participantCount, participantCount) ||
                 other.participantCount == participantCount) &&
@@ -290,7 +292,7 @@ class _$ChatRoomImpl implements _ChatRoom {
     memberName,
     memberType,
     profileImage,
-    chatroomId,
+    chatRoomId,
     content,
     participantCount,
     createdAt,
@@ -314,9 +316,9 @@ abstract class _ChatRoom implements ChatRoom {
   const factory _ChatRoom({
     required final int memberId,
     required final String memberName,
-    required final MemberType memberType,
+    @MemberTypeConverter() required final MemberType memberType,
     required final String profileImage,
-    required final int chatroomId,
+    required final int chatRoomId,
     required final String content,
     required final int participantCount,
     final DateTime? createdAt,
@@ -330,11 +332,12 @@ abstract class _ChatRoom implements ChatRoom {
   @override
   String get memberName;
   @override
+  @MemberTypeConverter()
   MemberType get memberType;
   @override
   String get profileImage;
   @override
-  int get chatroomId;
+  int get chatRoomId;
   @override
   String get content;
   @override

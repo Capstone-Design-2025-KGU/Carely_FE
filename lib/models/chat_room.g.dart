@@ -10,9 +10,11 @@ _$ChatRoomImpl _$$ChatRoomImplFromJson(Map<String, dynamic> json) =>
     _$ChatRoomImpl(
       memberId: (json['memberId'] as num).toInt(),
       memberName: json['memberName'] as String,
-      memberType: $enumDecode(_$MemberTypeEnumMap, json['memberType']),
+      memberType: const MemberTypeConverter().fromJson(
+        json['memberType'] as String,
+      ),
       profileImage: json['profileImage'] as String,
-      chatroomId: (json['chatroomId'] as num).toInt(),
+      chatRoomId: (json['chatRoomId'] as num).toInt(),
       content: json['content'] as String,
       participantCount: (json['participantCount'] as num).toInt(),
       createdAt:
@@ -25,16 +27,10 @@ Map<String, dynamic> _$$ChatRoomImplToJson(_$ChatRoomImpl instance) =>
     <String, dynamic>{
       'memberId': instance.memberId,
       'memberName': instance.memberName,
-      'memberType': _$MemberTypeEnumMap[instance.memberType]!,
+      'memberType': const MemberTypeConverter().toJson(instance.memberType),
       'profileImage': instance.profileImage,
-      'chatroomId': instance.chatroomId,
+      'chatRoomId': instance.chatRoomId,
       'content': instance.content,
       'participantCount': instance.participantCount,
       'createdAt': instance.createdAt?.toIso8601String(),
     };
-
-const _$MemberTypeEnumMap = {
-  MemberType.family: 'family',
-  MemberType.volunteer: 'volunteer',
-  MemberType.caregiver: 'caregiver',
-};

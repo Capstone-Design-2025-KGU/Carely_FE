@@ -10,9 +10,9 @@ class ChatRoom with _$ChatRoom {
   const factory ChatRoom({
     required int memberId,
     required String memberName,
-    required MemberType memberType,
+    @MemberTypeConverter() required MemberType memberType,
     required String profileImage,
-    required int chatroomId,
+    required int chatRoomId,
     required String content,
     required int participantCount,
     DateTime? createdAt,
