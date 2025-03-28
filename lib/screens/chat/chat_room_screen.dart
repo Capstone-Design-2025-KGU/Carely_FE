@@ -1,6 +1,8 @@
+import 'package:carely/utils/member_type.dart';
+import 'package:flutter/material.dart';
+
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
-import 'package:flutter/material.dart';
 
 class ChatRoomScreen extends StatefulWidget {
   const ChatRoomScreen({super.key});
@@ -28,7 +30,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 left: 20.0,
                 right: 20.0,
                 top: 24.0,
-                bottom: 32.0,
               ),
               child: ListView(
                 children: [
@@ -40,33 +41,42 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     ),
                   ),
                   SizedBox(height: 20.0),
-                  ChatRoomCard(),
+                  ChatRoomCard(
+                    memberType: MemberType.family,
+                    memberName: '김상덕',
+                    content: '형제들이여',
+                    timeStamp: '오전 07:00',
+                  ),
                   SizedBox(height: 28.0),
-                  ChatRoomCard(),
+                  ChatRoomCard(
+                    memberType: MemberType.family,
+                    memberName: '김상덕',
+                    content: '형제들이여',
+                    timeStamp: '오전 07:00',
+                  ),
                   SizedBox(height: 28.0),
-                  ChatRoomCard(),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: ListView(
-                children: [
+                  ChatRoomCard(
+                    memberType: MemberType.family,
+                    memberName: '김상덕',
+                    content: '형제들이여',
+                    timeStamp: '오전 07:00',
+                  ),
+                  SizedBox(height: 32.0),
                   Text(
-                    '이웃 대화',
+                    '모임 대화',
                     style: TextStyle(
                       fontSize: 16.0,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   SizedBox(height: 20.0),
-                  ChatRoomCard(),
+                  ChatRoomCard(
+                    memberType: MemberType.family,
+                    memberName: '김상덕',
+                    content: '형제들이여',
+                    timeStamp: '오전 07:00',
+                  ),
                   SizedBox(height: 28.0),
-                  ChatRoomCard(),
-                  SizedBox(height: 28.0),
-                  ChatRoomCard(),
                 ],
               ),
             ),
@@ -77,8 +87,36 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   }
 }
 
+// ignore: must_be_immutable
 class ChatRoomCard extends StatelessWidget {
-  const ChatRoomCard({super.key});
+  MemberType memberType;
+  String memberName;
+  String content;
+  String timeStamp;
+
+  ChatRoomCard({
+    super.key,
+    required this.memberType,
+    required this.memberName,
+    required this.content,
+    required this.timeStamp,
+  });
+
+  String get displayName {
+    String role = '';
+    switch (memberType) {
+      case MemberType.family:
+        role = '간병인';
+        break;
+      case MemberType.volunteer:
+        role = '자원봉사자';
+        break;
+      case MemberType.caregiver:
+        role = '예비 요양보호사';
+        break;
+    }
+    return '$role $memberName님';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +135,7 @@ class ChatRoomCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '간병인 이상덕님',
+                      displayName,
                       style: TextStyle(
                         color: AppColors.gray800,
                         fontSize: 16.0,
@@ -105,7 +143,7 @@ class ChatRoomCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '오전 7:00',
+                      timeStamp,
                       style: TextStyle(
                         color: AppColors.gray500,
                         fontSize: 11.0,
@@ -116,7 +154,7 @@ class ChatRoomCard extends StatelessWidget {
                 ),
 
                 Text(
-                  '안녕하세요?!',
+                  content,
                   style: TextStyle(
                     color: AppColors.gray500,
                     fontSize: 12.0,
