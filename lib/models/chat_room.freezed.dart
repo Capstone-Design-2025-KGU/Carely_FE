@@ -24,6 +24,7 @@ mixin _$ChatRoom {
   int get memberId => throw _privateConstructorUsedError;
   String get memberName => throw _privateConstructorUsedError;
   MemberType get memberType => throw _privateConstructorUsedError;
+  String get profileImage => throw _privateConstructorUsedError;
   int get chatroomId => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
@@ -47,6 +48,7 @@ abstract class $ChatRoomCopyWith<$Res> {
     int memberId,
     String memberName,
     MemberType memberType,
+    String profileImage,
     int chatroomId,
     String content,
     DateTime? createdAt,
@@ -71,6 +73,7 @@ class _$ChatRoomCopyWithImpl<$Res, $Val extends ChatRoom>
     Object? memberId = null,
     Object? memberName = null,
     Object? memberType = null,
+    Object? profileImage = null,
     Object? chatroomId = null,
     Object? content = null,
     Object? createdAt = freezed,
@@ -92,6 +95,11 @@ class _$ChatRoomCopyWithImpl<$Res, $Val extends ChatRoom>
                     ? _value.memberType
                     : memberType // ignore: cast_nullable_to_non_nullable
                         as MemberType,
+            profileImage:
+                null == profileImage
+                    ? _value.profileImage
+                    : profileImage // ignore: cast_nullable_to_non_nullable
+                        as String,
             chatroomId:
                 null == chatroomId
                     ? _value.chatroomId
@@ -126,6 +134,7 @@ abstract class _$$ChatRoomImplCopyWith<$Res>
     int memberId,
     String memberName,
     MemberType memberType,
+    String profileImage,
     int chatroomId,
     String content,
     DateTime? createdAt,
@@ -149,6 +158,7 @@ class __$$ChatRoomImplCopyWithImpl<$Res>
     Object? memberId = null,
     Object? memberName = null,
     Object? memberType = null,
+    Object? profileImage = null,
     Object? chatroomId = null,
     Object? content = null,
     Object? createdAt = freezed,
@@ -170,6 +180,11 @@ class __$$ChatRoomImplCopyWithImpl<$Res>
                 ? _value.memberType
                 : memberType // ignore: cast_nullable_to_non_nullable
                     as MemberType,
+        profileImage:
+            null == profileImage
+                ? _value.profileImage
+                : profileImage // ignore: cast_nullable_to_non_nullable
+                    as String,
         chatroomId:
             null == chatroomId
                 ? _value.chatroomId
@@ -198,6 +213,7 @@ class _$ChatRoomImpl implements _ChatRoom {
     required this.memberId,
     required this.memberName,
     required this.memberType,
+    required this.profileImage,
     required this.chatroomId,
     required this.content,
     this.createdAt,
@@ -213,6 +229,8 @@ class _$ChatRoomImpl implements _ChatRoom {
   @override
   final MemberType memberType;
   @override
+  final String profileImage;
+  @override
   final int chatroomId;
   @override
   final String content;
@@ -221,7 +239,7 @@ class _$ChatRoomImpl implements _ChatRoom {
 
   @override
   String toString() {
-    return 'ChatRoom(memberId: $memberId, memberName: $memberName, memberType: $memberType, chatroomId: $chatroomId, content: $content, createdAt: $createdAt)';
+    return 'ChatRoom(memberId: $memberId, memberName: $memberName, memberType: $memberType, profileImage: $profileImage, chatroomId: $chatroomId, content: $content, createdAt: $createdAt)';
   }
 
   @override
@@ -235,6 +253,8 @@ class _$ChatRoomImpl implements _ChatRoom {
                 other.memberName == memberName) &&
             (identical(other.memberType, memberType) ||
                 other.memberType == memberType) &&
+            (identical(other.profileImage, profileImage) ||
+                other.profileImage == profileImage) &&
             (identical(other.chatroomId, chatroomId) ||
                 other.chatroomId == chatroomId) &&
             (identical(other.content, content) || other.content == content) &&
@@ -249,6 +269,7 @@ class _$ChatRoomImpl implements _ChatRoom {
     memberId,
     memberName,
     memberType,
+    profileImage,
     chatroomId,
     content,
     createdAt,
@@ -273,6 +294,7 @@ abstract class _ChatRoom implements ChatRoom {
     required final int memberId,
     required final String memberName,
     required final MemberType memberType,
+    required final String profileImage,
     required final int chatroomId,
     required final String content,
     final DateTime? createdAt,
@@ -287,6 +309,8 @@ abstract class _ChatRoom implements ChatRoom {
   String get memberName;
   @override
   MemberType get memberType;
+  @override
+  String get profileImage;
   @override
   int get chatroomId;
   @override

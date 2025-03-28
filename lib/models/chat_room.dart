@@ -11,6 +11,7 @@ class ChatRoom with _$ChatRoom {
     required int memberId,
     required String memberName,
     required MemberType memberType,
+    required String profileImage,
     required int chatroomId,
     required String content,
     DateTime? createdAt,

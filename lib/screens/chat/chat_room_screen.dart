@@ -1,3 +1,4 @@
+import 'package:carely/models/chat_room.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,77 @@ class ChatRoomScreen extends StatefulWidget {
 }
 
 class _ChatRoomScreenState extends State<ChatRoomScreen> {
+  final List<ChatRoom> dummyChatRooms = [
+    ChatRoom(
+      memberId: 1,
+      memberName: '김상덕',
+      memberType: MemberType.family,
+      chatroomId: 101,
+      content: '형제들이여',
+      createdAt: DateTime.now(),
+      profileImage: '1',
+    ),
+    ChatRoom(
+      memberId: 2,
+      memberName: '이하늘',
+      memberType: MemberType.volunteer,
+      chatroomId: 102,
+      content: '봉사는 사랑입니다',
+      createdAt: DateTime.now().subtract(Duration(minutes: 10)),
+      profileImage: '2',
+    ),
+    ChatRoom(
+      memberId: 3,
+      memberName: '최은정',
+      memberType: MemberType.caregiver,
+      chatroomId: 103,
+      content: '오늘 실습 잘 다녀왔어요!',
+      createdAt: DateTime.now().subtract(Duration(hours: 1)),
+      profileImage: '3',
+    ),
+  ];
+
+  final List<ChatRoom> groupChats = [
+    ChatRoom(
+      memberId: 4,
+      memberName: '박성우',
+      memberType: MemberType.family,
+      chatroomId: 201,
+      content: '내일 모임 장소 여기 어때요?',
+      createdAt: DateTime.now().subtract(Duration(minutes: 3)),
+      profileImage: '4',
+    ),
+    ChatRoom(
+      memberId: 5,
+      memberName: '조수민',
+      memberType: MemberType.volunteer,
+      chatroomId: 202,
+      content: '간식 제가 준비할게요!',
+      createdAt: DateTime.now().subtract(Duration(minutes: 20)),
+      profileImage: '5',
+    ),
+    ChatRoom(
+      memberId: 6,
+      memberName: '이태연',
+      memberType: MemberType.caregiver,
+      chatroomId: 203,
+      content: '모두들 건강 챙기세요~',
+      createdAt: DateTime.now().subtract(Duration(hours: 2, minutes: 15)),
+      profileImage: '6',
+    ),
+  ];
+
+  List<Widget> _buildChatRoomList(List<ChatRoom> chats) {
+    final List<Widget> widgets = [];
+    for (int i = 0; i < chats.length; i++) {
+      widgets.add(ChatRoomCard(chatRoom: chats[i]));
+      if (i != chats.length - 1) {
+        widgets.add(SizedBox(height: 28.0));
+      }
+    }
+    return widgets;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,26 +113,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     ),
                   ),
                   SizedBox(height: 20.0),
-                  ChatRoomCard(
-                    memberType: MemberType.family,
-                    memberName: '김상덕',
-                    content: '형제들이여',
-                    timeStamp: '오전 07:00',
-                  ),
-                  SizedBox(height: 28.0),
-                  ChatRoomCard(
-                    memberType: MemberType.family,
-                    memberName: '김상덕',
-                    content: '형제들이여',
-                    timeStamp: '오전 07:00',
-                  ),
-                  SizedBox(height: 28.0),
-                  ChatRoomCard(
-                    memberType: MemberType.family,
-                    memberName: '김상덕',
-                    content: '형제들이여',
-                    timeStamp: '오전 07:00',
-                  ),
+                  ..._buildChatRoomList(dummyChatRooms),
                   SizedBox(height: 32.0),
                   Text(
                     '모임 대화',
@@ -70,13 +123,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     ),
                   ),
                   SizedBox(height: 20.0),
-                  ChatRoomCard(
-                    memberType: MemberType.family,
-                    memberName: '김상덕',
-                    content: '형제들이여',
-                    timeStamp: '오전 07:00',
-                  ),
-                  SizedBox(height: 28.0),
+                  ..._buildChatRoomList(groupChats),
                 ],
               ),
             ),
@@ -87,24 +134,14 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   }
 }
 
-// ignore: must_be_immutable
 class ChatRoomCard extends StatelessWidget {
-  MemberType memberType;
-  String memberName;
-  String content;
-  String timeStamp;
+  final ChatRoom chatRoom;
 
-  ChatRoomCard({
-    super.key,
-    required this.memberType,
-    required this.memberName,
-    required this.content,
-    required this.timeStamp,
-  });
+  const ChatRoomCard({super.key, required this.chatRoom});
 
   String get displayName {
     String role = '';
-    switch (memberType) {
+    switch (chatRoom.memberType) {
       case MemberType.family:
         role = '간병인';
         break;
@@ -115,7 +152,7 @@ class ChatRoomCard extends StatelessWidget {
         role = '예비 요양보호사';
         break;
     }
-    return '$role $memberName님';
+    return '$role ${chatRoom.memberName}님';
   }
 
   @override
@@ -143,7 +180,7 @@ class ChatRoomCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      timeStamp,
+                      _formatTime(chatRoom.createdAt),
                       style: TextStyle(
                         color: AppColors.gray500,
                         fontSize: 11.0,
@@ -152,9 +189,8 @@ class ChatRoomCard extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 Text(
-                  content,
+                  chatRoom.content,
                   style: TextStyle(
                     color: AppColors.gray500,
                     fontSize: 12.0,
@@ -167,6 +203,21 @@ class ChatRoomCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatTime(DateTime? dateTime) {
+    if (dateTime == null) return '';
+    // 예: 오전 7:00 형식으로 포맷
+    final hour = dateTime.hour;
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    final isAm = hour < 12;
+    final formattedHour =
+        hour == 0
+            ? 12
+            : hour > 12
+            ? hour - 12
+            : hour;
+    return '${isAm ? "오전" : "오후"} $formattedHour:$minute';
   }
 }
 

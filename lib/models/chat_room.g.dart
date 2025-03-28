@@ -11,6 +11,7 @@ _$ChatRoomImpl _$$ChatRoomImplFromJson(Map<String, dynamic> json) =>
       memberId: (json['memberId'] as num).toInt(),
       memberName: json['memberName'] as String,
       memberType: $enumDecode(_$MemberTypeEnumMap, json['memberType']),
+      profileImage: json['profileImage'] as String,
       chatroomId: (json['chatroomId'] as num).toInt(),
       content: json['content'] as String,
       createdAt:
@@ -24,6 +25,7 @@ Map<String, dynamic> _$$ChatRoomImplToJson(_$ChatRoomImpl instance) =>
       'memberId': instance.memberId,
       'memberName': instance.memberName,
       'memberType': _$MemberTypeEnumMap[instance.memberType]!,
+      'profileImage': instance.profileImage,
       'chatroomId': instance.chatroomId,
       'content': instance.content,
       'createdAt': instance.createdAt?.toIso8601String(),
