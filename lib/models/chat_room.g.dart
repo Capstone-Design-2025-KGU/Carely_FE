@@ -14,6 +14,7 @@ _$ChatRoomImpl _$$ChatRoomImplFromJson(Map<String, dynamic> json) =>
       profileImage: json['profileImage'] as String,
       chatroomId: (json['chatroomId'] as num).toInt(),
       content: json['content'] as String,
+      participantCount: (json['participantCount'] as num).toInt(),
       createdAt:
           json['createdAt'] == null
               ? null
@@ -28,6 +29,7 @@ Map<String, dynamic> _$$ChatRoomImplToJson(_$ChatRoomImpl instance) =>
       'profileImage': instance.profileImage,
       'chatroomId': instance.chatroomId,
       'content': instance.content,
+      'participantCount': instance.participantCount,
       'createdAt': instance.createdAt?.toIso8601String(),
     };
 

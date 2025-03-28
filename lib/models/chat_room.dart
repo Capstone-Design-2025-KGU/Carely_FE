@@ -14,6 +14,7 @@ class ChatRoom with _$ChatRoom {
     required String profileImage,
     required int chatroomId,
     required String content,
+    required int participantCount,
     DateTime? createdAt,
   }) = _ChatRoom;
 

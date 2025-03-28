@@ -27,6 +27,7 @@ mixin _$ChatRoom {
   String get profileImage => throw _privateConstructorUsedError;
   int get chatroomId => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
+  int get participantCount => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this ChatRoom to a JSON map.
@@ -51,6 +52,7 @@ abstract class $ChatRoomCopyWith<$Res> {
     String profileImage,
     int chatroomId,
     String content,
+    int participantCount,
     DateTime? createdAt,
   });
 }
@@ -76,6 +78,7 @@ class _$ChatRoomCopyWithImpl<$Res, $Val extends ChatRoom>
     Object? profileImage = null,
     Object? chatroomId = null,
     Object? content = null,
+    Object? participantCount = null,
     Object? createdAt = freezed,
   }) {
     return _then(
@@ -110,6 +113,11 @@ class _$ChatRoomCopyWithImpl<$Res, $Val extends ChatRoom>
                     ? _value.content
                     : content // ignore: cast_nullable_to_non_nullable
                         as String,
+            participantCount:
+                null == participantCount
+                    ? _value.participantCount
+                    : participantCount // ignore: cast_nullable_to_non_nullable
+                        as int,
             createdAt:
                 freezed == createdAt
                     ? _value.createdAt
@@ -137,6 +145,7 @@ abstract class _$$ChatRoomImplCopyWith<$Res>
     String profileImage,
     int chatroomId,
     String content,
+    int participantCount,
     DateTime? createdAt,
   });
 }
@@ -161,6 +170,7 @@ class __$$ChatRoomImplCopyWithImpl<$Res>
     Object? profileImage = null,
     Object? chatroomId = null,
     Object? content = null,
+    Object? participantCount = null,
     Object? createdAt = freezed,
   }) {
     return _then(
@@ -195,6 +205,11 @@ class __$$ChatRoomImplCopyWithImpl<$Res>
                 ? _value.content
                 : content // ignore: cast_nullable_to_non_nullable
                     as String,
+        participantCount:
+            null == participantCount
+                ? _value.participantCount
+                : participantCount // ignore: cast_nullable_to_non_nullable
+                    as int,
         createdAt:
             freezed == createdAt
                 ? _value.createdAt
@@ -216,6 +231,7 @@ class _$ChatRoomImpl implements _ChatRoom {
     required this.profileImage,
     required this.chatroomId,
     required this.content,
+    required this.participantCount,
     this.createdAt,
   });
 
@@ -235,11 +251,13 @@ class _$ChatRoomImpl implements _ChatRoom {
   @override
   final String content;
   @override
+  final int participantCount;
+  @override
   final DateTime? createdAt;
 
   @override
   String toString() {
-    return 'ChatRoom(memberId: $memberId, memberName: $memberName, memberType: $memberType, profileImage: $profileImage, chatroomId: $chatroomId, content: $content, createdAt: $createdAt)';
+    return 'ChatRoom(memberId: $memberId, memberName: $memberName, memberType: $memberType, profileImage: $profileImage, chatroomId: $chatroomId, content: $content, participantCount: $participantCount, createdAt: $createdAt)';
   }
 
   @override
@@ -258,6 +276,8 @@ class _$ChatRoomImpl implements _ChatRoom {
             (identical(other.chatroomId, chatroomId) ||
                 other.chatroomId == chatroomId) &&
             (identical(other.content, content) || other.content == content) &&
+            (identical(other.participantCount, participantCount) ||
+                other.participantCount == participantCount) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
@@ -272,6 +292,7 @@ class _$ChatRoomImpl implements _ChatRoom {
     profileImage,
     chatroomId,
     content,
+    participantCount,
     createdAt,
   );
 
@@ -297,6 +318,7 @@ abstract class _ChatRoom implements ChatRoom {
     required final String profileImage,
     required final int chatroomId,
     required final String content,
+    required final int participantCount,
     final DateTime? createdAt,
   }) = _$ChatRoomImpl;
 
@@ -315,6 +337,8 @@ abstract class _ChatRoom implements ChatRoom {
   int get chatroomId;
   @override
   String get content;
+  @override
+  int get participantCount;
   @override
   DateTime? get createdAt;
 

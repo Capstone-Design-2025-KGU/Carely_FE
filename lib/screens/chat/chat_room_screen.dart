@@ -1,4 +1,5 @@
 import 'package:carely/models/chat_room.dart';
+import 'package:carely/services/chat/chat_service.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:flutter/material.dart';
 
@@ -13,65 +14,27 @@ class ChatRoomScreen extends StatefulWidget {
 }
 
 class _ChatRoomScreenState extends State<ChatRoomScreen> {
-  final List<ChatRoom> dummyChatRooms = [
-    ChatRoom(
-      memberId: 1,
-      memberName: '김상덕',
-      memberType: MemberType.family,
-      chatroomId: 101,
-      content: '형제들이여',
-      createdAt: DateTime.now(),
-      profileImage: '1',
-    ),
-    ChatRoom(
-      memberId: 2,
-      memberName: '이하늘',
-      memberType: MemberType.volunteer,
-      chatroomId: 102,
-      content: '봉사는 사랑입니다',
-      createdAt: DateTime.now().subtract(Duration(minutes: 10)),
-      profileImage: '2',
-    ),
-    ChatRoom(
-      memberId: 3,
-      memberName: '최은정',
-      memberType: MemberType.caregiver,
-      chatroomId: 103,
-      content: '오늘 실습 잘 다녀왔어요!',
-      createdAt: DateTime.now().subtract(Duration(hours: 1)),
-      profileImage: '3',
-    ),
-  ];
+  final int memberId = 1; // Test 아이디
+  List<ChatRoom> chatRooms = [];
+  List<ChatRoom> neighborChats = [];
+  List<ChatRoom> groupChats = [];
 
-  final List<ChatRoom> groupChats = [
-    ChatRoom(
-      memberId: 4,
-      memberName: '박성우',
-      memberType: MemberType.family,
-      chatroomId: 201,
-      content: '내일 모임 장소 여기 어때요?',
-      createdAt: DateTime.now().subtract(Duration(minutes: 3)),
-      profileImage: '4',
-    ),
-    ChatRoom(
-      memberId: 5,
-      memberName: '조수민',
-      memberType: MemberType.volunteer,
-      chatroomId: 202,
-      content: '간식 제가 준비할게요!',
-      createdAt: DateTime.now().subtract(Duration(minutes: 20)),
-      profileImage: '5',
-    ),
-    ChatRoom(
-      memberId: 6,
-      memberName: '이태연',
-      memberType: MemberType.caregiver,
-      chatroomId: 203,
-      content: '모두들 건강 챙기세요~',
-      createdAt: DateTime.now().subtract(Duration(hours: 2, minutes: 15)),
-      profileImage: '6',
-    ),
-  ];
+  Future<void> loadChatRoom() async {
+    final allChats = await ChatService.instance.fetchChatRoom(memberId);
+    setState(() {
+      chatRooms = allChats;
+
+      neighborChats =
+          allChats.where((chat) => chat.participantCount == 2).toList();
+      groupChats = allChats.where((chat) => chat.participantCount > 2).toList();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadChatRoom();
+  }
 
   List<Widget> _buildChatRoomList(List<ChatRoom> chats) {
     final List<Widget> widgets = [];
@@ -103,28 +66,31 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 right: 20.0,
                 top: 24.0,
               ),
-              child: ListView(
-                children: [
-                  Text(
-                    '이웃 대화',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w700,
+              child: RefreshIndicator(
+                onRefresh: loadChatRoom,
+                child: ListView(
+                  children: [
+                    Text(
+                      '이웃 대화',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20.0),
-                  ..._buildChatRoomList(dummyChatRooms),
-                  SizedBox(height: 32.0),
-                  Text(
-                    '모임 대화',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w700,
+                    SizedBox(height: 20.0),
+                    ..._buildChatRoomList(neighborChats),
+                    SizedBox(height: 32.0),
+                    Text(
+                      '모임 대화',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20.0),
-                  ..._buildChatRoomList(groupChats),
-                ],
+                    SizedBox(height: 20.0),
+                    ..._buildChatRoomList(groupChats),
+                  ],
+                ),
               ),
             ),
           ),
