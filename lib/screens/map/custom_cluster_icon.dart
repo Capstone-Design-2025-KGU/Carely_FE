@@ -42,5 +42,5 @@ Future<BitmapDescriptor> getCustomClusterIcon(int count) async {
   final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
   final Uint8List imageBytes = byteData!.buffer.asUint8List();
 
-  return BitmapDescriptor.fromBytes(imageBytes);
+  return BitmapDescriptor.bytes(imageBytes);
 }

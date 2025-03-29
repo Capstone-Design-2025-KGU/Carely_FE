@@ -1,10 +1,12 @@
 import 'dart:async';
-import 'dart:ffi';
-
-import 'package:carely/utils/logger_config.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:location/location.dart' as loc;
+import 'package:geocoding/geocoding.dart' as geo;
+import 'package:carely/screens/map/marker_utils.dart';
+import 'package:carely/utils/logger_config.dart';
+import 'package:carely/screens/map/user_info_card.dart';
+import 'package:carely/screens/map/dummy_data.dart';
 
 class MapScreen extends StatefulWidget {
   static String id = 'map-screen';
@@ -14,133 +16,200 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
-  final Location _locationController = Location();
+class _MapScreenState extends State<MapScreen>
+    with SingleTickerProviderStateMixin {
+  final loc.Location _locationController = loc.Location();
   GoogleMapController? _mapController;
-  bool _isMapLoaded = false;
+  LatLng? _currentPosition;
+  String? _selectedMarkerId;
+  String? _currentAddress;
 
-  Map<String, BitmapDescriptor> markerIcons = {
-    'family': BitmapDescriptor.defaultMarker,
-    'volunteer': BitmapDescriptor.defaultMarker,
-    'caregiver': BitmapDescriptor.defaultMarker,
-  };
+  final double _minChildSize = 0.125;
+  final double _maxChildSize = 0.35;
+  late DraggableScrollableController _draggableController;
 
-  // 위치별 직업 유형 정보
-  final Map<String, String> locationTypes = {
-    '_Seoul': 'family',
-    '_Seoul1': 'family',
-    '_Seoul2': 'volunteer',
-    '_Seoul3': 'caregiver',
-    '_Seoul4': 'caregiver',
-  };
+  Map<String, BitmapDescriptor> normalMarkerIcons = {};
+  Map<String, BitmapDescriptor> selectedMarkerIcons = {};
 
   @override
   void initState() {
-    loadMarkerIcons();
-    getLocationUpdates();
     super.initState();
+    _draggableController = DraggableScrollableController();
+    _loadMarkerIcons();
+    _getLocationUpdates();
   }
 
-  // 마커 아이콘 로드
-  void loadMarkerIcons() {
-    // 간병인 마커 (Red)
-    BitmapDescriptor.asset(
-      const ImageConfiguration(),
-      'assets/images/Red.png',
-    ).then((icon) {
-      setState(() {
-        markerIcons['family'] = icon;
-        logger.i('간병인 마커 로드 성공');
-      });
-    });
-
-    // 자원봉사자 마커 (Blue)
-    BitmapDescriptor.asset(
-      const ImageConfiguration(),
-      'assets/images/Blue.png',
-    ).then((icon) {
-      setState(() {
-        markerIcons['volunteer'] = icon;
-        logger.i('자원봉사자 마커 로드 성공');
-      });
-    });
-
-    // 요양보호사 마커 (Green)
-    BitmapDescriptor.asset(
-      const ImageConfiguration(),
-      'assets/images/Green.png',
-    ).then((icon) {
-      setState(() {
-        markerIcons['caregiver'] = icon;
-        logger.i('요양보호사 마커 로드 성공');
-      });
-    });
+  @override
+  void dispose() {
+    _draggableController.dispose();
+    super.dispose();
   }
 
-  static const LatLng _Seoul = LatLng(37.5665, 126.9780);
-  static const LatLng _Seoul1 = LatLng(37.5651, 126.9895);
-  static const LatLng _Seoul2 = LatLng(37.5641, 126.9755);
-  static const LatLng _Seoul3 = LatLng(37.5678, 126.9774);
-  static const LatLng _Seoul4 = LatLng(37.5685, 126.9862);
-  LatLng? _currentPosition;
+  /// 마커 아이콘 로드
+  void _loadMarkerIcons() async {
+    try {
+      final markerIcons = await MarkerUtils.loadAllMarkerIcons(
+        normalSize: 40,
+        selectedSize: 50,
+      );
+      setState(() {
+        normalMarkerIcons = markerIcons['normal']!;
+        selectedMarkerIcons = markerIcons['selected']!;
+      });
+      logger.i('마커 아이콘 로드 성공');
+    } catch (e) {
+      logger.e('마커 아이콘 로드 실패: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GoogleMap(
-        initialCameraPosition: const CameraPosition(target: _Seoul, zoom: 14),
-        markers: _getMarkers(),
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
-        onMapCreated: (GoogleMapController controller) {
-          _mapController = controller;
-          _isMapLoaded = true; // 지도 로드 완료 표시
-          Future.delayed(const Duration(milliseconds: 500), () {
-            getVisibleBounds(); // 일정 시간 후 getVisibleBounds() 실행
-          });
-        },
+      body: Stack(
+        children: [
+          // 지도
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: dummyUsers[0].location,
+              zoom: 14,
+            ),
+            markers: _getMarkers(),
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            onMapCreated: (GoogleMapController controller) {
+              _mapController = controller;
+            },
+            onTap: (LatLng position) {
+              setState(() {
+                _selectedMarkerId = null;
+              });
+
+              // DraggableScrollableSheet 최소화
+              _draggableController.animateTo(
+                _minChildSize,
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            },
+          ),
+
+          // DraggableScrollableSheet
+          DraggableScrollableSheet(
+            controller: _draggableController,
+            initialChildSize: _minChildSize,
+            minChildSize: _minChildSize,
+            maxChildSize: _maxChildSize,
+            builder: (BuildContext context, ScrollController scrollController) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: ListView(
+                  controller: scrollController,
+                  padding: EdgeInsets.zero,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+
+                    // 현재 위치 지역명 표시
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 16,
+                      ),
+                      child: Text(
+                        _currentAddress ?? '현재 위치를 불러오는 중...',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // 선택된 사용자 정보 카드
+                    if (_selectedMarkerId != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: UserInfoCard(userId: _selectedMarkerId!),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 
-  // 직업 유형에 따른 마커 생성
+  /// 마커 생성
   Set<Marker> _getMarkers() {
-    // 각 위치와 해당 위치의 LatLng 매핑
-    final Map<String, LatLng> locations = {
-      '_Seoul': _Seoul,
-      '_Seoul1': _Seoul1,
-      '_Seoul2': _Seoul2,
-      '_Seoul3': _Seoul3,
-      '_Seoul4': _Seoul4,
-    };
-
     Set<Marker> markers = {};
 
-    // 각 위치에 대해 마커 생성
-    locations.forEach((markerId, position) {
-      // 해당 위치의 직업 유형 가져오기
-      String jobType = locationTypes[markerId] ?? 'family';
+    for (var user in dummyUsers) {
+      bool isSelected = user.id == _selectedMarkerId;
 
-      // 해당 직업 유형의 마커 아이콘 가져오기
       BitmapDescriptor icon =
-          markerIcons[jobType] ?? BitmapDescriptor.defaultMarker;
+          isSelected
+              ? (selectedMarkerIcons[user.jobType] ??
+                  BitmapDescriptor.defaultMarker)
+              : (normalMarkerIcons[user.jobType] ??
+                  BitmapDescriptor.defaultMarker);
 
-      // 마커 추가
       markers.add(
         Marker(
-          markerId: MarkerId(markerId),
+          markerId: MarkerId(
+            '${user.id}_${user.name}_${user.location.latitude}',
+          ),
           icon: icon,
-          position: position,
-          infoWindow: InfoWindow(title: jobType),
+          position: user.location,
+          zIndex: isSelected ? 2 : 1,
+          onTap: () {
+            setState(() {
+              _selectedMarkerId = user.id;
+            });
+
+            // DraggableScrollableSheet를 올림
+            _draggableController.animateTo(
+              _maxChildSize,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+
+            _animateCameraToPosition(user.location);
+          },
         ),
       );
-    });
+    }
 
     // 현재 위치 마커 추가
     if (_currentPosition != null) {
       markers.add(
         Marker(
-          markerId: const MarkerId('_currentLocation'),
+          markerId: const MarkerId('currentLocation'),
           icon: BitmapDescriptor.defaultMarkerWithHue(
             BitmapDescriptor.hueViolet,
           ),
@@ -153,67 +222,59 @@ class _MapScreenState extends State<MapScreen> {
     return markers;
   }
 
-  Future<void> getLocationUpdates() async {
+  /// 현재 위치 가져오기
+  Future<void> _getLocationUpdates() async {
     bool serviceEnabled;
-    PermissionStatus permissionGranted;
+    loc.PermissionStatus permissionGranted;
     serviceEnabled = await _locationController.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await _locationController.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
+      if (!serviceEnabled) return;
     }
 
     permissionGranted = await _locationController.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
+    if (permissionGranted == loc.PermissionStatus.denied) {
       permissionGranted = await _locationController.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return;
-      }
+      if (permissionGranted != loc.PermissionStatus.granted) return;
     }
 
     _locationController.onLocationChanged.listen((
-      LocationData currentLocation,
+      loc.LocationData currentLocation,
     ) {
       if (currentLocation.latitude != null &&
           currentLocation.longitude != null) {
+        LatLng newPosition = LatLng(
+          currentLocation.latitude!,
+          currentLocation.longitude!,
+        );
         setState(() {
-          _currentPosition = LatLng(
-            currentLocation.latitude!,
-            currentLocation.longitude!,
-          );
+          _currentPosition = newPosition;
         });
-        // 현재 위치로 카메라 이동
-        _updateCameraPosition(_currentPosition!);
-        logger.i(_currentPosition);
+        _getAddressFromLatLng(newPosition);
       }
     });
   }
 
-  void _updateCameraPosition(LatLng position) {
-    _mapController?.animateCamera(CameraUpdate.newLatLng(position));
+  /// 주소 변환
+  Future<void> _getAddressFromLatLng(LatLng position) async {
+    try {
+      List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      if (placemarks.isNotEmpty) {
+        setState(() {
+          _currentAddress =
+              '${placemarks.first.locality}, ${placemarks.first.subLocality}';
+        });
+      }
+    } catch (e) {
+      logger.e('주소 변환 실패: $e');
+    }
   }
 
-  // 부표트 좌표 확인 (아직 미사용)
-  Future<void> getVisibleBounds() async {
-    if (!_isMapLoaded || _mapController == null) {
-      logger.e('GoogleMapController가 아직 초기화되지 않았습니다.');
-      return;
-    }
-
-    try {
-      LatLngBounds bounds = await _mapController!.getVisibleRegion();
-
-      // 남서쪽(좌측 하단) 좌표
-      LatLng southWest = bounds.southwest;
-
-      // 북동쪽(우측 상단) 좌표
-      LatLng northEast = bounds.northeast;
-
-      logger.i('south :${southWest.latitude}, ${southWest.longitude}');
-      logger.i('north :${northEast.latitude}, ${northEast.longitude}');
-    } catch (e) {
-      logger.e('getVisibleBounds() 실행 중 오류 발생: $e');
-    }
+  /// 카메라 이동 애니메이션
+  void _animateCameraToPosition(LatLng position) {
+    _mapController?.animateCamera(CameraUpdate.newLatLng(position));
   }
 }
