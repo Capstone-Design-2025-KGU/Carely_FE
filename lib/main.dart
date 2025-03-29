@@ -1,5 +1,6 @@
-import 'package:carely/screens/chat_screen.dart';
+import 'package:carely/screens/chat/chat_screen.dart';
 import 'package:carely/screens/home_screen.dart';
+import 'package:carely/screens/nav_screen.dart';
 import 'package:carely/screens/onboarding/login_screen.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:flutter/material.dart';
@@ -18,17 +19,22 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Carely',
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
         fontFamily: 'Pretendard',
         appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
           iconTheme: IconThemeData(color: AppColors.gray800, size: 20.0),
         ),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      initialRoute: ChatScreen.id,
+      initialRoute: NavScreen.id,
       routes: {
         HomeScreen.id: (context) => const HomeScreen(),
         LoginScreen.id: (context) => const LoginScreen(),
-        ChatScreen.id: (context) => const ChatScreen(),
+        ChatScreen.id:
+            (context) =>
+                const ChatScreen(chatRoomId: 1, senderId: 1, opponentName: ''),
+        NavScreen.id: (context) => const NavScreen(),
       },
     );
   }

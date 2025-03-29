@@ -8,13 +8,16 @@ class WebSocketService {
   late final StompClient _stompClient;
   final _url = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8080/ws';
 
-  void connect({required void Function(ChatMessage) onMessage}) {
+  void connect({
+    required int chatRoomId,
+    required void Function(ChatMessage) onMessage,
+  }) {
     _stompClient = StompClient(
       config: StompConfig.sockJS(
         url: '$_url/ws',
         onConnect: (frame) {
           logger.i('WebSocket 연결 성공');
-          _subscribe(onMessage);
+          _subscribe(chatRoomId, onMessage);
         },
         onWebSocketError: (error) => logger.e('WebSocket error: $error'),
       ),
@@ -22,10 +25,13 @@ class WebSocketService {
     _stompClient.activate();
   }
 
-  void _subscribe(void Function(ChatMessage) onMessage) {
+  void _subscribe(int chatRoomId, void Function(ChatMessage) onMessage) {
+    final destination = '/topic/chatroom/$chatRoomId';
+    logger.i('[WS] 구독 시작: $destination');
     _stompClient.subscribe(
-      destination: '/topic/public',
+      destination: destination,
       callback: (frame) {
+        logger.i('[WS] 수신된 메시지: ${frame.body}');
         if (frame.body != null) {
           final message = ChatMessage.fromJson(jsonDecode(frame.body!));
           onMessage(message);

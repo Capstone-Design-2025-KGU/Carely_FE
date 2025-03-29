@@ -10,7 +10,17 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat-screen';
-  const ChatScreen({super.key});
+
+  final int chatRoomId;
+  final int senderId; // 현재 로그인한 사용자의 Id
+  final String opponentName;
+
+  const ChatScreen({
+    super.key,
+    required this.chatRoomId,
+    required this.senderId,
+    required this.opponentName,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -19,8 +29,6 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final wsUrl = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8080/ws';
   final List<ChatMessage> _messages = [];
-  final memberId = 1; // Test용 임시
-  final chatRoomId = 1;
 
   late final WebSocketService _webSocektService;
 
@@ -30,6 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
     fetchPreviousMessages();
     _webSocektService = WebSocketService();
     _webSocektService.connect(
+      chatRoomId: widget.chatRoomId,
       onMessage: (msg) {
         setState(() {
           _messages.add(msg);
@@ -40,7 +49,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void fetchPreviousMessages() async {
     try {
-      final previous = await ChatService.instance.fetchMessages(chatRoomId);
+      final previous = await ChatService.instance.fetchMessages(
+        widget.chatRoomId,
+      );
       setState(() {
         _messages.addAll(previous);
       });
@@ -52,7 +63,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: DefaultAppBar(title: '( ) 님과의 채팅방'),
+      appBar: DefaultAppBar(title: widget.opponentName),
       body: Column(
         children: [
           Expanded(
@@ -64,8 +75,8 @@ class _ChatScreenState extends State<ChatScreen> {
           TextButton(
             onPressed: () {
               final message = ChatMessage(
-                senderId: memberId,
-                chatroomId: 1,
+                senderId: widget.senderId,
+                chatroomId: widget.chatRoomId,
                 content: '성민이 보낸 테스트 메시지!',
                 messageType: MessageType.CHAT,
               );
@@ -77,7 +88,7 @@ class _ChatScreenState extends State<ChatScreen> {
             onPressed: () {
               final message = ChatMessage(
                 senderId: 2,
-                chatroomId: 1,
+                chatroomId: widget.chatRoomId,
                 content: '유저 2가 보낸 테스트 메시지!',
                 messageType: MessageType.CHAT,
               );
@@ -114,7 +125,7 @@ class _ChatScreenState extends State<ChatScreen> {
       chatItems.add(
         ChatBubble(
           content: message.content,
-          isMine: message.senderId == memberId,
+          isMine: message.senderId == widget.senderId,
           timeStamp: message.createdAt,
         ),
       );
