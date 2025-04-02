@@ -40,7 +40,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   List<Widget> _buildChatRoomList(List<ChatRoom> chats) {
     final List<Widget> widgets = [];
     for (int i = 0; i < chats.length; i++) {
-      widgets.add(ChatRoomCard(chatRoom: chats[i]));
+      widgets.add(
+        ChatRoomCard(chatRoom: chats[i], onChatUpdated: loadChatRoom),
+      );
       if (i != chats.length - 1) {
         widgets.add(SizedBox(height: 28.0));
       }
@@ -113,8 +115,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
 class ChatRoomCard extends StatelessWidget {
   final ChatRoom chatRoom;
+  final VoidCallback onChatUpdated;
 
-  const ChatRoomCard({super.key, required this.chatRoom});
+  const ChatRoomCard({
+    super.key,
+    required this.chatRoom,
+    required this.onChatUpdated,
+  });
 
   String get displayName {
     String role = '';
@@ -134,7 +141,9 @@ class ChatRoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       onTap: () {
         Navigator.push(
           context,
@@ -146,7 +155,7 @@ class ChatRoomCard extends StatelessWidget {
                   opponentName: displayName,
                 ),
           ),
-        );
+        ).then((_) => onChatUpdated());
       },
       child: SizedBox(
         height: ScreenSize.height(context, 48.0),
