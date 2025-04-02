@@ -4,6 +4,7 @@ import 'package:carely/services/chat/chat_service.dart';
 import 'package:carely/services/chat/web_socket_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
+import 'package:carely/utils/member_color.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:carely/widgets/chat/chat_bubble.dart';
 import 'package:carely/widgets/chat/chat_time_stamp.dart';
@@ -65,21 +66,10 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Color getBackgroundColor(MemberType type) {
-    switch (type) {
-      case MemberType.family:
-        return AppColors.main50;
-      case MemberType.volunteer:
-        return AppColors.blue100;
-      case MemberType.caregiver:
-        return AppColors.green100;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: getBackgroundColor(testMemberType), // 여기서 색상 적용!
+      backgroundColor: getBackgroundColor(testMemberType),
       appBar: DefaultAppBar(
         title: widget.opponentName,
         color: getBackgroundColor(testMemberType),
