@@ -1,7 +1,9 @@
 import 'package:carely/models/chat_message.dart';
 import 'package:carely/services/chat/chat_service.dart';
 import 'package:carely/services/chat/web_socket_service.dart';
+import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
+import 'package:carely/utils/member_type.dart';
 import 'package:carely/widgets/chat/chat_bubble.dart';
 import 'package:carely/widgets/chat/chat_time_stamp.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +12,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat-screen';
-
   final int chatRoomId;
   final int senderId; // 현재 로그인한 사용자의 Id
   final String opponentName;
@@ -29,6 +30,8 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final wsUrl = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8080/ws';
   final List<ChatMessage> _messages = [];
+  final TextEditingController _controller = TextEditingController();
+  final MemberType testMemberType = MemberType.family; // 여기서 타입 바꿔가며 테스트 가능
 
   late final WebSocketService _webSocektService;
 
@@ -60,10 +63,25 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  Color getBackgroundColor(MemberType type) {
+    switch (type) {
+      case MemberType.family:
+        return AppColors.main50;
+      case MemberType.volunteer:
+        return AppColors.blue100;
+      case MemberType.caregiver:
+        return AppColors.green100;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: DefaultAppBar(title: widget.opponentName),
+      backgroundColor: getBackgroundColor(testMemberType), // 여기서 색상 적용!
+      appBar: DefaultAppBar(
+        title: widget.opponentName,
+        color: getBackgroundColor(testMemberType),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -72,30 +90,32 @@ class _ChatScreenState extends State<ChatScreen> {
               child: ListView(children: _buildChatItems()),
             ),
           ),
-          TextButton(
-            onPressed: () {
-              final message = ChatMessage(
-                senderId: widget.senderId,
-                chatroomId: widget.chatRoomId,
-                content: '성민이 보낸 테스트 메시지!',
-                messageType: MessageType.CHAT,
-              );
-              _webSocektService.sendMessage(message);
-            },
-            child: Text('send mine'),
-          ),
-          TextButton(
-            onPressed: () {
-              final message = ChatMessage(
-                senderId: 2,
-                chatroomId: widget.chatRoomId,
-                content: '유저 2가 보낸 테스트 메시지!',
-                messageType: MessageType.CHAT,
-              );
-              _webSocektService.sendMessage(message);
-            },
-            child: Text('send user 2'),
-          ),
+          TextField(controller: _controller),
+
+          // TextButton(
+          //   onPressed: () {
+          //     final message = ChatMessage(
+          //       senderId: widget.senderId,
+          //       chatroomId: widget.chatRoomId,
+          //       content: '성민이 보낸 테스트 메시지!',
+          //       messageType: MessageType.CHAT,
+          //     );
+          //     _webSocektService.sendMessage(message);
+          //   },
+          //   child: Text('send mine'),
+          // ),
+          // TextButton(
+          //   onPressed: () {
+          //     final message = ChatMessage(
+          //       senderId: 2,
+          //       chatroomId: widget.chatRoomId,
+          //       content: '유저 2가 보낸 테스트 메시지!',
+          //       messageType: MessageType.CHAT,
+          //     );
+          //     _webSocektService.sendMessage(message);
+          //   },
+          //   child: Text('send user 2'),
+          // ),
         ],
       ),
     );

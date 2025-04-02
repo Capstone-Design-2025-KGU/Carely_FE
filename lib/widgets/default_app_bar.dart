@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 // ignore: must_be_immutable
 class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
   String title;
+  Color? color;
 
-  DefaultAppBar({super.key, required this.title});
+  DefaultAppBar({super.key, required this.title, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,7 @@ class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
         icon: const Icon(CupertinoIcons.back, color: Colors.black),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: color ?? Colors.white,
     );
   }
 
