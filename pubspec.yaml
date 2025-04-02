@@ -26,6 +26,7 @@ dependencies:
   pretty_dio_logger: ^1.4.0
   dio: ^5.8.0+1
   font_awesome_flutter: ^10.8.0
+  table_calendar: ^3.2.0
 
 dev_dependencies:
   flutter_test:
