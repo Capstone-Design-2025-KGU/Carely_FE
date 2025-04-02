@@ -86,12 +86,87 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 12.0,
+              ),
               child: ListView(children: _buildChatItems()),
             ),
           ),
-          TextField(controller: _controller),
+          Container(
+            decoration: BoxDecoration(color: Colors.white),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 12.0,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.gray50,
+                  borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 12.0,
+                          ),
+                          hintText: '메세지를 입력해 주세요.',
+                          hintStyle: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.gray400,
+                            fontSize: 16.0,
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide.none, // 선 없애기
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.0),
+                    IconButton(
+                      icon: Transform.rotate(
+                        angle: -1.57, // 약 -90도 (라디안 단위)
+                        child: Container(
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.gray100,
+                          ),
+                          child: const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: 16.0,
+                          ),
+                        ),
+                      ),
+                      color: AppColors.gray600, // 색 커스터마이징 가능
+                      onPressed: () {
+                        final text = _controller.text.trim();
+                        if (text.isNotEmpty) {
+                          final message = ChatMessage(
+                            senderId: widget.senderId,
+                            chatroomId: widget.chatRoomId,
+                            content: text,
+                            messageType: MessageType.CHAT,
+                          );
 
+                          _webSocektService.sendMessage(message);
+
+                          _controller.clear();
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Container(color: Colors.white, height: 36.0),
           // TextButton(
           //   onPressed: () {
           //     final message = ChatMessage(
