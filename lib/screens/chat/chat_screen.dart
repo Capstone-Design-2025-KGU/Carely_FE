@@ -1,4 +1,5 @@
 import 'package:carely/models/chat_message.dart';
+import 'package:carely/screens/chat/schedule_screen.dart';
 import 'package:carely/services/chat/chat_service.dart';
 import 'package:carely/services/chat/web_socket_service.dart';
 import 'package:carely/theme/colors.dart';
@@ -9,6 +10,7 @@ import 'package:carely/widgets/chat/chat_time_stamp.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat-screen';
@@ -81,6 +83,17 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: DefaultAppBar(
         title: widget.opponentName,
         color: getBackgroundColor(testMemberType),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ScheduleScreen()),
+              );
+            },
+            icon: FaIcon(FontAwesomeIcons.calendarCheck, size: 24.0),
+          ),
+        ],
       ),
       body: Column(
         children: [

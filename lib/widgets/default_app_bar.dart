@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
   String title;
   Color? color;
+  List<Widget>? actions;
 
-  DefaultAppBar({super.key, required this.title, this.color});
+  DefaultAppBar({super.key, required this.title, this.color, this.actions});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +22,7 @@ class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: () => Navigator.of(context).pop(),
       ),
       backgroundColor: color ?? Colors.white,
+      actions: actions,
     );
   }
 
