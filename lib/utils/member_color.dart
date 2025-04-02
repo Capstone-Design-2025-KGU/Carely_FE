@@ -13,3 +13,14 @@ Color getBackgroundColor(MemberType type) {
       return AppColors.green100;
   }
 }
+
+Color getHighlightColor(MemberType type) {
+  switch (type) {
+    case MemberType.family:
+      return AppColors.mainPrimary;
+    case MemberType.volunteer:
+      return AppColors.blue300;
+    case MemberType.caregiver:
+      return AppColors.green300;
+  }
+}

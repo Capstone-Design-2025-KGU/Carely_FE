@@ -6,6 +6,7 @@ import 'package:carely/screens/onboarding/login_screen.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   await dotenv.load();
@@ -18,6 +19,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ko'),
+        Locale('en'), // 필요 시 추가
+      ],
       title: 'Carely',
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
