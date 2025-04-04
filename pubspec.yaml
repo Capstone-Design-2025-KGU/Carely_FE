@@ -50,6 +50,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+<<<<<<< HEAD
     - assets/images/caregiver/profile/
     - assets/images/family/profile/
     - assets/images/volunteer/profile/
@@ -64,6 +65,16 @@ flutter:
     - assets/images/caregiver/
     - assets/images/CVH.svg
     - assets/images/logo.svg
+=======
+    - assets/images/
+    - assets/images/markers/
+    - assets/images/caregiver/profile/
+    - assets/images/caregiver/skills/
+    - assets/images/family/profile/
+    - assets/images/family/skills/
+    - assets/images/volunteer/profile/
+    - assets/images/volunteer/skills/
+>>>>>>> 0ef8dc6 (feat : create user list screen)
     - assets/images/temp-user-image.png
     - assets/images/no-chat-room.png
     - .env

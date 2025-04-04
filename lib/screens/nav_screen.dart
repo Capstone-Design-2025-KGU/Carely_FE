@@ -3,6 +3,7 @@ import 'package:carely/screens/home_screen.dart';
 import 'package:carely/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/widgets/bottom_nav_bar.dart';
+import 'package:carely/screens/map/map_screen.dart';
 
 class NavScreen extends StatefulWidget {
   static String id = 'nav-screen';
@@ -17,7 +18,7 @@ class _NavScreenState extends State<NavScreen> {
 
   final List<Widget> _screens = const [
     HomeScreen(),
-    HomeScreen(),
+    MapScreen(),
     HomeScreen(),
     ChatRoomScreen(),
     ProfileScreen(),

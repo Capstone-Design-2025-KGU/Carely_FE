@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:carely/theme/colors.dart';
 
 /// 클러스터 크기별 아이콘 생성 함수
 Future<BitmapDescriptor> getCustomClusterIcon(int count) async {
@@ -14,10 +15,14 @@ Future<BitmapDescriptor> getCustomClusterIcon(int count) async {
 
   final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
   final Canvas canvas = Canvas(pictureRecorder);
-  final Paint paint = Paint()..color = Colors.redAccent; // 원 색상
+  final Paint paint1 = Paint()..color = AppColors.main300;
+  final Paint paint2 = Paint()..color = AppColors.blue300;
+  final Paint paint3 = Paint()..color = AppColors.green300;
 
   // 원 그리기
-  canvas.drawCircle(Offset(size / 2, size / 2), size / 2.2, paint);
+  canvas.drawCircle(Offset(size / 2, size / 2), size / 2.2, paint1);
+  canvas.drawCircle(Offset(size / 2, size / 2), size / 2.2, paint2);
+  canvas.drawCircle(Offset(size / 2, size / 2), size / 2.2, paint3);
 
   // 텍스트 설정
   TextPainter textPainter = TextPainter(
