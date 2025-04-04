@@ -4,6 +4,7 @@ import 'package:carely/utils/member_type.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class ScheduleScreen extends StatefulWidget {
@@ -15,6 +16,10 @@ class ScheduleScreen extends StatefulWidget {
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
   final MemberType testMemberType = MemberType.family; // 여기서 타입 바꿔가며 테스트 가능
+  DateTime? selectedDate;
+  TimeOfDay? selectedStartTime;
+  TimeOfDay? selectedEndTime;
+  String? selectedMainWork;
 
   @override
   Widget build(BuildContext context) {
@@ -54,57 +59,128 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       fontSize: 16.0,
                     ),
                   ),
-                  SizedBox(height: 20.0),
-                  TextButton(
-                    onPressed: () async {
+                  const SizedBox(height: 20.0),
+
+                  // 날짜 선택 필드
+                  InputSelectField(
+                    label: '날짜',
+                    displayText:
+                        selectedDate == null
+                            ? '날짜를 선택하세요'
+                            : '${selectedDate!.year}년 ${selectedDate!.month}월 ${selectedDate!.day}일',
+                    onTap: () async {
                       final date = await showCalendarModal(
                         context,
                         getHighlightColor(testMemberType),
                       );
-
                       if (date != null) {
-                        final startTime = await showCustomTimePickerDialog(
-                          context,
-                          '시작 시간',
-                          getHighlightColor(testMemberType),
-                        );
-
-                        if (startTime != null) {
-                          final endTime = await showCustomTimePickerDialog(
-                            context,
-                            '종료 시간',
-                            getHighlightColor(testMemberType),
-                          );
-
-                          if (endTime != null) {
-                            final startDateTime = DateTime(
-                              date.year,
-                              date.month,
-                              date.day,
-                              startTime.hour,
-                              startTime.minute,
-                            );
-                            final endDateTime = DateTime(
-                              date.year,
-                              date.month,
-                              date.day,
-                              endTime.hour,
-                              endTime.minute,
-                            );
-
-                            print('📅 날짜: $date');
-                            print('🕒 시작 시간: $startDateTime');
-                            print('🕓 종료 시간: $endDateTime');
-                          }
-                        }
+                        setState(() {
+                          selectedDate = date;
+                        });
                       }
                     },
-                    child: Text('캘린더 열기'),
+                  ),
+
+                  // 시간 선택 필드
+                  InputSelectField(
+                    label: '시간',
+                    displayText:
+                        selectedStartTime == null || selectedEndTime == null
+                            ? '시간을 선택하세요'
+                            : '${_getDurationText(selectedStartTime!, selectedEndTime!)} / ${_formatTimeOfDay(selectedStartTime!)} 시작',
+                    onTap: () async {
+                      final start = await showCustomTimePickerDialog(
+                        context,
+                        '시작 시간',
+                        getHighlightColor(testMemberType),
+                      );
+                      if (start != null) {
+                        final end = await showCustomTimePickerDialog(
+                          context,
+                          '종료 시간',
+                          getHighlightColor(testMemberType),
+                        );
+                        setState(() {
+                          selectedStartTime = start;
+                          selectedEndTime = end;
+                        });
+                      }
+                    },
+                  ),
+
+                  InputSelectField(
+                    label: '주된 일',
+                    displayText: selectedMainWork ?? '주된 일을 선택하세요',
+                    onTap: () async {
+                      final result = await showMainWorkSelectModal(context);
+                      if (result != null) {
+                        setState(() {
+                          selectedMainWork = result;
+                        });
+                      }
+                    },
                   ),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class InputSelectField extends StatelessWidget {
+  final String label;
+  final String displayText;
+  final VoidCallback onTap;
+
+  const InputSelectField({
+    super.key,
+    required this.label,
+    required this.displayText,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 32.0),
+      child: InkWell(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        onTap: onTap,
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: TextStyle(
+              color: AppColors.gray500,
+              fontSize: 16.0,
+              fontWeight: FontWeight.w500,
+            ),
+            hintText: '선택해주세요',
+            hintStyle: TextStyle(color: AppColors.gray300, fontSize: 16.0),
+            enabledBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: AppColors.gray200),
+            ),
+            focusedBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: AppColors.gray600),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                displayText,
+                style: TextStyle(color: AppColors.gray800, fontSize: 16.0),
+              ),
+              FaIcon(
+                FontAwesomeIcons.angleDown,
+                size: 16.0,
+                color: AppColors.gray300,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -322,4 +398,108 @@ Future<DateTime?> showCalendarModal(BuildContext context, Color color) {
       );
     },
   );
+}
+
+Future<String?> showMainWorkSelectModal(BuildContext context) {
+  final options = [
+    {'label': '요양 보호', 'emoji': '👵🏻'},
+    {'label': '말벗 도움', 'emoji': '🗣️'},
+    {'label': '재능 봉사', 'emoji': '🎤'},
+    {'label': '기타', 'emoji': '🧹'},
+  ];
+
+  return showModalBottomSheet<String>(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (context) {
+      return SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '주된 일을 선택하세요',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.gray800,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: options.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 3 / 2,
+                ),
+                itemBuilder: (context, index) {
+                  final item = options[index];
+                  return GestureDetector(
+                    onTap: () => Navigator.pop(context, item['label']),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.main50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.gray200),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${item['emoji']} ${item['label']}',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: AppColors.gray800,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 24),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  '닫기',
+                  style: TextStyle(
+                    color: AppColors.gray800,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+String _getDurationText(TimeOfDay start, TimeOfDay end) {
+  final startMin = start.hour * 60 + start.minute;
+  final endMin = end.hour * 60 + end.minute;
+  int duration = endMin - startMin;
+  if (duration < 0) duration += 1440; // 다음날
+
+  final h = duration ~/ 60;
+  final m = duration % 60;
+  return '$h시간${m > 0 ? ' $m분' : ''} 동안';
+}
+
+String _formatTimeOfDay(TimeOfDay time) {
+  final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+  final minute = time.minute.toString().padLeft(2, '0');
+  final period = time.period == DayPeriod.am ? '오전' : '오후';
+  return '$period $hour시 $minute분';
 }
