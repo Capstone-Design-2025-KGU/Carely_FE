@@ -1,6 +1,7 @@
 import 'package:carely/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/screens/map/dummy_data.dart';
+import 'package:carely/utils/member_type.dart';
 
 class UserInfoCard extends StatelessWidget {
   final String userId;
@@ -69,9 +70,9 @@ class UserInfoCard extends StatelessWidget {
               Text(
                 '${userData.distance}km',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey[600],
+                  color: AppColors.gray300,
                 ),
               ),
             ],
@@ -93,12 +94,13 @@ class UserInfoCard extends StatelessWidget {
 
   /// 직업 유형별 배경색 설정
   Color _getBackgroundColor(String jobType) {
-    switch (jobType) {
-      case 'family':
+    MemberType? memberType = _getMemberTypeFromString(jobType);
+    switch (memberType) {
+      case MemberType.family:
         return AppColors.red100;
-      case 'volunteer':
+      case MemberType.volunteer:
         return AppColors.blue100;
-      case 'caregiver':
+      case MemberType.caregiver:
         return AppColors.green100;
       default:
         return Colors.white;
@@ -112,15 +114,16 @@ class UserInfoCard extends StatelessWidget {
     Color textColor;
     IconData icon;
 
-    if (userData.jobType == 'caregiver') {
+    MemberType? memberType = _getMemberTypeFromString(userData.jobType);
+    if (memberType == MemberType.caregiver) {
       label = '인증 요양보호사';
-      badgeColor = const Color.fromARGB(255, 255, 255, 255);
-      textColor = const Color(0xFFFF6B6B);
+      badgeColor = Colors.white;
+      textColor = AppColors.mainPrimary;
       icon = Icons.medical_services;
     } else {
       label = '함께한 시간: ${userData.togetherTime}';
-      badgeColor = const Color.fromARGB(255, 251, 251, 251);
-      textColor = const Color(0xFFFF6B6B);
+      badgeColor = Colors.white;
+      textColor = AppColors.mainPrimary;
       icon = Icons.access_time;
     }
 
@@ -193,7 +196,7 @@ class UserInfoCard extends StatelessWidget {
               ),
             ],
           ),
-          child: Center(child: Image.asset(imagePath, width: 28, height: 28)),
+          child: Center(child: Image.asset(imagePath, width: 52, height: 52)),
         ),
         const SizedBox(height: 5),
         Text(
@@ -210,29 +213,45 @@ class UserInfoCard extends StatelessWidget {
 
   /// 직업 유형별 색상 반환
   Color _getColorForJobType(String jobType) {
-    switch (jobType) {
-      case 'family':
-        return Colors.red;
-      case 'volunteer':
-        return Colors.blue;
-      case 'caregiver':
-        return Colors.green;
+    MemberType? memberType = _getMemberTypeFromString(jobType);
+    switch (memberType) {
+      case MemberType.family:
+        return AppColors.red300;
+      case MemberType.volunteer:
+        return AppColors.blue300;
+      case MemberType.caregiver:
+        return AppColors.green300;
       default:
-        return Colors.grey;
+        return AppColors.gray300;
     }
   }
 
   /// 직업 유형 텍스트 변환
   String _getJobTypeText(String jobType) {
-    switch (jobType) {
-      case 'family':
+    MemberType? memberType = _getMemberTypeFromString(jobType);
+    switch (memberType) {
+      case MemberType.family:
         return '간병인';
-      case 'volunteer':
+      case MemberType.volunteer:
         return '자원봉사자';
-      case 'caregiver':
+      case MemberType.caregiver:
         return '요양보호사';
       default:
         return jobType;
+    }
+  }
+
+  // String을 MemberType으로 변환하는 함수
+  MemberType? _getMemberTypeFromString(String typeString) {
+    switch (typeString) {
+      case 'family':
+        return MemberType.family;
+      case 'volunteer':
+        return MemberType.volunteer;
+      case 'caregiver':
+        return MemberType.caregiver;
+      default:
+        return null;
     }
   }
 }
