@@ -1,7 +1,9 @@
 import 'package:carely/theme/colors.dart';
+import 'package:carely/utils/logger_config.dart';
 import 'package:carely/utils/member_color.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:carely/widgets/default_app_bar.dart';
+import 'package:carely/widgets/default_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -187,80 +189,6 @@ class InputSelectField extends StatelessWidget {
   }
 }
 
-Future<TimeOfDay?> showCustomTimePickerDialog(
-  BuildContext context,
-  String title,
-  Color color,
-) {
-  TimeOfDay selectedTime = TimeOfDay.now();
-  DateTime tempTime = DateTime.now();
-
-  return showModalBottomSheet<TimeOfDay>(
-    context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
-    isScrollControlled: true,
-    builder: (context) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.gray800,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TimePickerSpinner(
-              is24HourMode: false,
-              normalTextStyle: TextStyle(
-                fontSize: 18,
-                color: AppColors.gray400,
-              ),
-              highlightedTextStyle: TextStyle(
-                fontSize: 24,
-                color: color,
-                fontWeight: FontWeight.bold,
-              ),
-              spacing: 50,
-              itemHeight: 60,
-              isForce2Digits: true,
-              onTimeChange: (time) {
-                tempTime = time;
-              },
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(
-                  context,
-                  TimeOfDay(hour: tempTime.hour, minute: tempTime.minute),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: color,
-                minimumSize: const Size.fromHeight(48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                '확인',
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
 class InfoWidget extends StatelessWidget {
   final String label;
   final String value;
@@ -373,21 +301,9 @@ Future<DateTime?> showCalendarModal(BuildContext context, Color color) {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context, selectedDate);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: color,
-                        minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        '확인',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
+                    DefaultButton(
+                      content: '확인',
+                      onPressed: () => Navigator.pop(context, selectedDate),
                     ),
                   ],
                 ),
@@ -395,6 +311,68 @@ Future<DateTime?> showCalendarModal(BuildContext context, Color color) {
             ),
           );
         },
+      );
+    },
+  );
+}
+
+Future<TimeOfDay?> showCustomTimePickerDialog(
+  BuildContext context,
+  String title,
+  Color color,
+) {
+  DateTime tempTime = DateTime.now();
+
+  return showModalBottomSheet<TimeOfDay>(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    isScrollControlled: true,
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.gray800,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TimePickerSpinner(
+              is24HourMode: false,
+              normalTextStyle: TextStyle(
+                fontSize: 18,
+                color: AppColors.gray400,
+              ),
+              highlightedTextStyle: TextStyle(
+                fontSize: 24,
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
+              spacing: 50,
+              itemHeight: 60,
+              isForce2Digits: true,
+              onTimeChange: (time) {
+                tempTime = time;
+              },
+            ),
+            const SizedBox(height: 24),
+            DefaultButton(
+              content: '확인',
+              onPressed:
+                  () => Navigator.pop(
+                    context,
+                    TimeOfDay(hour: tempTime.hour, minute: tempTime.minute),
+                  ),
+            ),
+          ],
+        ),
       );
     },
   );
@@ -487,14 +465,21 @@ Future<String?> showMainWorkSelectModal(BuildContext context) {
 }
 
 String _getDurationText(TimeOfDay start, TimeOfDay end) {
+  logger.i(
+    'start: ${start.hour}:${start.minute}, end: ${end.hour}:${end.minute}',
+  );
   final startMin = start.hour * 60 + start.minute;
   final endMin = end.hour * 60 + end.minute;
+
   int duration = endMin - startMin;
-  if (duration < 0) duration += 1440; // 다음날
+  if (duration <= 0) duration += 1440; // 다음날 포함 & 0분 방지
 
   final h = duration ~/ 60;
   final m = duration % 60;
-  return '$h시간${m > 0 ? ' $m분' : ''} 동안';
+
+  if (duration < 1) return '1분 미만';
+
+  return '${h > 0 ? '$h시간' : ''}${m > 0 ? ' $m분' : ''} 동안';
 }
 
 String _formatTimeOfDay(TimeOfDay time) {
