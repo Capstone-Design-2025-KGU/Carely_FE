@@ -25,6 +25,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool isAllFilled() {
+      return selectedDate != null &&
+          selectedStartTime != null &&
+          selectedEndTime != null &&
+          selectedMainWork != null;
+    }
+
     return Scaffold(
       backgroundColor: getBackgroundColor(testMemberType),
       appBar: DefaultAppBar(
@@ -125,6 +132,14 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 ],
               ),
             ),
+            DefaultButton(
+              content: '요청 보내기',
+              isEnable: isAllFilled(),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            const SizedBox(height: 40.0),
           ],
         ),
       ),
