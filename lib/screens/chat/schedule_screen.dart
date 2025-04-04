@@ -3,6 +3,7 @@ import 'package:carely/utils/member_color.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class ScheduleScreen extends StatefulWidget {
@@ -60,93 +61,19 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         context,
                         getHighlightColor(testMemberType),
                       );
+
                       if (date != null) {
-                        final startTime = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.now(),
-                          builder: (context, child) {
-                            return Theme(
-                              data: Theme.of(context).copyWith(
-                                timePickerTheme: TimePickerThemeData(
-                                  backgroundColor: Colors.white,
-                                  hourMinuteTextColor: AppColors.gray800,
-                                  dayPeriodTextColor: AppColors.gray800,
-
-                                  dayPeriodColor: AppColors.gray100,
-                                  entryModeIconColor: getHighlightColor(
-                                    testMemberType,
-                                  ),
-                                  dialHandColor: getHighlightColor(
-                                    testMemberType,
-                                  ),
-                                  dialBackgroundColor: AppColors.gray50,
-                                  dialTextColor: AppColors.gray600,
-
-                                  hourMinuteColor: AppColors.gray100,
-                                  helpTextStyle: const TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.gray600,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                ),
-                                colorScheme: ColorScheme.light(
-                                  primary: getHighlightColor(
-                                    testMemberType,
-                                  ), // ← 가장 핵심 색상
-                                  onPrimary: Colors.white,
-                                  onSurface: AppColors.gray800,
-                                ),
-                              ),
-                              child: child!,
-                            );
-                          },
+                        final startTime = await showCustomTimePickerDialog(
+                          context,
+                          '시작 시간',
+                          getHighlightColor(testMemberType),
                         );
 
                         if (startTime != null) {
-                          final endTime = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.now(),
-                            builder: (context, child) {
-                              return Theme(
-                                data: Theme.of(context).copyWith(
-                                  timePickerTheme: TimePickerThemeData(
-                                    backgroundColor: Colors.white,
-                                    hourMinuteTextColor: AppColors.gray800,
-                                    dayPeriodTextColor: AppColors.gray800,
-
-                                    dayPeriodColor: AppColors.gray100,
-                                    entryModeIconColor: getHighlightColor(
-                                      testMemberType,
-                                    ),
-                                    dialHandColor: getHighlightColor(
-                                      testMemberType,
-                                    ),
-                                    dialBackgroundColor: AppColors.gray50,
-                                    dialTextColor: AppColors.gray600,
-
-                                    hourMinuteColor: AppColors.gray100,
-
-                                    helpTextStyle: const TextStyle(
-                                      fontSize: 14,
-                                      color: AppColors.gray600,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                  colorScheme: ColorScheme.light(
-                                    primary: getHighlightColor(
-                                      testMemberType,
-                                    ), // ← 가장 핵심 색상
-                                    onPrimary: Colors.white,
-                                    onSurface: AppColors.gray800,
-                                  ),
-                                ),
-                                child: child!,
-                              );
-                            },
+                          final endTime = await showCustomTimePickerDialog(
+                            context,
+                            '종료 시간',
+                            getHighlightColor(testMemberType),
                           );
 
                           if (endTime != null) {
@@ -157,7 +84,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               startTime.hour,
                               startTime.minute,
                             );
-
                             final endDateTime = DateTime(
                               date.year,
                               date.month,
@@ -166,7 +92,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               endTime.minute,
                             );
 
-                            // TODO: 여기에 상태 저장 또는 출력 등 필요한 로직 넣으면 됨
                             print('📅 날짜: $date');
                             print('🕒 시작 시간: $startDateTime');
                             print('🕓 종료 시간: $endDateTime');
@@ -184,6 +109,80 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       ),
     );
   }
+}
+
+Future<TimeOfDay?> showCustomTimePickerDialog(
+  BuildContext context,
+  String title,
+  Color color,
+) {
+  TimeOfDay selectedTime = TimeOfDay.now();
+  DateTime tempTime = DateTime.now();
+
+  return showModalBottomSheet<TimeOfDay>(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    isScrollControlled: true,
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.gray800,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TimePickerSpinner(
+              is24HourMode: false,
+              normalTextStyle: TextStyle(
+                fontSize: 18,
+                color: AppColors.gray400,
+              ),
+              highlightedTextStyle: TextStyle(
+                fontSize: 24,
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
+              spacing: 50,
+              itemHeight: 60,
+              isForce2Digits: true,
+              onTimeChange: (time) {
+                tempTime = time;
+              },
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  TimeOfDay(hour: tempTime.hour, minute: tempTime.minute),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: color,
+                minimumSize: const Size.fromHeight(48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                '확인',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 class InfoWidget extends StatelessWidget {
