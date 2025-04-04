@@ -18,3 +18,14 @@ class UserProvider with ChangeNotifier {
 
   bool get isLoggedIn => _currentUser != null;
 }
+
+class MemberProvider with ChangeNotifier {
+  Member? _currentUser;
+
+  Member? get currentUser => _currentUser;
+
+  void setUser(Member user) {
+    _currentUser = user;
+    notifyListeners();
+  }
+}

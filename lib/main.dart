@@ -3,6 +3,7 @@ import 'package:carely/screens/home_screen.dart';
 import 'package:carely/screens/nav_screen.dart';
 import 'package:carely/screens/map/map_screen.dart';
 import 'package:carely/screens/onboarding/login_screen.dart';
+import 'package:carely/services/auth/token_storage_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -10,11 +11,16 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   await dotenv.load();
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  final token = await TokenStorageService.getToken();
+
+  runApp(MyApp(initialToken: token));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String? initialToken;
+
+  const MyApp({super.key, this.initialToken});
 
   @override
   Widget build(BuildContext context) {
