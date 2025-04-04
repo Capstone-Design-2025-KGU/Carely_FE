@@ -60,7 +60,119 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         context,
                         getHighlightColor(testMemberType),
                       );
-                      if (date != null) {}
+                      if (date != null) {
+                        final startTime = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                          builder: (context, child) {
+                            return Theme(
+                              data: Theme.of(context).copyWith(
+                                timePickerTheme: TimePickerThemeData(
+                                  backgroundColor: Colors.white,
+                                  hourMinuteTextColor: AppColors.gray800,
+                                  dayPeriodTextColor: AppColors.gray800,
+
+                                  dayPeriodColor: AppColors.gray100,
+                                  entryModeIconColor: getHighlightColor(
+                                    testMemberType,
+                                  ),
+                                  dialHandColor: getHighlightColor(
+                                    testMemberType,
+                                  ),
+                                  dialBackgroundColor: AppColors.gray50,
+                                  dialTextColor: AppColors.gray600,
+
+                                  hourMinuteColor: AppColors.gray100,
+                                  helpTextStyle: const TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.gray600,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                colorScheme: ColorScheme.light(
+                                  primary: getHighlightColor(
+                                    testMemberType,
+                                  ), // ← 가장 핵심 색상
+                                  onPrimary: Colors.white,
+                                  onSurface: AppColors.gray800,
+                                ),
+                              ),
+                              child: child!,
+                            );
+                          },
+                        );
+
+                        if (startTime != null) {
+                          final endTime = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.now(),
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  timePickerTheme: TimePickerThemeData(
+                                    backgroundColor: Colors.white,
+                                    hourMinuteTextColor: AppColors.gray800,
+                                    dayPeriodTextColor: AppColors.gray800,
+
+                                    dayPeriodColor: AppColors.gray100,
+                                    entryModeIconColor: getHighlightColor(
+                                      testMemberType,
+                                    ),
+                                    dialHandColor: getHighlightColor(
+                                      testMemberType,
+                                    ),
+                                    dialBackgroundColor: AppColors.gray50,
+                                    dialTextColor: AppColors.gray600,
+
+                                    hourMinuteColor: AppColors.gray100,
+
+                                    helpTextStyle: const TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.gray600,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  colorScheme: ColorScheme.light(
+                                    primary: getHighlightColor(
+                                      testMemberType,
+                                    ), // ← 가장 핵심 색상
+                                    onPrimary: Colors.white,
+                                    onSurface: AppColors.gray800,
+                                  ),
+                                ),
+                                child: child!,
+                              );
+                            },
+                          );
+
+                          if (endTime != null) {
+                            final startDateTime = DateTime(
+                              date.year,
+                              date.month,
+                              date.day,
+                              startTime.hour,
+                              startTime.minute,
+                            );
+
+                            final endDateTime = DateTime(
+                              date.year,
+                              date.month,
+                              date.day,
+                              endTime.hour,
+                              endTime.minute,
+                            );
+
+                            // TODO: 여기에 상태 저장 또는 출력 등 필요한 로직 넣으면 됨
+                            print('📅 날짜: $date');
+                            print('🕒 시작 시간: $startDateTime');
+                            print('🕓 종료 시간: $endDateTime');
+                          }
+                        }
+                      }
                     },
                     child: Text('캘린더 열기'),
                   ),
