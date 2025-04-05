@@ -1,5 +1,6 @@
 import 'package:carely/models/address.dart';
 import 'package:carely/models/skill.dart';
+import 'package:carely/utils/date_time_list_converter.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -25,7 +26,7 @@ class Member with _$Member {
     required bool isVerified,
     String? profileImage,
 
-    @JsonKey(fromJson: _dateTimeFromJson) DateTime? createdAt,
+    @DateTimeListConverter() DateTime? createdAt,
 
     required Address address,
     required Skill skill,
@@ -43,17 +44,4 @@ String _birthFromJson(List<dynamic> birthList) {
     return '$year-$month-$day';
   }
   return '';
-}
-
-// [2025, 4, 5, 11, 49, 41, 575900000] → DateTime
-DateTime _dateTimeFromJson(List<dynamic> list) {
-  return DateTime(
-    list[0],
-    list[1],
-    list[2],
-    list[3],
-    list[4],
-    list[5],
-    (list[6] / 1000000).round(), // 나노초 → 밀리초
-  );
 }

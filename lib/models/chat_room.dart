@@ -1,3 +1,4 @@
+import 'package:carely/utils/date_time_list_converter.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -15,7 +16,7 @@ class ChatRoom with _$ChatRoom {
     required int chatRoomId,
     required String content,
     required int participantCount,
-    DateTime? createdAt,
+    @DateTimeListConverter() DateTime? createdAt,
   }) = _ChatRoom;
 
   factory ChatRoom.fromJson(Map<String, dynamic> json) =>

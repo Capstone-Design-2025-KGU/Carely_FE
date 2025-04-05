@@ -25,6 +25,7 @@ mixin _$ChatMessage {
   int get chatroomId => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   MessageType get messageType => throw _privateConstructorUsedError;
+  @DateTimeListConverter()
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this ChatMessage to a JSON map.
@@ -49,7 +50,7 @@ abstract class $ChatMessageCopyWith<$Res> {
     int chatroomId,
     String content,
     MessageType messageType,
-    DateTime? createdAt,
+    @DateTimeListConverter() DateTime? createdAt,
   });
 }
 
@@ -121,7 +122,7 @@ abstract class _$$ChatMessageImplCopyWith<$Res>
     int chatroomId,
     String content,
     MessageType messageType,
-    DateTime? createdAt,
+    @DateTimeListConverter() DateTime? createdAt,
   });
 }
 
@@ -186,7 +187,7 @@ class _$ChatMessageImpl implements _ChatMessage {
     required this.chatroomId,
     required this.content,
     required this.messageType,
-    this.createdAt,
+    @DateTimeListConverter() this.createdAt,
   });
 
   factory _$ChatMessageImpl.fromJson(Map<String, dynamic> json) =>
@@ -201,6 +202,7 @@ class _$ChatMessageImpl implements _ChatMessage {
   @override
   final MessageType messageType;
   @override
+  @DateTimeListConverter()
   final DateTime? createdAt;
 
   @override
@@ -255,7 +257,7 @@ abstract class _ChatMessage implements ChatMessage {
     required final int chatroomId,
     required final String content,
     required final MessageType messageType,
-    final DateTime? createdAt,
+    @DateTimeListConverter() final DateTime? createdAt,
   }) = _$ChatMessageImpl;
 
   factory _ChatMessage.fromJson(Map<String, dynamic> json) =
@@ -270,6 +272,7 @@ abstract class _ChatMessage implements ChatMessage {
   @override
   MessageType get messageType;
   @override
+  @DateTimeListConverter()
   DateTime? get createdAt;
 
   /// Create a copy of ChatMessage

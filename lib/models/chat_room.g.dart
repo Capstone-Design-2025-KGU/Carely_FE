@@ -17,10 +17,9 @@ _$ChatRoomImpl _$$ChatRoomImplFromJson(Map<String, dynamic> json) =>
       chatRoomId: (json['chatRoomId'] as num).toInt(),
       content: json['content'] as String,
       participantCount: (json['participantCount'] as num).toInt(),
-      createdAt:
-          json['createdAt'] == null
-              ? null
-              : DateTime.parse(json['createdAt'] as String),
+      createdAt: const DateTimeListConverter().fromJson(
+        json['createdAt'] as List?,
+      ),
     );
 
 Map<String, dynamic> _$$ChatRoomImplToJson(_$ChatRoomImpl instance) =>
@@ -32,5 +31,5 @@ Map<String, dynamic> _$$ChatRoomImplToJson(_$ChatRoomImpl instance) =>
       'chatRoomId': instance.chatRoomId,
       'content': instance.content,
       'participantCount': instance.participantCount,
-      'createdAt': instance.createdAt?.toIso8601String(),
+      'createdAt': const DateTimeListConverter().toJson(instance.createdAt),
     };

@@ -47,11 +47,19 @@ class _ChatScreenState extends State<ChatScreen> {
     _webSocektService.connect(
       chatRoomId: widget.chatRoomId,
       onMessage: (msg) {
+        if (!mounted) return;
         setState(() {
           _messages.add(msg);
         });
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _webSocektService.disconnect();
+    _controller.dispose();
+    super.dispose();
   }
 
   void fetchPreviousMessages() async {
