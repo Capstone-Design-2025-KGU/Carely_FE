@@ -1,3 +1,4 @@
+import 'package:carely/screens/onboarding/my_information_screen.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
@@ -67,7 +68,7 @@ class _TypeSelectScreenState extends State<TypeSelectScreen> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const TypeSelectScreen(),
+                      builder: (context) => MyInformationScreen(),
                     ),
                   );
                 },
