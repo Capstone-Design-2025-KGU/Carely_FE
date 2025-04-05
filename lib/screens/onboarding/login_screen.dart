@@ -23,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             DefaultButton(
               content: '테스터 계정으로 로그인',
@@ -54,6 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 }
               },
             ),
+            SizedBox(height: 20.0),
             DefaultButton(
               content: '회원가입 UI',
               onPressed: () async {
