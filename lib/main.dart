@@ -5,6 +5,7 @@ import 'package:carely/screens/nav_screen.dart';
 import 'package:carely/screens/map/map_screen.dart';
 import 'package:carely/screens/onboarding/login_screen.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/services/member/member_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -17,12 +18,18 @@ void main() async {
 
   final token = await TokenStorageService.getToken();
 
+  final memberProvider = MemberProvider();
+
+  if (token != null) {
+    final member = await MemberService.instance.fetchMyInfo(token);
+    if (member != null) {
+      memberProvider.setMember(member);
+    }
+  }
+
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => MemberProvider()),
-        // 다른 Provider도 여기 추가 가능
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => memberProvider)],
       child: MyApp(initialToken: token),
     ),
   );

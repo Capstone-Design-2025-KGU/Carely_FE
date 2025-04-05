@@ -13,7 +13,9 @@ _$MemberImpl _$$MemberImplFromJson(Map<String, dynamic> json) => _$MemberImpl(
   phoneNumber: json['phoneNumber'] as String,
   birth: _birthFromJson(json['birth'] as List),
   story: json['story'] as String?,
-  memberType: $enumDecode(_$MemberTypeEnumMap, json['memberType']),
+  memberType: const MemberTypeConverter().fromJson(
+    json['memberType'] as String,
+  ),
   isVisible: json['isVisible'] as bool,
   isVerified: json['isVerified'] as bool,
   profileImage: json['profileImage'] as String?,
@@ -30,7 +32,7 @@ Map<String, dynamic> _$$MemberImplToJson(_$MemberImpl instance) =>
       'phoneNumber': instance.phoneNumber,
       'birth': instance.birth,
       'story': instance.story,
-      'memberType': _$MemberTypeEnumMap[instance.memberType]!,
+      'memberType': const MemberTypeConverter().toJson(instance.memberType),
       'isVisible': instance.isVisible,
       'isVerified': instance.isVerified,
       'profileImage': instance.profileImage,
@@ -38,9 +40,3 @@ Map<String, dynamic> _$$MemberImplToJson(_$MemberImpl instance) =>
       'address': instance.address.toJson(),
       'skill': instance.skill.toJson(),
     };
-
-const _$MemberTypeEnumMap = {
-  MemberType.family: 'family',
-  MemberType.volunteer: 'volunteer',
-  MemberType.caregiver: 'caregiver',
-};

@@ -28,6 +28,7 @@ mixin _$Member {
   @JsonKey(fromJson: _birthFromJson)
   String get birth => throw _privateConstructorUsedError;
   String? get story => throw _privateConstructorUsedError;
+  @MemberTypeConverter()
   MemberType get memberType => throw _privateConstructorUsedError;
   bool get isVisible => throw _privateConstructorUsedError;
   bool get isVerified => throw _privateConstructorUsedError;
@@ -58,7 +59,7 @@ abstract class $MemberCopyWith<$Res> {
     String phoneNumber,
     @JsonKey(fromJson: _birthFromJson) String birth,
     String? story,
-    MemberType memberType,
+    @MemberTypeConverter() MemberType memberType,
     bool isVisible,
     bool isVerified,
     String? profileImage,
@@ -208,7 +209,7 @@ abstract class _$$MemberImplCopyWith<$Res> implements $MemberCopyWith<$Res> {
     String phoneNumber,
     @JsonKey(fromJson: _birthFromJson) String birth,
     String? story,
-    MemberType memberType,
+    @MemberTypeConverter() MemberType memberType,
     bool isVisible,
     bool isVerified,
     String? profileImage,
@@ -334,7 +335,7 @@ class _$MemberImpl implements _Member {
     required this.phoneNumber,
     @JsonKey(fromJson: _birthFromJson) required this.birth,
     this.story,
-    required this.memberType,
+    @MemberTypeConverter() required this.memberType,
     required this.isVisible,
     required this.isVerified,
     this.profileImage,
@@ -360,6 +361,7 @@ class _$MemberImpl implements _Member {
   @override
   final String? story;
   @override
+  @MemberTypeConverter()
   final MemberType memberType;
   @override
   final bool isVisible;
@@ -449,7 +451,7 @@ abstract class _Member implements Member {
     required final String phoneNumber,
     @JsonKey(fromJson: _birthFromJson) required final String birth,
     final String? story,
-    required final MemberType memberType,
+    @MemberTypeConverter() required final MemberType memberType,
     required final bool isVisible,
     required final bool isVerified,
     final String? profileImage,
@@ -474,6 +476,7 @@ abstract class _Member implements Member {
   @override
   String? get story;
   @override
+  @MemberTypeConverter()
   MemberType get memberType;
   @override
   bool get isVisible;

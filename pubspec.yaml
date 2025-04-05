@@ -48,7 +48,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/
+    - assets/images/caregiver/profile/
+    - assets/images/family/profile/
+    - assets/images/volunteer/profile/
     - assets/images/temp-user-image.png
     - assets/images/no-chat-room.png
     - .env

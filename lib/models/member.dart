@@ -18,7 +18,9 @@ class Member with _$Member {
     @JsonKey(fromJson: _birthFromJson) required String birth,
 
     String? story,
-    required MemberType memberType,
+
+    @MemberTypeConverter() required MemberType memberType,
+
     required bool isVisible,
     required bool isVerified,
     String? profileImage,
