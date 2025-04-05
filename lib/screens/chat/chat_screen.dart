@@ -183,30 +183,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           Container(color: Colors.white, height: 36.0),
-          // TextButton(
-          //   onPressed: () {
-          //     final message = ChatMessage(
-          //       senderId: widget.senderId,
-          //       chatroomId: widget.chatRoomId,
-          //       content: '성민이 보낸 테스트 메시지!',
-          //       messageType: MessageType.CHAT,
-          //     );
-          //     _webSocektService.sendMessage(message);
-          //   },
-          //   child: Text('send mine'),
-          // ),
-          // TextButton(
-          //   onPressed: () {
-          //     final message = ChatMessage(
-          //       senderId: 2,
-          //       chatroomId: widget.chatRoomId,
-          //       content: '유저 2가 보낸 테스트 메시지!',
-          //       messageType: MessageType.CHAT,
-          //     );
-          //     _webSocektService.sendMessage(message);
-          //   },
-          //   child: Text('send user 2'),
-          // ),
         ],
       ),
     );
