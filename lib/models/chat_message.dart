@@ -1,3 +1,4 @@
+import 'package:carely/utils/flexible_date_time_list_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'chat_message.freezed.dart';
@@ -14,7 +15,7 @@ class ChatMessage with _$ChatMessage {
     required int chatroomId,
     required String content,
     required MessageType messageType,
-    DateTime? createdAt,
+    @FlexibleDateTimeConverter() DateTime? createdAt,
   }) = _ChatMessage;
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) =>

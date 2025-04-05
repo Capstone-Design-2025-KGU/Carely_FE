@@ -11,16 +11,15 @@ _$MemberImpl _$$MemberImplFromJson(Map<String, dynamic> json) => _$MemberImpl(
   username: json['username'] as String,
   name: json['name'] as String,
   phoneNumber: json['phoneNumber'] as String,
-  birth: json['birth'] as String,
+  birth: _birthFromJson(json['birth'] as List),
   story: json['story'] as String?,
-  memberType: $enumDecode(_$MemberTypeEnumMap, json['memberType']),
+  memberType: const MemberTypeConverter().fromJson(
+    json['memberType'] as String,
+  ),
   isVisible: json['isVisible'] as bool,
   isVerified: json['isVerified'] as bool,
   profileImage: json['profileImage'] as String?,
-  createdAt:
-      json['createdAt'] == null
-          ? null
-          : DateTime.parse(json['createdAt'] as String),
+  createdAt: const FlexibleDateTimeConverter().fromJson(json['createdAt']),
   address: Address.fromJson(json['address'] as Map<String, dynamic>),
   skill: Skill.fromJson(json['skill'] as Map<String, dynamic>),
 );
@@ -33,17 +32,11 @@ Map<String, dynamic> _$$MemberImplToJson(_$MemberImpl instance) =>
       'phoneNumber': instance.phoneNumber,
       'birth': instance.birth,
       'story': instance.story,
-      'memberType': _$MemberTypeEnumMap[instance.memberType]!,
+      'memberType': const MemberTypeConverter().toJson(instance.memberType),
       'isVisible': instance.isVisible,
       'isVerified': instance.isVerified,
       'profileImage': instance.profileImage,
-      'createdAt': instance.createdAt?.toIso8601String(),
+      'createdAt': const FlexibleDateTimeConverter().toJson(instance.createdAt),
       'address': instance.address.toJson(),
       'skill': instance.skill.toJson(),
     };
-
-const _$MemberTypeEnumMap = {
-  MemberType.family: 'family',
-  MemberType.volunteer: 'volunteer',
-  MemberType.caregiver: 'caregiver',
-};

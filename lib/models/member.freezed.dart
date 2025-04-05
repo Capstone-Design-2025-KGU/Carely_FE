@@ -25,12 +25,15 @@ mixin _$Member {
   String get username => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get phoneNumber => throw _privateConstructorUsedError;
+  @JsonKey(fromJson: _birthFromJson)
   String get birth => throw _privateConstructorUsedError;
   String? get story => throw _privateConstructorUsedError;
+  @MemberTypeConverter()
   MemberType get memberType => throw _privateConstructorUsedError;
   bool get isVisible => throw _privateConstructorUsedError;
   bool get isVerified => throw _privateConstructorUsedError;
   String? get profileImage => throw _privateConstructorUsedError;
+  @FlexibleDateTimeConverter()
   DateTime? get createdAt => throw _privateConstructorUsedError;
   Address get address => throw _privateConstructorUsedError;
   Skill get skill => throw _privateConstructorUsedError;
@@ -54,13 +57,13 @@ abstract class $MemberCopyWith<$Res> {
     String username,
     String name,
     String phoneNumber,
-    String birth,
+    @JsonKey(fromJson: _birthFromJson) String birth,
     String? story,
-    MemberType memberType,
+    @MemberTypeConverter() MemberType memberType,
     bool isVisible,
     bool isVerified,
     String? profileImage,
-    DateTime? createdAt,
+    @FlexibleDateTimeConverter() DateTime? createdAt,
     Address address,
     Skill skill,
   });
@@ -204,13 +207,13 @@ abstract class _$$MemberImplCopyWith<$Res> implements $MemberCopyWith<$Res> {
     String username,
     String name,
     String phoneNumber,
-    String birth,
+    @JsonKey(fromJson: _birthFromJson) String birth,
     String? story,
-    MemberType memberType,
+    @MemberTypeConverter() MemberType memberType,
     bool isVisible,
     bool isVerified,
     String? profileImage,
-    DateTime? createdAt,
+    @FlexibleDateTimeConverter() DateTime? createdAt,
     Address address,
     Skill skill,
   });
@@ -330,13 +333,13 @@ class _$MemberImpl implements _Member {
     required this.username,
     required this.name,
     required this.phoneNumber,
-    required this.birth,
+    @JsonKey(fromJson: _birthFromJson) required this.birth,
     this.story,
-    required this.memberType,
+    @MemberTypeConverter() required this.memberType,
     required this.isVisible,
     required this.isVerified,
     this.profileImage,
-    this.createdAt,
+    @FlexibleDateTimeConverter() this.createdAt,
     required this.address,
     required this.skill,
   });
@@ -353,10 +356,12 @@ class _$MemberImpl implements _Member {
   @override
   final String phoneNumber;
   @override
+  @JsonKey(fromJson: _birthFromJson)
   final String birth;
   @override
   final String? story;
   @override
+  @MemberTypeConverter()
   final MemberType memberType;
   @override
   final bool isVisible;
@@ -365,6 +370,7 @@ class _$MemberImpl implements _Member {
   @override
   final String? profileImage;
   @override
+  @FlexibleDateTimeConverter()
   final DateTime? createdAt;
   @override
   final Address address;
@@ -443,13 +449,13 @@ abstract class _Member implements Member {
     required final String username,
     required final String name,
     required final String phoneNumber,
-    required final String birth,
+    @JsonKey(fromJson: _birthFromJson) required final String birth,
     final String? story,
-    required final MemberType memberType,
+    @MemberTypeConverter() required final MemberType memberType,
     required final bool isVisible,
     required final bool isVerified,
     final String? profileImage,
-    final DateTime? createdAt,
+    @FlexibleDateTimeConverter() final DateTime? createdAt,
     required final Address address,
     required final Skill skill,
   }) = _$MemberImpl;
@@ -465,10 +471,12 @@ abstract class _Member implements Member {
   @override
   String get phoneNumber;
   @override
+  @JsonKey(fromJson: _birthFromJson)
   String get birth;
   @override
   String? get story;
   @override
+  @MemberTypeConverter()
   MemberType get memberType;
   @override
   bool get isVisible;
@@ -477,6 +485,7 @@ abstract class _Member implements Member {
   @override
   String? get profileImage;
   @override
+  @FlexibleDateTimeConverter()
   DateTime? get createdAt;
   @override
   Address get address;

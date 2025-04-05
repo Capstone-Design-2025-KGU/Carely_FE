@@ -1,14 +1,19 @@
 import 'package:carely/models/chat_message.dart';
+import 'package:carely/providers/member_provider.dart';
+import 'package:carely/screens/chat/schedule_screen.dart';
 import 'package:carely/services/chat/chat_service.dart';
 import 'package:carely/services/chat/web_socket_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
+import 'package:carely/utils/member_color.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:carely/widgets/chat/chat_bubble.dart';
 import 'package:carely/widgets/chat/chat_time_stamp.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat-screen';
@@ -31,7 +36,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final wsUrl = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8080/ws';
   final List<ChatMessage> _messages = [];
   final TextEditingController _controller = TextEditingController();
-  final MemberType testMemberType = MemberType.family; // 여기서 타입 바꿔가며 테스트 가능
 
   late final WebSocketService _webSocektService;
 
@@ -43,11 +47,19 @@ class _ChatScreenState extends State<ChatScreen> {
     _webSocektService.connect(
       chatRoomId: widget.chatRoomId,
       onMessage: (msg) {
+        if (!mounted) return;
         setState(() {
           _messages.add(msg);
         });
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _webSocektService.disconnect();
+    _controller.dispose();
+    super.dispose();
   }
 
   void fetchPreviousMessages() async {
@@ -63,24 +75,28 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Color getBackgroundColor(MemberType type) {
-    switch (type) {
-      case MemberType.family:
-        return AppColors.main50;
-      case MemberType.volunteer:
-        return AppColors.blue100;
-      case MemberType.caregiver:
-        return AppColors.green100;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final memberType =
+        Provider.of<MemberProvider>(context).currentMember?.memberType ??
+        MemberType.family;
+
     return Scaffold(
-      backgroundColor: getBackgroundColor(testMemberType), // 여기서 색상 적용!
+      backgroundColor: getBackgroundColor(memberType),
       appBar: DefaultAppBar(
         title: widget.opponentName,
-        color: getBackgroundColor(testMemberType),
+        color: getBackgroundColor(memberType),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ScheduleScreen()),
+              );
+            },
+            icon: FaIcon(FontAwesomeIcons.calendarCheck, size: 24.0),
+          ),
+        ],
       ),
       body: Column(
         children: [
