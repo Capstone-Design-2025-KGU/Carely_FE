@@ -11,16 +11,13 @@ _$MemberImpl _$$MemberImplFromJson(Map<String, dynamic> json) => _$MemberImpl(
   username: json['username'] as String,
   name: json['name'] as String,
   phoneNumber: json['phoneNumber'] as String,
-  birth: json['birth'] as String,
+  birth: _birthFromJson(json['birth'] as List),
   story: json['story'] as String?,
   memberType: $enumDecode(_$MemberTypeEnumMap, json['memberType']),
   isVisible: json['isVisible'] as bool,
   isVerified: json['isVerified'] as bool,
   profileImage: json['profileImage'] as String?,
-  createdAt:
-      json['createdAt'] == null
-          ? null
-          : DateTime.parse(json['createdAt'] as String),
+  createdAt: _dateTimeFromJson(json['createdAt'] as List),
   address: Address.fromJson(json['address'] as Map<String, dynamic>),
   skill: Skill.fromJson(json['skill'] as Map<String, dynamic>),
 );
