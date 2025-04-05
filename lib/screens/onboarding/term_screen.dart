@@ -1,3 +1,4 @@
+import 'package:carely/screens/onboarding/type_select_screen.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/theme/colors.dart';
@@ -122,7 +123,11 @@ class _TermScreenState extends State<TermScreen> {
             child: DefaultButton(
               content: '약관 동의하기',
               onPressed: () {
-                logger.i('약관 수락');
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const TypeSelectScreen(),
+                  ),
+                );
               },
               isEnable: _isScrolledToBottom,
             ),
