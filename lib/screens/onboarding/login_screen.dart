@@ -1,8 +1,12 @@
+import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/nav_screen.dart';
 import 'package:carely/services/auth/auth_service.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/services/member/member_service.dart';
+import 'package:carely/utils/logger_config.dart';
 import 'package:carely/widgets/default_button.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   static String id = 'login-screen';
@@ -30,12 +34,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
             if (token != null) {
               await TokenStorageService.saveToken(token);
-
-              Navigator.pushReplacementNamed(context, NavScreen.id);
+              final member = await MemberService.instance.fetchMyInfo(token);
+              if (member != null) {
+                Provider.of<MemberProvider>(
+                  context,
+                  listen: false,
+                ).setMember(member);
+                Navigator.pushReplacementNamed(context, NavScreen.id);
+              } else {
+                logger.e('멤버 정보를 찾을 수 없습니다');
+              }
             } else {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('로그인 실패!')));
+              logger.e('토큰이 없습니다.');
             }
           },
         ),

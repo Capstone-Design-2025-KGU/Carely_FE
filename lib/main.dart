@@ -1,3 +1,4 @@
+import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/chat/chat_screen.dart';
 import 'package:carely/screens/home_screen.dart';
 import 'package:carely/screens/nav_screen.dart';
@@ -8,6 +9,7 @@ import 'package:carely/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   await dotenv.load();
@@ -15,7 +17,15 @@ void main() async {
 
   final token = await TokenStorageService.getToken();
 
-  runApp(MyApp(initialToken: token));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => MemberProvider()),
+        // 다른 Provider도 여기 추가 가능
+      ],
+      child: MyApp(initialToken: token),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
