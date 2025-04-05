@@ -33,7 +33,7 @@ mixin _$Member {
   bool get isVisible => throw _privateConstructorUsedError;
   bool get isVerified => throw _privateConstructorUsedError;
   String? get profileImage => throw _privateConstructorUsedError;
-  @DateTimeListConverter()
+  @FlexibleDateTimeConverter()
   DateTime? get createdAt => throw _privateConstructorUsedError;
   Address get address => throw _privateConstructorUsedError;
   Skill get skill => throw _privateConstructorUsedError;
@@ -63,7 +63,7 @@ abstract class $MemberCopyWith<$Res> {
     bool isVisible,
     bool isVerified,
     String? profileImage,
-    @DateTimeListConverter() DateTime? createdAt,
+    @FlexibleDateTimeConverter() DateTime? createdAt,
     Address address,
     Skill skill,
   });
@@ -213,7 +213,7 @@ abstract class _$$MemberImplCopyWith<$Res> implements $MemberCopyWith<$Res> {
     bool isVisible,
     bool isVerified,
     String? profileImage,
-    @DateTimeListConverter() DateTime? createdAt,
+    @FlexibleDateTimeConverter() DateTime? createdAt,
     Address address,
     Skill skill,
   });
@@ -339,7 +339,7 @@ class _$MemberImpl implements _Member {
     required this.isVisible,
     required this.isVerified,
     this.profileImage,
-    @DateTimeListConverter() this.createdAt,
+    @FlexibleDateTimeConverter() this.createdAt,
     required this.address,
     required this.skill,
   });
@@ -370,7 +370,7 @@ class _$MemberImpl implements _Member {
   @override
   final String? profileImage;
   @override
-  @DateTimeListConverter()
+  @FlexibleDateTimeConverter()
   final DateTime? createdAt;
   @override
   final Address address;
@@ -455,7 +455,7 @@ abstract class _Member implements Member {
     required final bool isVisible,
     required final bool isVerified,
     final String? profileImage,
-    @DateTimeListConverter() final DateTime? createdAt,
+    @FlexibleDateTimeConverter() final DateTime? createdAt,
     required final Address address,
     required final Skill skill,
   }) = _$MemberImpl;
@@ -485,7 +485,7 @@ abstract class _Member implements Member {
   @override
   String? get profileImage;
   @override
-  @DateTimeListConverter()
+  @FlexibleDateTimeConverter()
   DateTime? get createdAt;
   @override
   Address get address;

@@ -29,7 +29,7 @@ mixin _$ChatRoom {
   int get chatRoomId => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   int get participantCount => throw _privateConstructorUsedError;
-  @DateTimeListConverter()
+  @FlexibleDateTimeConverter()
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this ChatRoom to a JSON map.
@@ -55,7 +55,7 @@ abstract class $ChatRoomCopyWith<$Res> {
     int chatRoomId,
     String content,
     int participantCount,
-    @DateTimeListConverter() DateTime? createdAt,
+    @FlexibleDateTimeConverter() DateTime? createdAt,
   });
 }
 
@@ -148,7 +148,7 @@ abstract class _$$ChatRoomImplCopyWith<$Res>
     int chatRoomId,
     String content,
     int participantCount,
-    @DateTimeListConverter() DateTime? createdAt,
+    @FlexibleDateTimeConverter() DateTime? createdAt,
   });
 }
 
@@ -234,7 +234,7 @@ class _$ChatRoomImpl implements _ChatRoom {
     required this.chatRoomId,
     required this.content,
     required this.participantCount,
-    @DateTimeListConverter() this.createdAt,
+    @FlexibleDateTimeConverter() this.createdAt,
   });
 
   factory _$ChatRoomImpl.fromJson(Map<String, dynamic> json) =>
@@ -256,7 +256,7 @@ class _$ChatRoomImpl implements _ChatRoom {
   @override
   final int participantCount;
   @override
-  @DateTimeListConverter()
+  @FlexibleDateTimeConverter()
   final DateTime? createdAt;
 
   @override
@@ -323,7 +323,7 @@ abstract class _ChatRoom implements ChatRoom {
     required final int chatRoomId,
     required final String content,
     required final int participantCount,
-    @DateTimeListConverter() final DateTime? createdAt,
+    @FlexibleDateTimeConverter() final DateTime? createdAt,
   }) = _$ChatRoomImpl;
 
   factory _ChatRoom.fromJson(Map<String, dynamic> json) =
@@ -345,7 +345,7 @@ abstract class _ChatRoom implements ChatRoom {
   @override
   int get participantCount;
   @override
-  @DateTimeListConverter()
+  @FlexibleDateTimeConverter()
   DateTime? get createdAt;
 
   /// Create a copy of ChatRoom
