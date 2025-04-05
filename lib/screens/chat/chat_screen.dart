@@ -1,4 +1,5 @@
 import 'package:carely/models/chat_message.dart';
+import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/chat/schedule_screen.dart';
 import 'package:carely/services/chat/chat_service.dart';
 import 'package:carely/services/chat/web_socket_service.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat-screen';
@@ -34,7 +36,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final wsUrl = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8080/ws';
   final List<ChatMessage> _messages = [];
   final TextEditingController _controller = TextEditingController();
-  final MemberType testMemberType = MemberType.family; // 여기서 타입 바꿔가며 테스트 가능
 
   late final WebSocketService _webSocektService;
 
@@ -68,11 +69,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final memberType =
+        Provider.of<MemberProvider>(context).currentMember?.memberType ??
+        MemberType.family;
+
     return Scaffold(
-      backgroundColor: getBackgroundColor(testMemberType),
+      backgroundColor: getBackgroundColor(memberType),
       appBar: DefaultAppBar(
         title: widget.opponentName,
-        color: getBackgroundColor(testMemberType),
+        color: getBackgroundColor(memberType),
         actions: [
           IconButton(
             onPressed: () {

@@ -38,7 +38,8 @@ class APIService {
   }) async {
     final dio = Dio(
       BaseOptions(
-        baseUrl: baseUrl,
+        baseUrl: endpoint == '/login' ? serverURL : baseUrl,
+        //TODO:: baseUrl에서, login endpoint를 api/login으로 수정 한 뒤에 다시 baseURL사용하도록 변경.
         contentType: contentType ?? Headers.formUrlEncodedContentType,
         headers: {if (token != null) HttpHeaders.authorizationHeader: '$token'},
       ),

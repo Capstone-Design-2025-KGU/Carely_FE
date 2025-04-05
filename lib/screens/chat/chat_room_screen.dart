@@ -1,5 +1,4 @@
 import 'package:carely/models/chat_room.dart';
-import 'package:carely/utils/logger_config.dart';
 import 'package:provider/provider.dart';
 import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/chat/chat_screen.dart';
@@ -171,6 +170,12 @@ class ChatRoomCard extends StatelessWidget {
     return '$role ${chatRoom.memberName}님';
   }
 
+  String _getProfileImagePath(MemberType memberType, String? profileImage) {
+    final type = memberType.name;
+    final imageName = profileImage ?? '1';
+    return 'assets/images/$type/profile/$imageName.png';
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -194,7 +199,16 @@ class ChatRoomCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image(image: AssetImage('assets/images/temp-user-image.png')),
+            Image(
+              image: AssetImage(
+                _getProfileImagePath(
+                  chatRoom.memberType,
+                  chatRoom.profileImage,
+                ),
+              ),
+              width: 48.0, // 필요 시 사이즈 조절
+              height: 48.0,
+            ),
             SizedBox(width: 16.0),
             Expanded(
               child: Column(
