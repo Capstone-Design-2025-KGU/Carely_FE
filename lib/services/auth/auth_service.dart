@@ -9,10 +9,12 @@ class AuthService {
   Future<String?> login(String username, String password) async {
     try {
       final response = await APIService.instance.request(
-        '/auth/login',
+        '/login',
         DioMethod.post,
         param: {'username': username, 'password': password},
       );
+
+      logger.i('로그인 응답: ${response.data}');
 
       final token = response.data['token'];
       await TokenStorageService.saveToken(token);

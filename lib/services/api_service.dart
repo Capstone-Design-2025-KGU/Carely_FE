@@ -10,7 +10,7 @@ class APIService {
   APIService._singleton();
   static final APIService instance = APIService._singleton();
 
-  final serverURL = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8081/ws';
+  final serverURL = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8081';
 
   final logger = PrettyDioLogger(
     requestHeader: true,
