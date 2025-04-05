@@ -1,6 +1,8 @@
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
+import 'package:carely/widgets/default_button.dart';
+import 'package:carely/widgets/signup_progress_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -19,24 +21,20 @@ class _TypeSelectScreenState extends State<TypeSelectScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: DefaultAppBar(title: '회원가입'),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Column(
+          children: [
+            SignupProgressBar(
+              currentStep: 2,
+              totalSteps: 4,
+              title: '본인을 선택하세요',
+            ),
+            Expanded(
+              child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '약관에 먼저 동의해 주세요',
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.gray800,
-                      ),
-                    ),
-                    SizedBox(height: 36.0),
                     MemberTypeCard(
                       title: '간병인',
                       memberType: 'family',
@@ -62,8 +60,23 @@ class _TypeSelectScreenState extends State<TypeSelectScreen> {
                 ),
               ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: DefaultButton(
+                content: '다음',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const TypeSelectScreen(),
+                    ),
+                  );
+                },
+                isEnable: selectedType != null,
+              ),
+            ),
+            SizedBox(height: 20.0),
+          ],
+        ),
       ),
     );
   }
@@ -96,7 +109,9 @@ class MemberTypeCard extends StatelessWidget {
           height: ScreenSize.height(context, 88.0),
           decoration: BoxDecoration(
             color: isSelected ? _getSelectedColor(memberType) : Colors.white,
-            boxShadow: [BoxShadow(color: Colors.black, blurRadius: 4.0)],
+            boxShadow: [
+              BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.25), blurRadius: 4.0),
+            ],
             border: Border.all(
               color:
                   isSelected
@@ -104,10 +119,14 @@ class MemberTypeCard extends StatelessWidget {
                       : Colors.transparent,
               width: 1.0,
             ),
+            borderRadius: BorderRadius.circular(8.0),
           ),
           child: Row(
             children: [
-              SvgPicture.asset(assetPath, width: 64.0, height: 64.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: SvgPicture.asset(assetPath, width: 64.0, height: 64.0),
+              ),
               Text(
                 title,
                 style: TextStyle(
