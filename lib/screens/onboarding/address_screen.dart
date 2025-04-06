@@ -1,5 +1,4 @@
 import 'package:carely/screens/onboarding/skill_screen.dart';
-import 'package:carely/screens/onboarding/type_select_screen.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:carely/widgets/input_select_field.dart';
 import 'package:carely/widgets/input_text_field.dart';
@@ -25,11 +24,7 @@ class _AddressScreenState extends State<AddressScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           children: [
-            SignupProgressBar(
-              currentStep: 4,
-              totalSteps: 6,
-              title: '주소를 알려주세요',
-            ),
+            SignupProgressBar(currentStep: 3, title: '주소를 알려주세요'),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(

@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 
 class SignupProgressBar extends StatelessWidget {
   final int currentStep;
-  final int totalSteps;
+  final int totalSteps = 7;
   final String title;
+  final bool isStory;
 
   const SignupProgressBar({
     super.key,
     required this.currentStep,
-    required this.totalSteps,
     required this.title,
+    this.isStory = false,
   });
 
   @override
@@ -39,6 +40,18 @@ class SignupProgressBar extends StatelessWidget {
             color: Color(0xFF333333),
           ),
         ),
+        if (isStory)
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: Text(
+              '다른 이웃에게 이야기가 보여줘요',
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.w500,
+                color: AppColors.gray600,
+              ),
+            ),
+          ),
         const SizedBox(height: 36.0),
       ],
     );

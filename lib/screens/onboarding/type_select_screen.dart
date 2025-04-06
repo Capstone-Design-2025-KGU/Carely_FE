@@ -26,11 +26,7 @@ class _TypeSelectScreenState extends State<TypeSelectScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           children: [
-            SignupProgressBar(
-              currentStep: 2,
-              totalSteps: 6,
-              title: '본인을 선택하세요',
-            ),
+            SignupProgressBar(currentStep: 2, title: '본인을 선택하세요'),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(

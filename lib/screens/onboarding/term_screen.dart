@@ -59,11 +59,7 @@ class _TermScreenState extends State<TermScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           children: [
-            SignupProgressBar(
-              currentStep: 1,
-              totalSteps: 6,
-              title: '약관에 먼저 동의해 주세요',
-            ),
+            SignupProgressBar(currentStep: 1, title: '약관에 먼저 동의해 주세요'),
             Expanded(
               child: SingleChildScrollView(
                 controller: _scrollController,

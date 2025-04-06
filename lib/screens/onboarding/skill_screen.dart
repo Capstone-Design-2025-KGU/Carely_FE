@@ -1,3 +1,4 @@
+import 'package:carely/screens/onboarding/story_screen.dart';
 import 'package:carely/screens/onboarding/type_select_screen.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
@@ -41,7 +42,6 @@ class _SkillScreenState extends State<SkillScreen> {
           children: [
             SignupProgressBar(
               currentStep: 4,
-              totalSteps: 6,
               title: '모시는 분에 대해 알려주세요',
               //TODO : 추후 앞서 선택한 유저 타입에 맞게 타이틀 바꾸도록 수정
             ),
@@ -161,7 +161,7 @@ class _SkillScreenState extends State<SkillScreen> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const TypeSelectScreen(),
+                      builder: (context) => const StoryScreen(),
                     ),
                   );
                 },

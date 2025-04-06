@@ -29,11 +29,7 @@ class _MyInformationScreenState extends State<MyInformationScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           children: [
-            SignupProgressBar(
-              currentStep: 3,
-              totalSteps: 6,
-              title: '내 정보를 적어주세요',
-            ),
+            SignupProgressBar(currentStep: 3, title: '내 정보를 적어주세요'),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
