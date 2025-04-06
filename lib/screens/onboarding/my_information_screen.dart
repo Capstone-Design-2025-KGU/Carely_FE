@@ -1,3 +1,4 @@
+import 'package:carely/screens/onboarding/address_screen.dart';
 import 'package:carely/screens/onboarding/type_select_screen.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
@@ -30,7 +31,7 @@ class _MyInformationScreenState extends State<MyInformationScreen> {
           children: [
             SignupProgressBar(
               currentStep: 3,
-              totalSteps: 4,
+              totalSteps: 6,
               title: '내 정보를 적어주세요',
             ),
             Expanded(
@@ -287,7 +288,7 @@ class _MyInformationScreenState extends State<MyInformationScreen> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const TypeSelectScreen(),
+                      builder: (context) => const AddressScreen(),
                     ),
                   );
                 },

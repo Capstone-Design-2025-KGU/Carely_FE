@@ -61,7 +61,7 @@ class _TermScreenState extends State<TermScreen> {
           children: [
             SignupProgressBar(
               currentStep: 1,
-              totalSteps: 4,
+              totalSteps: 6,
               title: '약관에 먼저 동의해 주세요',
             ),
             Expanded(

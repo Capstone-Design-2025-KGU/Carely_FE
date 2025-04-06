@@ -28,7 +28,7 @@ class _TypeSelectScreenState extends State<TypeSelectScreen> {
           children: [
             SignupProgressBar(
               currentStep: 2,
-              totalSteps: 4,
+              totalSteps: 6,
               title: '본인을 선택하세요',
             ),
             Expanded(
