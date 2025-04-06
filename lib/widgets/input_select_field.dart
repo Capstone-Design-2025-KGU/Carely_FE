@@ -31,7 +31,7 @@ class InputSelectField extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
             hintText: '선택해주세요',
-            hintStyle: TextStyle(color: AppColors.gray300, fontSize: 16.0),
+            hintStyle: TextStyle(color: AppColors.gray300, fontSize: 20.0),
             enabledBorder: const UnderlineInputBorder(
               borderSide: BorderSide(color: AppColors.gray200),
             ),
@@ -44,7 +44,7 @@ class InputSelectField extends StatelessWidget {
             children: [
               Text(
                 displayText,
-                style: TextStyle(color: AppColors.gray800, fontSize: 16.0),
+                style: TextStyle(color: AppColors.gray800, fontSize: 20.0),
               ),
               FaIcon(
                 FontAwesomeIcons.angleDown,
