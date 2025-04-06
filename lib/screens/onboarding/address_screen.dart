@@ -1,3 +1,4 @@
+import 'package:carely/screens/onboarding/skill_screen.dart';
 import 'package:carely/screens/onboarding/type_select_screen.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:carely/widgets/input_select_field.dart';
@@ -35,7 +36,7 @@ class _AddressScreenState extends State<AddressScreen> {
                   children: [
                     InputSelectField(
                       label: '주소',
-                      displayText: '거주지를 입력하세요',
+                      hintText: '거주지를 입력하세요',
                       onTap: () {},
                     ),
                     InputTextField(
@@ -54,7 +55,7 @@ class _AddressScreenState extends State<AddressScreen> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const TypeSelectScreen(),
+                      builder: (context) => const SkillScreen(),
                     ),
                   );
                 },

@@ -4,14 +4,16 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class InputSelectField extends StatelessWidget {
   final String label;
+  final String hintText;
   final String displayText;
   final VoidCallback onTap;
 
   const InputSelectField({
     super.key,
     required this.label,
-    required this.displayText,
+    this.displayText = '',
     required this.onTap,
+    this.hintText = '선택해주세요',
   });
 
   @override
@@ -30,8 +32,12 @@ class InputSelectField extends StatelessWidget {
               fontSize: 16.0,
               fontWeight: FontWeight.w500,
             ),
-            hintText: '선택해주세요',
-            hintStyle: TextStyle(color: AppColors.gray300, fontSize: 20.0),
+            hintText: hintText,
+            hintStyle: TextStyle(
+              color: AppColors.gray300,
+              fontSize: 20.0,
+              fontWeight: FontWeight.w400,
+            ),
             enabledBorder: const UnderlineInputBorder(
               borderSide: BorderSide(color: AppColors.gray200),
             ),
@@ -43,9 +49,16 @@ class InputSelectField extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                displayText,
-                style: TextStyle(color: AppColors.gray800, fontSize: 20.0),
+                displayText.isEmpty ? hintText : displayText,
+                style: TextStyle(
+                  color:
+                      displayText.isEmpty
+                          ? AppColors.gray300
+                          : AppColors.gray800,
+                  fontSize: 20.0,
+                ),
               ),
+
               FaIcon(
                 FontAwesomeIcons.angleDown,
                 size: 16.0,
