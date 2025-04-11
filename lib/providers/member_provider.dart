@@ -46,4 +46,11 @@ class MemberProvider with ChangeNotifier {
     _member = null;
     notifyListeners();
   }
+
+  void setMemberType(MemberType type) {
+    if (_member != null) {
+      _member = _member!.copyWith(memberType: type);
+      notifyListeners();
+    }
+  }
 }
