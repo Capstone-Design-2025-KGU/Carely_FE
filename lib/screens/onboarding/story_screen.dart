@@ -1,4 +1,5 @@
 import 'package:carely/screens/onboarding/skill_screen.dart';
+import 'package:carely/screens/onboarding/success_screen.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:carely/widgets/signup_progress_widget.dart';
@@ -107,9 +108,7 @@ class _StoryScreenState extends State<StoryScreen> {
                 content: '다음',
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const SkillScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => SuccessScreen()),
                   );
                 },
               ),
