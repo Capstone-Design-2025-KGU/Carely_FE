@@ -78,7 +78,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final memberType =
-        Provider.of<MemberProvider>(context).currentMember?.memberType ??
+        Provider.of<MemberProvider>(context).member?.memberType ??
         MemberType.family;
 
     return Scaffold(

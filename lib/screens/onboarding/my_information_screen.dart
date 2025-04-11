@@ -1,5 +1,4 @@
 import 'package:carely/screens/onboarding/address_screen.dart';
-import 'package:carely/screens/onboarding/type_select_screen.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
 import 'package:carely/widgets/default_app_bar.dart';
