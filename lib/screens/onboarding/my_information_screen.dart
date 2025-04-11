@@ -1,3 +1,4 @@
+import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/onboarding/address_screen.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
@@ -6,6 +7,7 @@ import 'package:carely/widgets/input_text_field.dart';
 import 'package:carely/widgets/signup_progress_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/widgets/default_button.dart';
+import 'package:provider/provider.dart';
 
 class MyInformationScreen extends StatefulWidget {
   static String id = 'my-information-screen';
@@ -18,6 +20,24 @@ class MyInformationScreen extends StatefulWidget {
 class _MyInformationScreenState extends State<MyInformationScreen> {
   String _rrnFront = '';
   String _rrnBack = '';
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _yearController = TextEditingController();
+  final _monthController = TextEditingController();
+  final _dayController = TextEditingController();
+
+  void _updateBirthFromRRN() {
+    if (_rrnFront.length == 6 && _rrnBack.isNotEmpty) {
+      final yy = _rrnFront.substring(0, 2);
+      final mm = _rrnFront.substring(2, 4);
+      final dd = _rrnFront.substring(4, 6);
+      final century = (_rrnBack[0] == '1' || _rrnBack[0] == '2') ? '19' : '20';
+      final fullBirth = '$century$yy-$mm-$dd';
+
+      context.read<MemberProvider>().updatePartial(birth: fullBirth);
+      logger.i('💡 생년월일 업데이트됨: $fullBirth');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,14 +56,22 @@ class _MyInformationScreenState extends State<MyInformationScreen> {
                     InputTextField(
                       label: '이름',
                       hintText: '성함을 입력하세요',
-                      onChanged: (value) {},
+                      onChanged: (value) {
+                        context.read<MemberProvider>().updatePartial(
+                          name: value,
+                        );
+                      },
                     ),
                     InputTextField(
                       label: '전화번호',
                       hintText: '전화번호를 입력하세요',
-                      onChanged: (value) {},
+                      onChanged: (value) {
+                        context.read<MemberProvider>().updatePartial(
+                          phoneNumber: value,
+                        );
+                      },
                     ),
-                    // 주민등록번호 두 필드 추가
+                    //TODO : 주민등록번호가 반드시 필요한가? (증명서 발급시 필요하지만 저장 불가능함) 추후 고민
                     Row(
                       children: [
                         Expanded(
@@ -86,6 +114,7 @@ class _MyInformationScreenState extends State<MyInformationScreen> {
                               setState(() {
                                 _rrnFront = value;
                               });
+                              _updateBirthFromRRN();
                             },
                           ),
                         ),
@@ -134,6 +163,7 @@ class _MyInformationScreenState extends State<MyInformationScreen> {
                               setState(() {
                                 _rrnBack = value;
                               });
+                              _updateBirthFromRRN();
                               final rrn = _rrnFront + _rrnBack;
                               logger.i('주민등록번호 전체: $rrn');
                             },
@@ -281,6 +311,13 @@ class _MyInformationScreenState extends State<MyInformationScreen> {
               child: DefaultButton(
                 content: '다음',
                 onPressed: () {
+                  final member = context.read<MemberProvider>().member;
+
+                  logger.i('✅ 입력된 정보 확인');
+                  logger.i('이름: ${member?.name}');
+                  logger.i('전화번호: ${member?.phoneNumber}');
+                  logger.i('회원 유형: ${member?.memberType}');
+
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const AddressScreen(),
