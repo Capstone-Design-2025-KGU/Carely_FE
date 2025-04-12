@@ -25,13 +25,22 @@ void main() async {
 
   final token = await TokenStorageService.getToken();
   Member? fetchedMember;
+  String? validToken = token;
 
   if (token != null) {
     try {
       fetchedMember = await MemberService.instance.fetchMyInfo(token);
-      logger.i('✅ 토큰 유효함, 멤버 로드됨: ${fetchedMember?.toJson()}');
+      if (fetchedMember != null) {
+        logger.i('✅ 토큰 유효함, 멤버 로드됨: ${fetchedMember.toJson()}');
+      } else {
+        logger.e('❌ 토큰은 있었지만, 멤버가 null입니다.');
+        await TokenStorageService.deleteToken();
+        validToken = null;
+      }
     } catch (e) {
       logger.e('❌ 토큰 유효하지 않음 또는 멤버 로드 실패: $e');
+      await TokenStorageService.deleteToken();
+      validToken = null;
     }
   }
 
@@ -50,7 +59,7 @@ void main() async {
           },
         ),
       ],
-      child: MyApp(initialToken: token),
+      child: MyApp(initialToken: validToken),
     ),
   );
 }
