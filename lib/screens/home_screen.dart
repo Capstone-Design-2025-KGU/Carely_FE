@@ -7,6 +7,7 @@ import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -84,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 40.0),
                     child: Text(
-                      '안녕하세요 $memberName,\n내 주변 도움을 받아보세요!',
+                      '안녕하세요 $memberName님,\n내 주변 도움을 받아보세요!',
                       style: TextStyle(
                         fontSize: 20.0,
                         fontFamily: 'Pretendard',
@@ -170,11 +171,116 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 40.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        '나랑 잘 맞는 이웃',
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.gray800,
+                        ),
+                      ),
+                      Text(
+                        '더보기',
+                        style: TextStyle(
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.gray600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20.0),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        MemberCard(),
+                        MemberCard(),
+                        MemberCard(),
+                        MemberCard(),
+                        MemberCard(),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class MemberCard extends StatelessWidget {
+  const MemberCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      //TODO: 패딩 동적으로 수정
+      child: Container(
+        width: ScreenSize.width(context, 126.0),
+        height: ScreenSize.height(context, 160.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/images/family/profile/1.png'),
+            SizedBox(height: 4.0),
+            Text(
+              '이규민',
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.w600,
+                color: AppColors.gray800,
+              ),
+            ),
+            SizedBox(height: 4.0),
+            Text(
+              '3Km',
+              style: TextStyle(
+                fontSize: 12.0,
+                fontWeight: FontWeight.w500,
+                color: AppColors.gray300,
+              ),
+            ),
+            SizedBox(height: 4.0),
+            Container(
+              width: ScreenSize.width(context, 100.0),
+              height: ScreenSize.height(context, 26.0),
+              decoration: BoxDecoration(color: AppColors.main50),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FaIcon(
+                    FontAwesomeIcons.solidClock,
+                    size: 16.0,
+                    color: AppColors.mainPrimary,
+                  ),
+                  SizedBox(width: 4.0),
+                  Text(
+                    '함께한 22시간',
+                    style: TextStyle(
+                      color: AppColors.mainPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
