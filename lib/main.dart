@@ -1,4 +1,6 @@
+import 'package:carely/models/address.dart';
 import 'package:carely/models/member.dart';
+import 'package:carely/models/skill.dart';
 import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/chat/chat_screen.dart';
 import 'package:carely/screens/home_screen.dart';
@@ -10,6 +12,8 @@ import 'package:carely/services/auth/token_storage_service.dart';
 import 'package:carely/services/member/member_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
+import 'package:carely/utils/member_type.dart';
+import 'package:carely/utils/skill_level.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -38,7 +42,43 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => memberProvider)],
+      providers: [
+        ChangeNotifierProvider(
+          create:
+              (_) =>
+                  MemberProvider()..setMember(
+                    Member(
+                      memberId: 0,
+                      username: '',
+                      password: '',
+                      name: '',
+                      phoneNumber: '',
+                      birth: '',
+                      story: '',
+                      memberType: MemberType.family, // default
+                      isVisible: true,
+                      isVerified: false,
+                      profileImage: null,
+                      createdAt: null,
+                      address: Address(
+                        province: '',
+                        city: '',
+                        district: '',
+                        details: '',
+                        latitude: 0,
+                        longitude: 0,
+                      ),
+                      skill: Skill(
+                        communication: SkillLevel.low,
+                        meal: SkillLevel.low,
+                        toilet: SkillLevel.low,
+                        bath: SkillLevel.low,
+                        walk: SkillLevel.low,
+                      ),
+                    ),
+                  ),
+        ),
+      ],
       child: MyApp(initialToken: validToken),
     ),
   );

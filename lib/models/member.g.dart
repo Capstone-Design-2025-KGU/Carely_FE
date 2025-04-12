@@ -9,6 +9,7 @@ part of 'member.dart';
 _$MemberImpl _$$MemberImplFromJson(Map<String, dynamic> json) => _$MemberImpl(
   memberId: (json['memberId'] as num).toInt(),
   username: json['username'] as String,
+  password: json['password'] as String,
   name: json['name'] as String,
   phoneNumber: json['phoneNumber'] as String,
   birth: _birthFromJson(json['birth'] as List),
@@ -28,6 +29,7 @@ Map<String, dynamic> _$$MemberImplToJson(_$MemberImpl instance) =>
     <String, dynamic>{
       'memberId': instance.memberId,
       'username': instance.username,
+      'password': instance.password,
       'name': instance.name,
       'phoneNumber': instance.phoneNumber,
       'birth': instance.birth,

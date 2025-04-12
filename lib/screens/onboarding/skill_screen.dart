@@ -1,12 +1,17 @@
+import 'package:carely/models/skill.dart';
+import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/onboarding/story_screen.dart';
-import 'package:carely/screens/onboarding/type_select_screen.dart';
 import 'package:carely/theme/colors.dart';
+import 'package:carely/utils/logger_config.dart';
+import 'package:carely/utils/member_type.dart';
 import 'package:carely/utils/screen_size.dart';
+import 'package:carely/utils/skill_level.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:carely/widgets/input_select_field.dart';
 import 'package:carely/widgets/signup_progress_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/widgets/default_button.dart';
+import 'package:provider/provider.dart';
 
 class SkillScreen extends StatefulWidget {
   static String id = 'skill-screen';
@@ -31,8 +36,27 @@ class _SkillScreenState extends State<SkillScreen> {
     return ['수월', '보통', '서투름'][index];
   }
 
+  SkillLevel _indexToSkillLevel(int index) {
+    switch (index) {
+      case 0:
+        return SkillLevel.high;
+      case 1:
+        return SkillLevel.middle;
+      case 2:
+        return SkillLevel.low;
+      default:
+        return SkillLevel.low;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final memberType = context.watch<MemberProvider>().member?.memberType;
+    final title =
+        (memberType == MemberType.family)
+            ? '모시는 분에 대해 알려주세요'
+            : '내 간병 능력을 알려주세요';
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: DefaultAppBar(title: '회원가입'),
@@ -40,11 +64,7 @@ class _SkillScreenState extends State<SkillScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           children: [
-            SignupProgressBar(
-              currentStep: 4,
-              title: '모시는 분에 대해 알려주세요',
-              //TODO : 추후 앞서 선택한 유저 타입에 맞게 타이틀 바꾸도록 수정
-            ),
+            SignupProgressBar(currentStep: 4, title: title),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -159,6 +179,17 @@ class _SkillScreenState extends State<SkillScreen> {
               child: DefaultButton(
                 content: '다음',
                 onPressed: () {
+                  final skill = Skill(
+                    communication: _indexToSkillLevel(_selectedLevels['대화']!),
+                    meal: _indexToSkillLevel(_selectedLevels['식사']!),
+                    toilet: _indexToSkillLevel(_selectedLevels['화장실']!),
+                    bath: _indexToSkillLevel(_selectedLevels['목욕']!),
+                    walk: _indexToSkillLevel(_selectedLevels['걷기']!),
+                  );
+
+                  context.read<MemberProvider>().updatePartial(skill: skill);
+                  logger.i('🛠️ 스킬 저장됨: $skill');
+
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const StoryScreen(),

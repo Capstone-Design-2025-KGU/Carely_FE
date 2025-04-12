@@ -1,11 +1,15 @@
 import 'package:carely/screens/onboarding/my_information_screen.dart';
 import 'package:carely/theme/colors.dart';
+import 'package:carely/utils/logger_config.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:carely/widgets/default_button.dart';
 import 'package:carely/widgets/signup_progress_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
+import 'package:carely/providers/member_provider.dart';
+import 'package:carely/utils/member_type.dart';
 
 class TypeSelectScreen extends StatefulWidget {
   const TypeSelectScreen({super.key});
@@ -15,7 +19,7 @@ class TypeSelectScreen extends StatefulWidget {
 }
 
 class _TypeSelectScreenState extends State<TypeSelectScreen> {
-  String? selectedType;
+  MemberType? selectedType;
 
   @override
   Widget build(BuildContext context) {
@@ -36,22 +40,37 @@ class _TypeSelectScreenState extends State<TypeSelectScreen> {
                       title: '간병인',
                       memberType: 'family',
                       assetPath: 'assets/images/family/type.svg',
-                      isSelected: selectedType == 'family',
-                      onTap: () => setState(() => selectedType = 'family'),
+                      isSelected: selectedType == MemberType.family,
+                      onTap: () {
+                        setState(() => selectedType = MemberType.family);
+                        context.read<MemberProvider>().setMemberType(
+                          MemberType.family,
+                        );
+                      },
                     ),
                     MemberTypeCard(
                       title: '자원봉사자',
                       memberType: 'volunteer',
                       assetPath: 'assets/images/volunteer/type.svg',
-                      isSelected: selectedType == 'volunteer',
-                      onTap: () => setState(() => selectedType = 'volunteer'),
+                      isSelected: selectedType == MemberType.volunteer,
+                      onTap: () {
+                        setState(() => selectedType = MemberType.volunteer);
+                        context.read<MemberProvider>().setMemberType(
+                          MemberType.volunteer,
+                        );
+                      },
                     ),
                     MemberTypeCard(
                       title: '요양보호사',
                       memberType: 'caregiver',
                       assetPath: 'assets/images/caregiver/type.svg',
-                      isSelected: selectedType == 'caregiver',
-                      onTap: () => setState(() => selectedType = 'caregiver'),
+                      isSelected: selectedType == MemberType.caregiver,
+                      onTap: () {
+                        setState(() => selectedType = MemberType.caregiver);
+                        context.read<MemberProvider>().setMemberType(
+                          MemberType.caregiver,
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -62,6 +81,10 @@ class _TypeSelectScreenState extends State<TypeSelectScreen> {
               child: DefaultButton(
                 content: '다음',
                 onPressed: () {
+                  final selected =
+                      context.read<MemberProvider>().member?.memberType;
+                  logger.i('선택된 타입: $selected');
+
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => MyInformationScreen(),

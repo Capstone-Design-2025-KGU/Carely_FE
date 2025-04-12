@@ -1,9 +1,16 @@
-import 'package:carely/screens/onboarding/skill_screen.dart';
+import 'dart:convert';
+
+import 'package:carely/providers/member_provider.dart';
+import 'package:carely/screens/onboarding/success_screen.dart';
+import 'package:carely/screens/onboarding/visible_screen.dart';
+import 'package:carely/services/member/member_service.dart';
 import 'package:carely/theme/colors.dart';
+import 'package:carely/utils/logger_config.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:carely/widgets/signup_progress_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/widgets/default_button.dart';
+import 'package:provider/provider.dart';
 
 class StoryScreen extends StatefulWidget {
   static String id = 'story-screen';
@@ -77,8 +84,11 @@ class _StoryScreenState extends State<StoryScreen> {
                               ),
                             ),
                           ),
-                          onChanged: (_) {
-                            setState(() {}); // 글자 수 업데이트
+                          onChanged: (text) {
+                            context.read<MemberProvider>().updatePartial(
+                              story: text,
+                            );
+                            setState(() {});
                           },
                         ),
                         Padding(
@@ -106,9 +116,13 @@ class _StoryScreenState extends State<StoryScreen> {
               child: DefaultButton(
                 content: '다음',
                 onPressed: () {
+                  context.read<MemberProvider>().updatePartial(
+                    story: _controller.text,
+                  );
+
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const SkillScreen(),
+                      builder: (context) => const VisibleScreen(),
                     ),
                   );
                 },

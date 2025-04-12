@@ -35,7 +35,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final currentMember =
-          Provider.of<MemberProvider>(context, listen: false).currentMember;
+          Provider.of<MemberProvider>(context, listen: false).member;
       if (currentMember != null) {
         loadChatRoom(currentMember.memberId);
       }
@@ -54,7 +54,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 Provider.of<MemberProvider>(
                   context,
                   listen: false,
-                ).currentMember?.memberId;
+                ).member?.memberId;
             if (memberId != null) {
               loadChatRoom(memberId);
             }
@@ -70,7 +70,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentMember = Provider.of<MemberProvider>(context).currentMember;
+    final currentMember = Provider.of<MemberProvider>(context).member;
     final senderId = currentMember?.memberId;
 
     return Scaffold(

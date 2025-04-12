@@ -6,6 +6,7 @@ class InputTextField extends StatelessWidget {
   final String hintText;
   final String? initialValue;
   final ValueChanged<String> onChanged;
+  final TextEditingController? controller;
 
   const InputTextField({
     super.key,
@@ -13,16 +14,18 @@ class InputTextField extends StatelessWidget {
     required this.hintText,
     this.initialValue,
     required this.onChanged,
+    this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
-    final controller = TextEditingController(text: initialValue);
+    final effectiveController =
+        controller ?? TextEditingController(text: initialValue);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 32.0),
       child: TextField(
-        controller: controller,
+        controller: effectiveController,
         onChanged: onChanged,
         decoration: InputDecoration(
           floatingLabelBehavior: FloatingLabelBehavior.always,
