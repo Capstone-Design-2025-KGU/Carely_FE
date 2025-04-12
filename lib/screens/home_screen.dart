@@ -176,6 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   MenuTitle(title: '나랑 잘 맞는 이웃'),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
                     child: Row(
                       children: [
                         MemberCard(),
@@ -190,11 +191,70 @@ class _HomeScreenState extends State<HomeScreen> {
                   MenuTitle(title: '내 주변 이웃 찾아보기'),
                   SizedBox(height: 36.0),
                   MenuTitle(title: '함께한 추억'),
+                  MemoryCard(),
+                  SizedBox(height: 12.0),
+                  MemoryCard(),
+                  SizedBox(height: 40.0),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class MemoryCard extends StatelessWidget {
+  const MemoryCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: ScreenSize.width(context, 336.0),
+      height: ScreenSize.height(context, 88.0),
+      decoration: BoxDecoration(
+        color: AppColors.main50,
+        borderRadius: BorderRadius.circular(8.0),
+        boxShadow: [
+          BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.25), blurRadius: 4.0),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            Image.asset('assets/images/family/profile/1.png'),
+            SizedBox(width: 12.0),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '간병인 이상덕님',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.gray600,
+                    ),
+                  ),
+                  SizedBox(height: 4.0),
+                  Text(
+                    '전문적이세요! 너무 너무 감사합니다. 다음에 또 뵐 수 있으면 좋겠습니다. 다음에 또 뵈면 제가 맛있는 음식을 대접하는 것으로 약속',
+                    style: TextStyle(
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.gray600,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -250,6 +310,9 @@ class MemberCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8.0),
+          boxShadow: [
+            BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.25), blurRadius: 4.0),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
