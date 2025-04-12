@@ -40,6 +40,15 @@ class _MyInformationScreenState extends State<MyInformationScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    final member = context.read<MemberProvider>().member;
+
+    _nameController.text = member?.name ?? '';
+    _phoneController.text = member?.phoneNumber ?? '';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -56,6 +65,7 @@ class _MyInformationScreenState extends State<MyInformationScreen> {
                     InputTextField(
                       label: '이름',
                       hintText: '성함을 입력하세요',
+                      controller: _nameController,
                       onChanged: (value) {
                         context.read<MemberProvider>().updatePartial(
                           name: value,
@@ -65,6 +75,7 @@ class _MyInformationScreenState extends State<MyInformationScreen> {
                     InputTextField(
                       label: '전화번호',
                       hintText: '전화번호를 입력하세요',
+                      controller: _phoneController,
                       onChanged: (value) {
                         context.read<MemberProvider>().updatePartial(
                           phoneNumber: value,

@@ -23,6 +23,7 @@ Member _$MemberFromJson(Map<String, dynamic> json) {
 mixin _$Member {
   int get memberId => throw _privateConstructorUsedError;
   String get username => throw _privateConstructorUsedError;
+  String get password => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get phoneNumber => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _birthFromJson)
@@ -55,6 +56,7 @@ abstract class $MemberCopyWith<$Res> {
   $Res call({
     int memberId,
     String username,
+    String password,
     String name,
     String phoneNumber,
     @JsonKey(fromJson: _birthFromJson) String birth,
@@ -89,6 +91,7 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
   $Res call({
     Object? memberId = null,
     Object? username = null,
+    Object? password = null,
     Object? name = null,
     Object? phoneNumber = null,
     Object? birth = null,
@@ -112,6 +115,11 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
                 null == username
                     ? _value.username
                     : username // ignore: cast_nullable_to_non_nullable
+                        as String,
+            password:
+                null == password
+                    ? _value.password
+                    : password // ignore: cast_nullable_to_non_nullable
                         as String,
             name:
                 null == name
@@ -205,6 +213,7 @@ abstract class _$$MemberImplCopyWith<$Res> implements $MemberCopyWith<$Res> {
   $Res call({
     int memberId,
     String username,
+    String password,
     String name,
     String phoneNumber,
     @JsonKey(fromJson: _birthFromJson) String birth,
@@ -240,6 +249,7 @@ class __$$MemberImplCopyWithImpl<$Res>
   $Res call({
     Object? memberId = null,
     Object? username = null,
+    Object? password = null,
     Object? name = null,
     Object? phoneNumber = null,
     Object? birth = null,
@@ -263,6 +273,11 @@ class __$$MemberImplCopyWithImpl<$Res>
             null == username
                 ? _value.username
                 : username // ignore: cast_nullable_to_non_nullable
+                    as String,
+        password:
+            null == password
+                ? _value.password
+                : password // ignore: cast_nullable_to_non_nullable
                     as String,
         name:
             null == name
@@ -331,6 +346,7 @@ class _$MemberImpl implements _Member {
   const _$MemberImpl({
     required this.memberId,
     required this.username,
+    required this.password,
     required this.name,
     required this.phoneNumber,
     @JsonKey(fromJson: _birthFromJson) required this.birth,
@@ -351,6 +367,8 @@ class _$MemberImpl implements _Member {
   final int memberId;
   @override
   final String username;
+  @override
+  final String password;
   @override
   final String name;
   @override
@@ -379,7 +397,7 @@ class _$MemberImpl implements _Member {
 
   @override
   String toString() {
-    return 'Member(memberId: $memberId, username: $username, name: $name, phoneNumber: $phoneNumber, birth: $birth, story: $story, memberType: $memberType, isVisible: $isVisible, isVerified: $isVerified, profileImage: $profileImage, createdAt: $createdAt, address: $address, skill: $skill)';
+    return 'Member(memberId: $memberId, username: $username, password: $password, name: $name, phoneNumber: $phoneNumber, birth: $birth, story: $story, memberType: $memberType, isVisible: $isVisible, isVerified: $isVerified, profileImage: $profileImage, createdAt: $createdAt, address: $address, skill: $skill)';
   }
 
   @override
@@ -391,6 +409,8 @@ class _$MemberImpl implements _Member {
                 other.memberId == memberId) &&
             (identical(other.username, username) ||
                 other.username == username) &&
+            (identical(other.password, password) ||
+                other.password == password) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
@@ -416,6 +436,7 @@ class _$MemberImpl implements _Member {
     runtimeType,
     memberId,
     username,
+    password,
     name,
     phoneNumber,
     birth,
@@ -447,6 +468,7 @@ abstract class _Member implements Member {
   const factory _Member({
     required final int memberId,
     required final String username,
+    required final String password,
     required final String name,
     required final String phoneNumber,
     @JsonKey(fromJson: _birthFromJson) required final String birth,
@@ -466,6 +488,8 @@ abstract class _Member implements Member {
   int get memberId;
   @override
   String get username;
+  @override
+  String get password;
   @override
   String get name;
   @override

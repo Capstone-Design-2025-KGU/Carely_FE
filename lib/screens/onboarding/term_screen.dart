@@ -1,4 +1,5 @@
 import 'package:carely/screens/onboarding/type_select_screen.dart';
+import 'package:carely/screens/onboarding/username_password_screen.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:carely/widgets/signup_progress_widget.dart';
 import 'package:flutter/material.dart';
@@ -112,7 +113,7 @@ class _TermScreenState extends State<TermScreen> {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const TypeSelectScreen(),
+                      builder: (context) => UsernamePasswordScreen(),
                     ),
                   );
                 },

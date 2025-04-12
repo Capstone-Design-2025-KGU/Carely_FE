@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/onboarding/success_screen.dart';
 import 'package:carely/services/member/member_service.dart';

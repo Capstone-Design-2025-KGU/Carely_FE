@@ -13,6 +13,7 @@ class Member with _$Member {
   const factory Member({
     required int memberId,
     required String username,
+    required String password,
     required String name,
     required String phoneNumber,
 

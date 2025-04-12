@@ -30,6 +30,7 @@ class MemberProvider with ChangeNotifier {
 
     _member = _member!.copyWith(
       username: username ?? _member!.username,
+      password: password ?? _member!.password,
       name: name ?? _member!.name,
       phoneNumber: phoneNumber ?? _member!.phoneNumber,
       birth: birth ?? _member!.birth,

@@ -20,4 +20,17 @@ class MemberService {
       return null;
     }
   }
+
+  Future<bool> register(Member member) async {
+    try {
+      final response = await APIService.instance.request(
+        '/members/new',
+        DioMethod.post,
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      logger.e('회원가입 API 오류: $e');
+      return false;
+    }
+  }
 }

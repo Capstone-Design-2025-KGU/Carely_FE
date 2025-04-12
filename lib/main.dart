@@ -50,6 +50,7 @@ void main() async {
                     Member(
                       memberId: 0,
                       username: '',
+                      password: '',
                       name: '',
                       phoneNumber: '',
                       birth: '',
