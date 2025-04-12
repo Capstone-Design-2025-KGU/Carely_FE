@@ -1,6 +1,7 @@
 import 'package:carely/models/address.dart';
 import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/onboarding/skill_screen.dart';
+import 'package:carely/utils/logger_config.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:carely/widgets/input_select_field.dart';
 import 'package:carely/widgets/input_text_field.dart';
@@ -19,6 +20,8 @@ class AddressScreen extends StatefulWidget {
 }
 
 class _AddressScreenState extends State<AddressScreen> {
+  String _selectedAddressText = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,32 +39,39 @@ class _AddressScreenState extends State<AddressScreen> {
                     InputSelectField(
                       label: '주소',
                       hintText: '거주지를 입력하세요',
+                      displayText: _selectedAddressText,
                       onTap: () async {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder:
                                 (_) => KpostalView(
-                                  callback: (Kpostal res) {
-                                    final fullAddress = res.address; // 도로명 주소
-                                    final latitude = res.latitude;
-                                    final longitude = res.longitude;
+                                  callback: (Kpostal result) {
+                                    final parts = result.address.split(' ');
+                                    final province =
+                                        parts.isNotEmpty ? parts[0] : '';
+                                    final city =
+                                        parts.length > 1 ? parts[1] : '';
+                                    final district =
+                                        parts.length > 2 ? parts[2] : '';
 
-                                    // Provider로 저장
                                     context
                                         .read<MemberProvider>()
                                         .updatePartial(
                                           address: Address(
-                                            province: '', // 필요한 경우 분리
-                                            city: '',
-                                            district: '',
+                                            province: province,
+                                            city: city,
+                                            district: district,
                                             details: '',
-                                            latitude: latitude ?? 0.0,
-                                            longitude: longitude ?? 0.0,
+                                            latitude: result.latitude ?? 0.0,
+                                            longitude: result.longitude ?? 0.0,
                                           ),
                                         );
 
-                                    // 상태 갱신용 setState 등도 여기서
+                                    setState(() {
+                                      _selectedAddressText =
+                                          '$province $city $district';
+                                    });
                                   },
                                 ),
                           ),
@@ -71,7 +81,15 @@ class _AddressScreenState extends State<AddressScreen> {
                     InputTextField(
                       label: '상세 주소',
                       hintText: '상세 주소를 적어주세요',
-                      onChanged: (value) {},
+                      onChanged: (value) {
+                        context.read<MemberProvider>().updatePartial(
+                          address: context
+                              .read<MemberProvider>()
+                              .member!
+                              .address
+                              .copyWith(details: value),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -82,6 +100,9 @@ class _AddressScreenState extends State<AddressScreen> {
               child: DefaultButton(
                 content: '다음',
                 onPressed: () {
+                  logger.i(
+                    '📍 주소 정보: ${context.read<MemberProvider>().member?.address}',
+                  );
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const SkillScreen(),
