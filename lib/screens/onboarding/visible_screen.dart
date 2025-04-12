@@ -4,6 +4,7 @@ import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/onboarding/skill_screen.dart';
 import 'package:carely/screens/onboarding/success_screen.dart';
 import 'package:carely/services/member/member_service.dart';
+import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:carely/widgets/signup_progress_widget.dart';
@@ -41,7 +42,15 @@ class _VisibleScreenState extends State<VisibleScreen> {
                 child: Column(
                   children: [
                     RadioListTile<bool>(
-                      title: const Text('네 좋아요!'),
+                      activeColor: AppColors.mainPrimary,
+                      title: const Text(
+                        '네 좋아요!',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16.0,
+                          color: AppColors.gray800,
+                        ),
+                      ),
                       value: true,
                       groupValue: _isVisible,
                       onChanged: (value) {
@@ -51,7 +60,15 @@ class _VisibleScreenState extends State<VisibleScreen> {
                       },
                     ),
                     RadioListTile<bool>(
-                      title: const Text('다음에 할게요'),
+                      activeColor: AppColors.mainPrimary,
+                      title: const Text(
+                        '다음에 할게요',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16.0,
+                          color: AppColors.gray800,
+                        ),
+                      ),
                       value: false,
                       groupValue: _isVisible,
                       onChanged: (value) {
