@@ -60,6 +60,7 @@ flutter:
     - assets/images/volunteer/
     - assets/images/caregiver/
     - assets/images/CVH.svg
+    - assets/images/logo.svg
     - assets/images/temp-user-image.png
     - assets/images/no-chat-room.png
     - .env
