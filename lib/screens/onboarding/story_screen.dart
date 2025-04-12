@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/onboarding/success_screen.dart';
+import 'package:carely/screens/onboarding/visible_screen.dart';
 import 'package:carely/services/member/member_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
@@ -114,40 +115,16 @@ class _StoryScreenState extends State<StoryScreen> {
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: DefaultButton(
                 content: '다음',
-                onPressed: () async {
-                  final memberProvider = context.read<MemberProvider>();
-                  final member = memberProvider.member;
-
-                  if (member == null) {
-                    logger.e('❌ 멤버 정보 없음');
-                    return;
-                  }
-
-                  // 마지막 story 필드 업데이트
-                  memberProvider.updatePartial(story: _controller.text);
-
-                  // member 정보 전체 로그 출력
-                  final memberJson = member.toJson();
-                  logger.i('📦 회원가입 요청 데이터:');
-                  logger.i(
-                    const JsonEncoder.withIndent('  ').convert(memberJson),
+                onPressed: () {
+                  context.read<MemberProvider>().updatePartial(
+                    story: _controller.text,
                   );
 
-                  final response = await MemberService.instance.register(
-                    member,
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const VisibleScreen(),
+                    ),
                   );
-
-                  if (response) {
-                    logger.i('✅ 회원가입 성공');
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const SuccessScreen(),
-                      ),
-                    );
-                  } else {
-                    logger.e('❌ 회원가입 실패');
-                    // 오류 처리 팝업 등을 띄울 수 있음
-                  }
                 },
               ),
             ),

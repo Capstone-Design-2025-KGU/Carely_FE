@@ -6,12 +6,14 @@ class SignupProgressBar extends StatelessWidget {
   final int totalSteps = 7;
   final String title;
   final bool isStory;
+  final bool isVerify;
 
   const SignupProgressBar({
     super.key,
     required this.currentStep,
     required this.title,
     this.isStory = false,
+    this.isVerify = false,
   });
 
   @override
@@ -45,6 +47,18 @@ class SignupProgressBar extends StatelessWidget {
             padding: const EdgeInsets.only(top: 4.0),
             child: Text(
               '다른 이웃에게 이야기가 보여줘요',
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.w500,
+                color: AppColors.gray600,
+              ),
+            ),
+          ),
+        if (isVerify)
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: Text(
+              '다른 이웃에게 내 이름, 나이 정보가 지도에 공유되어요!',
               style: TextStyle(
                 fontSize: 16.0,
                 fontWeight: FontWeight.w500,
