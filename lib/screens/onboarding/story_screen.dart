@@ -123,8 +123,15 @@ class _StoryScreenState extends State<StoryScreen> {
                     return;
                   }
 
-                  // 마지막 story 필드만 업데이트
+                  // 마지막 story 필드 업데이트
                   memberProvider.updatePartial(story: _controller.text);
+
+                  // member 정보 전체 로그 출력
+                  final memberJson = member.toJson();
+                  logger.i('📦 회원가입 요청 데이터:');
+                  logger.i(
+                    const JsonEncoder.withIndent('  ').convert(memberJson),
+                  );
 
                   final response = await MemberService.instance.register(
                     member,

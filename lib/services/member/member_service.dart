@@ -26,6 +26,7 @@ class MemberService {
       final response = await APIService.instance.request(
         '/members/new',
         DioMethod.post,
+        param: member.toJson(),
       );
       return response.statusCode == 200;
     } catch (e) {
