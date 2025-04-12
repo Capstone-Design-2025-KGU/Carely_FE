@@ -1,3 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+
 import 'package:carely/models/address.dart';
 import 'package:carely/providers/member_provider.dart';
 import 'package:carely/theme/colors.dart';
@@ -5,10 +10,6 @@ import 'package:carely/utils/member_color.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   static String id = 'home-screen';
@@ -172,29 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   SizedBox(height: 40.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        '나랑 잘 맞는 이웃',
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.gray800,
-                        ),
-                      ),
-                      Text(
-                        '더보기',
-                        style: TextStyle(
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.gray600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20.0),
+                  MenuTitle(title: '나랑 잘 맞는 이웃'),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -207,8 +186,48 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+                  SizedBox(height: 36.0),
+                  MenuTitle(title: '내 주변 이웃 찾아보기'),
+                  SizedBox(height: 36.0),
+                  MenuTitle(title: '함께한 추억'),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class MenuTitle extends StatelessWidget {
+  String title;
+
+  MenuTitle({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+              color: AppColors.gray800,
+            ),
+          ),
+          Text(
+            '더보기',
+            style: TextStyle(
+              fontSize: 12.0,
+              fontWeight: FontWeight.w500,
+              color: AppColors.gray600,
             ),
           ),
         ],

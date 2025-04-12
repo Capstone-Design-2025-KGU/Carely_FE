@@ -1,5 +1,4 @@
 import 'package:carely/models/chat_room.dart';
-import 'package:carely/utils/logger_config.dart';
 import 'package:provider/provider.dart';
 import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/chat/chat_screen.dart';
