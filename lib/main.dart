@@ -23,20 +23,15 @@ void main() async {
   await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
 
-  Member? member;
-  String? validToken;
-  final memberProvider = MemberProvider();
   final token = await TokenStorageService.getToken();
+  Member? fetchedMember;
 
   if (token != null) {
     try {
-      member = await MemberService.instance.fetchMyInfo(token);
-      if (member != null) {
-        memberProvider.setMember(member);
-        validToken = token;
-      }
+      fetchedMember = await MemberService.instance.fetchMyInfo(token);
+      logger.i('✅ 토큰 유효함, 멤버 로드됨: ${fetchedMember?.toJson()}');
     } catch (e) {
-      logger.e('토큰 유효성 검증 실패: $e');
+      logger.e('❌ 토큰 유효하지 않음 또는 멤버 로드 실패: $e');
     }
   }
 
@@ -44,42 +39,18 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create:
-              (_) =>
-                  MemberProvider()..setMember(
-                    Member(
-                      memberId: 0,
-                      username: '',
-                      password: '',
-                      name: '',
-                      phoneNumber: '',
-                      birth: '',
-                      story: '',
-                      memberType: MemberType.family, // default
-                      isVisible: true,
-                      isVerified: false,
-                      profileImage: null,
-                      createdAt: null,
-                      address: Address(
-                        province: '',
-                        city: '',
-                        district: '',
-                        details: '',
-                        latitude: 0,
-                        longitude: 0,
-                      ),
-                      skill: Skill(
-                        communication: SkillLevel.low,
-                        meal: SkillLevel.low,
-                        toilet: SkillLevel.low,
-                        bath: SkillLevel.low,
-                        walk: SkillLevel.low,
-                      ),
-                    ),
-                  ),
+          create: (_) {
+            final provider = MemberProvider();
+            if (fetchedMember != null) {
+              provider.setMember(fetchedMember);
+            } else {
+              provider.setMember(_emptyMember());
+            }
+            return provider;
+          },
         ),
       ],
-      child: MyApp(initialToken: validToken),
+      child: MyApp(initialToken: token),
     ),
   );
 }
@@ -122,4 +93,36 @@ class MyApp extends StatelessWidget {
       },
     );
   }
+}
+
+Member _emptyMember() {
+  return Member(
+    memberId: 0,
+    username: '',
+    password: '',
+    name: '',
+    phoneNumber: '',
+    birth: '',
+    story: '',
+    memberType: MemberType.family,
+    isVisible: true,
+    isVerified: false,
+    profileImage: null,
+    createdAt: null,
+    address: Address(
+      province: '',
+      city: '',
+      district: '',
+      details: '',
+      latitude: 0.0,
+      longitude: 0.0,
+    ),
+    skill: Skill(
+      communication: SkillLevel.low,
+      meal: SkillLevel.low,
+      toilet: SkillLevel.low,
+      bath: SkillLevel.low,
+      walk: SkillLevel.low,
+    ),
+  );
 }
