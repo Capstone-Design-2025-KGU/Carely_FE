@@ -220,35 +220,54 @@ class MemoryCard extends StatelessWidget {
           BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.25), blurRadius: 4.0),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8.0),
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            Image.asset('assets/images/family/profile/1.png'),
-            SizedBox(width: 12.0),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: SvgPicture.asset(
+                'assets/images/family/minilogo.svg',
+                width: 80.0,
+                height: 80.0,
+                fit: BoxFit.cover,
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
                 children: [
-                  Text(
-                    '간병인 이상덕님',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.gray600,
+                  Image.asset('assets/images/family/profile/1.png'),
+                  SizedBox(width: 12.0),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '간병인 이상덕님',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.gray600,
+                          ),
+                        ),
+                        SizedBox(height: 4.0),
+                        Text(
+                          '전문적이세요! 너무 너무 감사합니다. 다음에 또 뵐 수 있으면 좋겠습니다. 다음에 또 뵈면 제가 맛있는 음식을 대접하는 것으로 약속',
+                          style: TextStyle(
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.gray600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(height: 4.0),
-                  Text(
-                    '전문적이세요! 너무 너무 감사합니다. 다음에 또 뵐 수 있으면 좋겠습니다. 다음에 또 뵈면 제가 맛있는 음식을 대접하는 것으로 약속',
-                    style: TextStyle(
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.gray600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
