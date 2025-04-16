@@ -93,14 +93,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  (member != null && member.isVerified)
-                      ? MemberStatusCard(
-                        displayType: _displayMemberType(member.memberType),
-                        address: _formatAddress(member.address),
-                        backgroundColor: getBackgroundColor(member.memberType),
-                        highlightColor: getHighlightColor(member.memberType),
-                      )
-                      : const NotVerifiedCard(),
+                  // (member != null && member.isVerified)
+                  // (member != null && member.isVerified)
+                  //     ? MemberStatusCard(
+                  //       displayType: _displayMemberType(member.memberType),
+                  //       address: _formatAddress(member.address),
+                  //       backgroundColor: getBackgroundColor(member.memberType),
+                  //       highlightColor: getHighlightColor(member.memberType),
+                  //     )
+                  //     : const
+                  NotVerifiedCard(),
                   SizedBox(height: 40.0),
                   MenuTitle(title: '나랑 잘 맞는 이웃'),
                   Center(
@@ -135,6 +137,97 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+void _showVerifyDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (_) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        backgroundColor: Colors.white,
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                '이웃 인증을 해주세요!',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18.0,
+                  color: AppColors.gray800,
+                ),
+              ),
+              const SizedBox(height: 12.0),
+              const Text(
+                '이웃의 정보를 보호하기 위해\n살고 계신 지역의 인증이 필요해요',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: AppColors.gray600,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 24.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        backgroundColor: AppColors.main50,
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      child: const Text(
+                        '나중에',
+                        style: TextStyle(
+                          color: AppColors.mainPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12.0),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        // 인증 페이지 이동 로직
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.mainPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      child: const Text(
+                        '인증할래요',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
 
 class NotVerifiedCard extends StatelessWidget {
@@ -198,7 +291,7 @@ class NotVerifiedCard extends StatelessWidget {
           const SizedBox(width: 12.0),
           OutlinedButton(
             onPressed: () {
-              // TODO: 이웃 인증 화면으로 이동
+              _showVerifyDialog(context);
             },
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.mainPrimary),
