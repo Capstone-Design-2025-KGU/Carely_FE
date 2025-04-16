@@ -56,10 +56,14 @@ flutter:
     - assets/images/caregiver/skills/
     - assets/images/family/skills/
     - assets/images/volunteer/skills/
+    - assets/images/caregiver/logo.svg
+    - assets/images/family/logo.svg
+    - assets/images/volunteer/logo.svg
     - assets/images/family/
     - assets/images/volunteer/
     - assets/images/caregiver/
     - assets/images/CVH.svg
+    - assets/images/logo.svg
     - assets/images/temp-user-image.png
     - assets/images/no-chat-room.png
     - .env
