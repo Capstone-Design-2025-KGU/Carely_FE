@@ -81,6 +81,7 @@ class _VisibleScreenState extends State<VisibleScreen> {
                 ),
               ),
             ),
+            //TODO : 지도 추가 필요
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: DefaultButton(

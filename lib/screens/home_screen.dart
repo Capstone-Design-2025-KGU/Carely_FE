@@ -120,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SizedBox(height: 36.0),
                   MenuTitle(title: '내 주변 이웃 찾아보기'),
+                  //TODO: 지도 추가 필요
                   SizedBox(height: 36.0),
                   MenuTitle(title: '함께한 추억'),
                   MemoryCard(),
