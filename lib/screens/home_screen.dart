@@ -93,16 +93,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  // (member != null && member.isVerified)
-                  // (member != null && member.isVerified)
-                  //     ? MemberStatusCard(
-                  //       displayType: _displayMemberType(member.memberType),
-                  //       address: _formatAddress(member.address),
-                  //       backgroundColor: getBackgroundColor(member.memberType),
-                  //       highlightColor: getHighlightColor(member.memberType),
-                  //     )
-                  //     : const
-                  NotVerifiedCard(),
+                  (member != null && member.isVerified)
+                      ? MemberStatusCard(
+                        displayType: _displayMemberType(member.memberType),
+                        address: _formatAddress(member.address),
+                        backgroundColor: getBackgroundColor(member.memberType),
+                        highlightColor: getHighlightColor(member.memberType),
+                      )
+                      : const NotVerifiedCard(),
                   SizedBox(height: 40.0),
                   MenuTitle(title: '나랑 잘 맞는 이웃'),
                   Center(
