@@ -57,8 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final memberName = member?.name;
     final memberType = member?.memberType;
     final logoPath = _pathMemberType(memberType);
-    final highlightColor = getHighlightColor(memberType!);
-    final backgroundColor = getBackgroundColor(memberType);
+    final backgroundColor = getBackgroundColor(memberType!);
 
     return Scaffold(
       appBar: DefaultAppBar(title: '', isHome: true),
@@ -76,7 +75,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
           SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -95,85 +93,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  Center(
-                    child: Container(
-                      width: ScreenSize.width(context, 336.0),
-                      height: ScreenSize.height(context, 84.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 20.0,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text.rich(
-                                  TextSpan(
-                                    text: '나는 ',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16.0,
-                                      color: AppColors.gray800,
-                                    ),
-                                    children: [
-                                      TextSpan(
-                                        text: _displayMemberType(memberType),
-                                        style: TextStyle(
-                                          color: highlightColor,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      const TextSpan(
-                                        text: '이에요',
-                                        style: TextStyle(
-                                          color: AppColors.gray800,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: 8.0),
-                                Text(
-                                  _formatAddress(member?.address),
-                                  style: TextStyle(
-                                    color: AppColors.gray600,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              width: ScreenSize.width(context, 96.0),
-                              height: ScreenSize.height(context, 32.0),
-                              decoration: BoxDecoration(
-                                color: backgroundColor,
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '이웃 인증 완료',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16.0,
-                                    color: highlightColor,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  (member != null && member.isVerified)
+                      ? MemberStatusCard(
+                        displayType: _displayMemberType(member.memberType),
+                        address: _formatAddress(member.address),
+                        backgroundColor: getBackgroundColor(member.memberType),
+                        highlightColor: getHighlightColor(member.memberType),
+                      )
+                      : const NotVerifiedCard(),
                   SizedBox(height: 40.0),
                   MenuTitle(title: '나랑 잘 맞는 이웃'),
                   Center(
@@ -209,76 +136,255 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+class NotVerifiedCard extends StatelessWidget {
+  const NotVerifiedCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: const [
+                  TextSpan(
+                    text: 'Carely',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.gray800,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  TextSpan(
+                    text: '를 사용하기 위해선\n먼저 ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.gray600,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  TextSpan(
+                    text: '이웃 인증',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.gray800,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  TextSpan(
+                    text: '을 해주세요!',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.gray600,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                ],
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 14.0, height: 1.5),
+            ),
+          ),
+          const SizedBox(width: 12.0),
+          OutlinedButton(
+            onPressed: () {
+              // TODO: 이웃 인증 화면으로 이동
+            },
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: AppColors.mainPrimary),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
+            ),
+            child: const Text(
+              '이웃 인증하기',
+              style: TextStyle(
+                color: AppColors.mainPrimary,
+                fontWeight: FontWeight.w600,
+                fontSize: 14.0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MemberStatusCard extends StatelessWidget {
+  final String displayType;
+  final String address;
+  final Color backgroundColor;
+  final Color highlightColor;
+
+  const MemberStatusCard({
+    super.key,
+    required this.displayType,
+    required this.address,
+    required this.backgroundColor,
+    required this.highlightColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: ScreenSize.height(context, 84.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text.rich(
+                  TextSpan(
+                    text: '나는 ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16.0,
+                      color: AppColors.gray800,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: displayType,
+                        style: TextStyle(
+                          color: highlightColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const TextSpan(
+                        text: '이에요',
+                        style: TextStyle(
+                          color: AppColors.gray800,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+                Text(
+                  address,
+                  style: const TextStyle(
+                    color: AppColors.gray600,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16.0,
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              width: ScreenSize.width(context, 96.0),
+              height: ScreenSize.height(context, 32.0),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Center(
+                child: Text(
+                  '이웃 인증 완료',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16.0,
+                    color: highlightColor,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class MemoryCard extends StatelessWidget {
   const MemoryCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: ScreenSize.width(context, 336.0),
-        height: ScreenSize.height(context, 88.0),
-        decoration: BoxDecoration(
-          color: AppColors.main50,
-          borderRadius: BorderRadius.circular(8.0),
-          boxShadow: [
-            BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.25), blurRadius: 4.0),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8.0),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: SvgPicture.asset(
-                  'assets/images/family/minilogo.svg',
-                  width: 80.0,
-                  height: 80.0,
-                  fit: BoxFit.cover,
-                ),
+    return Container(
+      width: double.infinity,
+      height: ScreenSize.height(context, 88.0),
+      decoration: BoxDecoration(
+        color: AppColors.main50,
+        borderRadius: BorderRadius.circular(8.0),
+        boxShadow: [
+          BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.25), blurRadius: 4.0),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8.0),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: SvgPicture.asset(
+                'assets/images/family/minilogo.svg',
+                width: 80.0,
+                height: 80.0,
+                fit: BoxFit.cover,
               ),
+            ),
 
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Image.asset('assets/images/family/profile/1.png'),
-                    SizedBox(width: 12.0),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '간병인 이상덕님',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.gray600,
-                            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Image.asset('assets/images/family/profile/1.png'),
+                  SizedBox(width: 12.0),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '간병인 이상덕님',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.gray600,
                           ),
-                          SizedBox(height: 4.0),
-                          Text(
-                            '전문적이세요! 너무 너무 감사합니다. 다음에 또 뵐 수 있으면 좋겠습니다. 다음에 또 뵈면 제가 맛있는 음식을 대접하는 것으로 약속',
-                            style: TextStyle(
-                              fontSize: 12.0,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.gray600,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 4.0),
+                        Text(
+                          '전문적이세요! 너무 너무 감사합니다. 다음에 또 뵐 수 있으면 좋겠습니다. 다음에 또 뵈면 제가 맛있는 음식을 대접하는 것으로 약속',
+                          style: TextStyle(
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.gray600,
                           ),
-                        ],
-                      ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
