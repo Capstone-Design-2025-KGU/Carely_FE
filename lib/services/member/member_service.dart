@@ -10,7 +10,7 @@ class MemberService {
     try {
       final response = await APIService.instance.request(
         '/members/profile/my',
-        DioMethod.post,
+        DioMethod.get,
         token: token,
       );
       final data = response.data;

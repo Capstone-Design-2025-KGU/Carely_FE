@@ -23,7 +23,7 @@ Member _$MemberFromJson(Map<String, dynamic> json) {
 mixin _$Member {
   int get memberId => throw _privateConstructorUsedError;
   String get username => throw _privateConstructorUsedError;
-  String get password => throw _privateConstructorUsedError;
+  String? get password => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get phoneNumber => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _birthFromJson)
@@ -37,7 +37,7 @@ mixin _$Member {
   @FlexibleDateTimeConverter()
   DateTime? get createdAt => throw _privateConstructorUsedError;
   Address get address => throw _privateConstructorUsedError;
-  Skill get skill => throw _privateConstructorUsedError;
+  Skill? get skill => throw _privateConstructorUsedError;
 
   /// Serializes this Member to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -56,7 +56,7 @@ abstract class $MemberCopyWith<$Res> {
   $Res call({
     int memberId,
     String username,
-    String password,
+    String? password,
     String name,
     String phoneNumber,
     @JsonKey(fromJson: _birthFromJson) String birth,
@@ -67,11 +67,11 @@ abstract class $MemberCopyWith<$Res> {
     String? profileImage,
     @FlexibleDateTimeConverter() DateTime? createdAt,
     Address address,
-    Skill skill,
+    Skill? skill,
   });
 
   $AddressCopyWith<$Res> get address;
-  $SkillCopyWith<$Res> get skill;
+  $SkillCopyWith<$Res>? get skill;
 }
 
 /// @nodoc
@@ -91,7 +91,7 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
   $Res call({
     Object? memberId = null,
     Object? username = null,
-    Object? password = null,
+    Object? password = freezed,
     Object? name = null,
     Object? phoneNumber = null,
     Object? birth = null,
@@ -102,7 +102,7 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
     Object? profileImage = freezed,
     Object? createdAt = freezed,
     Object? address = null,
-    Object? skill = null,
+    Object? skill = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -117,10 +117,10 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
                     : username // ignore: cast_nullable_to_non_nullable
                         as String,
             password:
-                null == password
+                freezed == password
                     ? _value.password
                     : password // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
             name:
                 null == name
                     ? _value.name
@@ -172,10 +172,10 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
                     : address // ignore: cast_nullable_to_non_nullable
                         as Address,
             skill:
-                null == skill
+                freezed == skill
                     ? _value.skill
                     : skill // ignore: cast_nullable_to_non_nullable
-                        as Skill,
+                        as Skill?,
           )
           as $Val,
     );
@@ -195,8 +195,12 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $SkillCopyWith<$Res> get skill {
-    return $SkillCopyWith<$Res>(_value.skill, (value) {
+  $SkillCopyWith<$Res>? get skill {
+    if (_value.skill == null) {
+      return null;
+    }
+
+    return $SkillCopyWith<$Res>(_value.skill!, (value) {
       return _then(_value.copyWith(skill: value) as $Val);
     });
   }
@@ -213,7 +217,7 @@ abstract class _$$MemberImplCopyWith<$Res> implements $MemberCopyWith<$Res> {
   $Res call({
     int memberId,
     String username,
-    String password,
+    String? password,
     String name,
     String phoneNumber,
     @JsonKey(fromJson: _birthFromJson) String birth,
@@ -224,13 +228,13 @@ abstract class _$$MemberImplCopyWith<$Res> implements $MemberCopyWith<$Res> {
     String? profileImage,
     @FlexibleDateTimeConverter() DateTime? createdAt,
     Address address,
-    Skill skill,
+    Skill? skill,
   });
 
   @override
   $AddressCopyWith<$Res> get address;
   @override
-  $SkillCopyWith<$Res> get skill;
+  $SkillCopyWith<$Res>? get skill;
 }
 
 /// @nodoc
@@ -249,7 +253,7 @@ class __$$MemberImplCopyWithImpl<$Res>
   $Res call({
     Object? memberId = null,
     Object? username = null,
-    Object? password = null,
+    Object? password = freezed,
     Object? name = null,
     Object? phoneNumber = null,
     Object? birth = null,
@@ -260,7 +264,7 @@ class __$$MemberImplCopyWithImpl<$Res>
     Object? profileImage = freezed,
     Object? createdAt = freezed,
     Object? address = null,
-    Object? skill = null,
+    Object? skill = freezed,
   }) {
     return _then(
       _$MemberImpl(
@@ -275,10 +279,10 @@ class __$$MemberImplCopyWithImpl<$Res>
                 : username // ignore: cast_nullable_to_non_nullable
                     as String,
         password:
-            null == password
+            freezed == password
                 ? _value.password
                 : password // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
         name:
             null == name
                 ? _value.name
@@ -330,10 +334,10 @@ class __$$MemberImplCopyWithImpl<$Res>
                 : address // ignore: cast_nullable_to_non_nullable
                     as Address,
         skill:
-            null == skill
+            freezed == skill
                 ? _value.skill
                 : skill // ignore: cast_nullable_to_non_nullable
-                    as Skill,
+                    as Skill?,
       ),
     );
   }
@@ -346,7 +350,7 @@ class _$MemberImpl implements _Member {
   const _$MemberImpl({
     required this.memberId,
     required this.username,
-    required this.password,
+    this.password,
     required this.name,
     required this.phoneNumber,
     @JsonKey(fromJson: _birthFromJson) required this.birth,
@@ -357,7 +361,7 @@ class _$MemberImpl implements _Member {
     this.profileImage,
     @FlexibleDateTimeConverter() this.createdAt,
     required this.address,
-    required this.skill,
+    this.skill,
   });
 
   factory _$MemberImpl.fromJson(Map<String, dynamic> json) =>
@@ -368,7 +372,7 @@ class _$MemberImpl implements _Member {
   @override
   final String username;
   @override
-  final String password;
+  final String? password;
   @override
   final String name;
   @override
@@ -393,7 +397,7 @@ class _$MemberImpl implements _Member {
   @override
   final Address address;
   @override
-  final Skill skill;
+  final Skill? skill;
 
   @override
   String toString() {
@@ -468,7 +472,7 @@ abstract class _Member implements Member {
   const factory _Member({
     required final int memberId,
     required final String username,
-    required final String password,
+    final String? password,
     required final String name,
     required final String phoneNumber,
     @JsonKey(fromJson: _birthFromJson) required final String birth,
@@ -479,7 +483,7 @@ abstract class _Member implements Member {
     final String? profileImage,
     @FlexibleDateTimeConverter() final DateTime? createdAt,
     required final Address address,
-    required final Skill skill,
+    final Skill? skill,
   }) = _$MemberImpl;
 
   factory _Member.fromJson(Map<String, dynamic> json) = _$MemberImpl.fromJson;
@@ -489,7 +493,7 @@ abstract class _Member implements Member {
   @override
   String get username;
   @override
-  String get password;
+  String? get password;
   @override
   String get name;
   @override
@@ -514,7 +518,7 @@ abstract class _Member implements Member {
   @override
   Address get address;
   @override
-  Skill get skill;
+  Skill? get skill;
 
   /// Create a copy of Member
   /// with the given fields replaced by the non-null parameter values.

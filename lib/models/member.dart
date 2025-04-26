@@ -13,7 +13,7 @@ class Member with _$Member {
   const factory Member({
     required int memberId,
     required String username,
-    required String password,
+    String? password,
     required String name,
     required String phoneNumber,
 
@@ -30,7 +30,7 @@ class Member with _$Member {
     @FlexibleDateTimeConverter() DateTime? createdAt,
 
     required Address address,
-    required Skill skill,
+    Skill? skill,
   }) = _Member;
 
   factory Member.fromJson(Map<String, dynamic> json) => _$MemberFromJson(json);

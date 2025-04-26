@@ -9,7 +9,7 @@ part of 'member.dart';
 _$MemberImpl _$$MemberImplFromJson(Map<String, dynamic> json) => _$MemberImpl(
   memberId: (json['memberId'] as num).toInt(),
   username: json['username'] as String,
-  password: json['password'] as String,
+  password: json['password'] as String?,
   name: json['name'] as String,
   phoneNumber: json['phoneNumber'] as String,
   birth: _birthFromJson(json['birth'] as List),
@@ -22,7 +22,10 @@ _$MemberImpl _$$MemberImplFromJson(Map<String, dynamic> json) => _$MemberImpl(
   profileImage: json['profileImage'] as String?,
   createdAt: const FlexibleDateTimeConverter().fromJson(json['createdAt']),
   address: Address.fromJson(json['address'] as Map<String, dynamic>),
-  skill: Skill.fromJson(json['skill'] as Map<String, dynamic>),
+  skill:
+      json['skill'] == null
+          ? null
+          : Skill.fromJson(json['skill'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$$MemberImplToJson(_$MemberImpl instance) =>
@@ -40,5 +43,5 @@ Map<String, dynamic> _$$MemberImplToJson(_$MemberImpl instance) =>
       'profileImage': instance.profileImage,
       'createdAt': const FlexibleDateTimeConverter().toJson(instance.createdAt),
       'address': instance.address.toJson(),
-      'skill': instance.skill.toJson(),
+      'skill': instance.skill?.toJson(),
     };
