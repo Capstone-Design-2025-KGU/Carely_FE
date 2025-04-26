@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  (member != null && member.isVerified)
+                  (member != null && member.isVerified!)
                       ? MemberStatusCard(
                         displayType: _displayMemberType(member.memberType),
                         address: _formatAddress(member.address),

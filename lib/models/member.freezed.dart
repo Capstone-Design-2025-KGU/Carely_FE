@@ -25,14 +25,14 @@ mixin _$Member {
   String get username => throw _privateConstructorUsedError;
   String? get password => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
-  String get phoneNumber => throw _privateConstructorUsedError;
+  String? get phoneNumber => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _birthFromJson)
   String get birth => throw _privateConstructorUsedError;
   String? get story => throw _privateConstructorUsedError;
   @MemberTypeConverter()
   MemberType get memberType => throw _privateConstructorUsedError;
-  bool get isVisible => throw _privateConstructorUsedError;
-  bool get isVerified => throw _privateConstructorUsedError;
+  bool? get isVisible => throw _privateConstructorUsedError;
+  bool? get isVerified => throw _privateConstructorUsedError;
   String? get profileImage => throw _privateConstructorUsedError;
   @FlexibleDateTimeConverter()
   DateTime? get createdAt => throw _privateConstructorUsedError;
@@ -58,12 +58,12 @@ abstract class $MemberCopyWith<$Res> {
     String username,
     String? password,
     String name,
-    String phoneNumber,
+    String? phoneNumber,
     @JsonKey(fromJson: _birthFromJson) String birth,
     String? story,
     @MemberTypeConverter() MemberType memberType,
-    bool isVisible,
-    bool isVerified,
+    bool? isVisible,
+    bool? isVerified,
     String? profileImage,
     @FlexibleDateTimeConverter() DateTime? createdAt,
     Address address,
@@ -93,12 +93,12 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
     Object? username = null,
     Object? password = freezed,
     Object? name = null,
-    Object? phoneNumber = null,
+    Object? phoneNumber = freezed,
     Object? birth = null,
     Object? story = freezed,
     Object? memberType = null,
-    Object? isVisible = null,
-    Object? isVerified = null,
+    Object? isVisible = freezed,
+    Object? isVerified = freezed,
     Object? profileImage = freezed,
     Object? createdAt = freezed,
     Object? address = null,
@@ -127,10 +127,10 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
                     : name // ignore: cast_nullable_to_non_nullable
                         as String,
             phoneNumber:
-                null == phoneNumber
+                freezed == phoneNumber
                     ? _value.phoneNumber
                     : phoneNumber // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
             birth:
                 null == birth
                     ? _value.birth
@@ -147,15 +147,15 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
                     : memberType // ignore: cast_nullable_to_non_nullable
                         as MemberType,
             isVisible:
-                null == isVisible
+                freezed == isVisible
                     ? _value.isVisible
                     : isVisible // ignore: cast_nullable_to_non_nullable
-                        as bool,
+                        as bool?,
             isVerified:
-                null == isVerified
+                freezed == isVerified
                     ? _value.isVerified
                     : isVerified // ignore: cast_nullable_to_non_nullable
-                        as bool,
+                        as bool?,
             profileImage:
                 freezed == profileImage
                     ? _value.profileImage
@@ -219,12 +219,12 @@ abstract class _$$MemberImplCopyWith<$Res> implements $MemberCopyWith<$Res> {
     String username,
     String? password,
     String name,
-    String phoneNumber,
+    String? phoneNumber,
     @JsonKey(fromJson: _birthFromJson) String birth,
     String? story,
     @MemberTypeConverter() MemberType memberType,
-    bool isVisible,
-    bool isVerified,
+    bool? isVisible,
+    bool? isVerified,
     String? profileImage,
     @FlexibleDateTimeConverter() DateTime? createdAt,
     Address address,
@@ -255,12 +255,12 @@ class __$$MemberImplCopyWithImpl<$Res>
     Object? username = null,
     Object? password = freezed,
     Object? name = null,
-    Object? phoneNumber = null,
+    Object? phoneNumber = freezed,
     Object? birth = null,
     Object? story = freezed,
     Object? memberType = null,
-    Object? isVisible = null,
-    Object? isVerified = null,
+    Object? isVisible = freezed,
+    Object? isVerified = freezed,
     Object? profileImage = freezed,
     Object? createdAt = freezed,
     Object? address = null,
@@ -289,10 +289,10 @@ class __$$MemberImplCopyWithImpl<$Res>
                 : name // ignore: cast_nullable_to_non_nullable
                     as String,
         phoneNumber:
-            null == phoneNumber
+            freezed == phoneNumber
                 ? _value.phoneNumber
                 : phoneNumber // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
         birth:
             null == birth
                 ? _value.birth
@@ -309,15 +309,15 @@ class __$$MemberImplCopyWithImpl<$Res>
                 : memberType // ignore: cast_nullable_to_non_nullable
                     as MemberType,
         isVisible:
-            null == isVisible
+            freezed == isVisible
                 ? _value.isVisible
                 : isVisible // ignore: cast_nullable_to_non_nullable
-                    as bool,
+                    as bool?,
         isVerified:
-            null == isVerified
+            freezed == isVerified
                 ? _value.isVerified
                 : isVerified // ignore: cast_nullable_to_non_nullable
-                    as bool,
+                    as bool?,
         profileImage:
             freezed == profileImage
                 ? _value.profileImage
@@ -352,12 +352,12 @@ class _$MemberImpl implements _Member {
     required this.username,
     this.password,
     required this.name,
-    required this.phoneNumber,
+    this.phoneNumber,
     @JsonKey(fromJson: _birthFromJson) required this.birth,
     this.story,
     @MemberTypeConverter() required this.memberType,
-    required this.isVisible,
-    required this.isVerified,
+    this.isVisible,
+    this.isVerified,
     this.profileImage,
     @FlexibleDateTimeConverter() this.createdAt,
     required this.address,
@@ -376,7 +376,7 @@ class _$MemberImpl implements _Member {
   @override
   final String name;
   @override
-  final String phoneNumber;
+  final String? phoneNumber;
   @override
   @JsonKey(fromJson: _birthFromJson)
   final String birth;
@@ -386,9 +386,9 @@ class _$MemberImpl implements _Member {
   @MemberTypeConverter()
   final MemberType memberType;
   @override
-  final bool isVisible;
+  final bool? isVisible;
   @override
-  final bool isVerified;
+  final bool? isVerified;
   @override
   final String? profileImage;
   @override
@@ -474,12 +474,12 @@ abstract class _Member implements Member {
     required final String username,
     final String? password,
     required final String name,
-    required final String phoneNumber,
+    final String? phoneNumber,
     @JsonKey(fromJson: _birthFromJson) required final String birth,
     final String? story,
     @MemberTypeConverter() required final MemberType memberType,
-    required final bool isVisible,
-    required final bool isVerified,
+    final bool? isVisible,
+    final bool? isVerified,
     final String? profileImage,
     @FlexibleDateTimeConverter() final DateTime? createdAt,
     required final Address address,
@@ -497,7 +497,7 @@ abstract class _Member implements Member {
   @override
   String get name;
   @override
-  String get phoneNumber;
+  String? get phoneNumber;
   @override
   @JsonKey(fromJson: _birthFromJson)
   String get birth;
@@ -507,9 +507,9 @@ abstract class _Member implements Member {
   @MemberTypeConverter()
   MemberType get memberType;
   @override
-  bool get isVisible;
+  bool? get isVisible;
   @override
-  bool get isVerified;
+  bool? get isVerified;
   @override
   String? get profileImage;
   @override

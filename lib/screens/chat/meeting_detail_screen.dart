@@ -1,0 +1,107 @@
+import 'package:carely/theme/colors.dart';
+import 'package:flutter/material.dart';
+
+class MeetingDetailScreen extends StatelessWidget {
+  final String name;
+  final String age;
+  final String address;
+  final String detailAddress;
+  final String date;
+  final String time;
+  final String chore;
+
+  const MeetingDetailScreen({
+    super.key,
+    required this.name,
+    required this.age,
+    required this.address,
+    required this.detailAddress,
+    required this.date,
+    required this.time,
+    required this.chore,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFF3F2),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFFFF3F2),
+        elevation: 0,
+        title: const Text(
+          '요양보호 약속 확인',
+          style: TextStyle(color: AppColors.gray900),
+        ),
+        iconTheme: const IconThemeData(color: AppColors.gray900),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 8),
+            const Text(
+              '요청자 정보',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+            ),
+            const SizedBox(height: 16),
+            InfoRow(label: '이름', value: name),
+            InfoRow(label: '나이', value: age),
+            InfoRow(label: '주소', value: address),
+            InfoRow(label: '상세 주소', value: detailAddress),
+            const SizedBox(height: 24),
+            const Text(
+              '요청한 일',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+            ),
+            const SizedBox(height: 16),
+            InfoRow(label: '날짜', value: date),
+            InfoRow(label: '시간', value: time),
+            InfoRow(label: '주된 일', value: chore),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const InfoRow({super.key, required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 80,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.gray400,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 15,
+                color: AppColors.gray900,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
