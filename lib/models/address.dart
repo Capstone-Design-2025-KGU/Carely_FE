@@ -17,3 +17,9 @@ class Address with _$Address {
   factory Address.fromJson(Map<String, dynamic> json) =>
       _$AddressFromJson(json);
 }
+
+extension AddressExtension on Address {
+  String toReadableString() {
+    return '$province $city $district $details';
+  }
+}

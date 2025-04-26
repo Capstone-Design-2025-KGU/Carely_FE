@@ -1,3 +1,4 @@
+import 'package:carely/models/address.dart';
 import 'package:carely/models/chat_message.dart';
 import 'package:carely/providers/member_provider.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
@@ -176,10 +177,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
                   if (meetingId == null) return;
 
+                  final content =
+                      '장소 : ${currentMember.address.toReadableString()}\n시간 : ${_formatDateTimeRange(selectedDate!, selectedStartTime!, selectedEndTime!)}';
+
                   final meetingRequestMessage = ChatMessage(
                     senderId: currentMember.memberId,
                     chatroomId: widget.chatRoomId,
-                    content: '약속 요청을 보냈습니다.',
+                    content: content,
                     messageType: MessageType.MEETING_REQUEST,
                     meetingId: meetingId,
                   );
@@ -498,4 +502,17 @@ String _formatTimeOfDay(TimeOfDay time) {
   final minute = time.minute.toString().padLeft(2, '0');
   final period = time.period == DayPeriod.am ? '오전' : '오후';
   return '$period $hour시 $minute분';
+}
+
+String _formatDateTimeRange(DateTime date, TimeOfDay start, TimeOfDay end) {
+  final weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+  final weekday = weekdays[date.weekday - 1];
+
+  final startHour = start.hour.toString().padLeft(2, '0');
+  final startMinute = start.minute.toString().padLeft(2, '0');
+  final endHour = end.hour.toString().padLeft(2, '0');
+  final endMinute = end.minute.toString().padLeft(2, '0');
+
+  return '${date.year}년 ${date.month}월 ${date.day}일 ($weekday) '
+      '$startHour:$startMinute - $endHour:$endMinute';
 }

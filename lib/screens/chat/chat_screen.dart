@@ -3,16 +3,19 @@ import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/chat/schedule_screen.dart';
 import 'package:carely/services/chat/chat_service.dart';
 import 'package:carely/services/chat/web_socket_service.dart';
+import 'package:carely/services/meeting_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
 import 'package:carely/utils/member_color.dart';
 import 'package:carely/utils/member_type.dart';
+import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/chat/chat_bubble.dart';
 import 'package:carely/widgets/chat/chat_time_stamp.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -214,14 +217,137 @@ class _ChatScreenState extends State<ChatScreen> {
         lastDate = currentDate;
       }
 
-      chatItems.add(
-        ChatBubble(
-          content: message.content,
-          isMine: message.senderId == widget.senderId,
-          timeStamp: message.createdAt,
-        ),
-      );
+      if (message.messageType == MessageType.MEETING_REQUEST) {
+        chatItems.add(
+          MeetingMessageBubble(
+            message: message,
+            isMine: message.senderId == widget.senderId,
+            timeStamp: message.createdAt,
+          ),
+        );
+      } else {
+        chatItems.add(
+          ChatBubble(
+            content: message.content,
+            isMine: message.senderId == widget.senderId,
+            timeStamp: message.createdAt,
+          ),
+        );
+      }
     }
     return chatItems;
+  }
+}
+
+class MeetingMessageBubble extends StatelessWidget {
+  final ChatMessage message;
+  final DateTime? timeStamp;
+  final bool isMine;
+
+  const MeetingMessageBubble({
+    super.key,
+    required this.message,
+    this.timeStamp,
+    required this.isMine,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bubble = Container(
+      constraints: BoxConstraints(maxWidth: ScreenSize.width(context, 220.0)),
+      decoration: BoxDecoration(
+        color: AppColors.mainPrimary,
+        borderRadius: BorderRadius.circular(24.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '약속 요청을 보냈어요!',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16.0,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 20.0),
+            Text(
+              message.content ?? '',
+              style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 16.0,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 12.0),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.end,
+            //   children: [
+            //     TextButton(
+            //       onPressed: () => _respondMeeting(context, true),
+            //       child: Text('수락', style: TextStyle(color: Colors.green)),
+            //     ),
+            //     TextButton(
+            //       onPressed: () => _respondMeeting(context, false),
+            //       child: Text('거절', style: TextStyle(color: Colors.red)),
+            //     ),
+            //   ],
+            // ),
+          ],
+        ),
+      ),
+    );
+
+    final formattedTime =
+        timeStamp != null ? DateFormat('HH:mm').format(timeStamp!) : '';
+    final time = Text(
+      formattedTime,
+      style: TextStyle(
+        fontWeight: FontWeight.w400,
+        color: AppColors.gray600,
+        fontSize: 12.0,
+      ),
+    );
+
+    return Row(
+      mainAxisAlignment:
+          isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children:
+          isMine
+              ? [time, SizedBox(width: 6.0), bubble]
+              : [bubble, SizedBox(width: 6.0), time],
+    );
+  }
+
+  void _respondMeeting(BuildContext context, bool isAccepted) async {
+    try {
+      if (message.meetingId == null) {
+        throw Exception('Meeting ID가 없습니다.');
+      }
+      final memberProvider = Provider.of<MemberProvider>(
+        context,
+        listen: false,
+      );
+      final currentMember = memberProvider.member;
+      if (currentMember == null) return;
+
+      await MeetingService.instance.respondMeeting(
+        meetingId: message.meetingId!,
+        accept: isAccepted,
+        chatRoomId: message.chatroomId,
+        senderId: currentMember.memberId,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(isAccepted ? '약속 수락 완료' : '약속 거절 완료')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('에러 발생: $e')));
+    }
   }
 }
