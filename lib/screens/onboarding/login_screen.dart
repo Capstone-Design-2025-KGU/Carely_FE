@@ -57,6 +57,37 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             SizedBox(height: 20.0),
             DefaultButton(
+              content: '회원 2으로 로그인',
+              onPressed: () async {
+                const testUsername = 'user2';
+                const testPassword = 'pass2';
+
+                final token = await AuthService.instance.login(
+                  testUsername,
+                  testPassword,
+                );
+
+                if (token != null) {
+                  await TokenStorageService.saveToken(token);
+                  final member = await MemberService.instance.fetchMyInfo(
+                    token,
+                  );
+                  if (member != null) {
+                    Provider.of<MemberProvider>(
+                      context,
+                      listen: false,
+                    ).setMember(member);
+                    Navigator.pushReplacementNamed(context, NavScreen.id);
+                  } else {
+                    logger.e('멤버 정보를 찾을 수 없습니다');
+                  }
+                } else {
+                  logger.e('토큰이 없습니다.');
+                }
+              },
+            ),
+            SizedBox(height: 20.0),
+            DefaultButton(
               content: '회원가입 UI',
               onPressed: () async {
                 Navigator.pushReplacementNamed(context, TermScreen.id);
