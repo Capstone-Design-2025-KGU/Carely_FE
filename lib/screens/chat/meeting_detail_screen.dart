@@ -1,4 +1,6 @@
 import 'package:carely/theme/colors.dart';
+import 'package:carely/utils/screen_size.dart';
+import 'package:carely/widgets/default_button.dart';
 import 'package:flutter/material.dart';
 
 class MeetingDetailScreen extends StatelessWidget {
@@ -38,26 +40,59 @@ class MeetingDetailScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SizedBox(height: 8),
-            const Text(
-              '요청자 정보',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                const Text(
+                  '요청자 정보',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                ),
+                const SizedBox(height: 16),
+                InfoRow(label: '이름', value: name),
+                InfoRow(label: '나이', value: age),
+                InfoRow(label: '주소', value: address),
+                InfoRow(label: '상세 주소', value: detailAddress),
+                const SizedBox(height: 24),
+                const Text(
+                  '요청한 일',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                ),
+                const SizedBox(height: 16),
+                InfoRow(label: '날짜', value: date),
+                InfoRow(label: '시간', value: time),
+                InfoRow(label: '주된 일', value: chore),
+              ],
             ),
-            const SizedBox(height: 16),
-            InfoRow(label: '이름', value: name),
-            InfoRow(label: '나이', value: age),
-            InfoRow(label: '주소', value: address),
-            InfoRow(label: '상세 주소', value: detailAddress),
-            const SizedBox(height: 24),
-            const Text(
-              '요청한 일',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+            Column(
+              children: [
+                DefaultButton(content: '수락', onPressed: () {}),
+                SizedBox(height: 16.0),
+                TextButton(
+                  onPressed: () {},
+                  style: TextButton.styleFrom(
+                    minimumSize: Size(
+                      ScreenSize.width(context, 336),
+                      ScreenSize.height(context, 52),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      side: const BorderSide(color: Colors.red),
+                    ),
+                    foregroundColor: Colors.red,
+                    backgroundColor: Colors.white,
+                    textStyle: const TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  child: Text('취소'),
+                ),
+                SizedBox(height: 20.0),
+              ],
             ),
-            const SizedBox(height: 16),
-            InfoRow(label: '날짜', value: date),
-            InfoRow(label: '시간', value: time),
-            InfoRow(label: '주된 일', value: chore),
           ],
         ),
       ),
