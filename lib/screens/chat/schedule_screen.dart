@@ -1,3 +1,8 @@
+import 'package:carely/models/chat_message.dart';
+import 'package:carely/providers/member_provider.dart';
+import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/services/chat/web_socket_service.dart';
+import 'package:carely/services/meeting_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
 import 'package:carely/utils/member_color.dart';
@@ -7,16 +12,25 @@ import 'package:carely/widgets/default_button.dart';
 import 'package:carely/widgets/input_select_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class ScheduleScreen extends StatefulWidget {
-  const ScheduleScreen({super.key});
+  final int chatRoomId;
+  final int opponentMemberId;
+
+  const ScheduleScreen({
+    super.key,
+    required this.chatRoomId,
+    required this.opponentMemberId,
+  });
 
   @override
   State<ScheduleScreen> createState() => _ScheduleScreenState();
 }
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
+  final token = TokenStorageService.getToken();
   final MemberType testMemberType = MemberType.family; // 여기서 타입 바꿔가며 테스트 가능
   DateTime? selectedDate;
   TimeOfDay? selectedStartTime;
@@ -135,10 +149,49 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             DefaultButton(
               content: '요청 보내기',
               isEnable: isAllFilled(),
-              onPressed: () {
-                Navigator.of(context).pop();
+              onPressed: () async {
+                final currentMember =
+                    Provider.of<MemberProvider>(context, listen: false).member;
+                if (currentMember == null) return;
+
+                try {
+                  final meetingId = await MeetingService.instance.createMeeting(
+                    opponentMemberId: widget.opponentMemberId,
+                    startTime: DateTime(
+                      selectedDate!.year,
+                      selectedDate!.month,
+                      selectedDate!.day,
+                      selectedStartTime!.hour,
+                      selectedStartTime!.minute,
+                    ),
+                    endTime: DateTime(
+                      selectedDate!.year,
+                      selectedDate!.month,
+                      selectedDate!.day,
+                      selectedEndTime!.hour,
+                      selectedEndTime!.minute,
+                    ),
+                    chore: selectedMainWork!,
+                  );
+
+                  if (meetingId == null) return;
+
+                  final meetingRequestMessage = ChatMessage(
+                    senderId: currentMember.memberId,
+                    chatroomId: widget.chatRoomId,
+                    content: '약속 요청을 보냈습니다.',
+                    messageType: MessageType.MEETING_REQUEST,
+                    meetingId: meetingId,
+                  );
+
+                  WebSocketService.instance.sendMessage(meetingRequestMessage);
+                  Navigator.of(context).pop();
+                } catch (e) {
+                  logger.e('약속 요청 실패: $e');
+                }
               },
             ),
+
             const SizedBox(height: 40.0),
           ],
         ),

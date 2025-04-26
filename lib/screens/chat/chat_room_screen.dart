@@ -190,6 +190,7 @@ class ChatRoomCard extends StatelessWidget {
                   chatRoomId: chatRoom.chatRoomId,
                   senderId: senderId,
                   opponentName: displayName,
+                  opponentMemberId: chatRoom.memberId,
                 ),
           ),
         ).then((_) => onChatUpdated());

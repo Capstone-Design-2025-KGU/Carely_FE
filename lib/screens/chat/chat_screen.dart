@@ -19,6 +19,7 @@ class ChatScreen extends StatefulWidget {
   static String id = 'chat-screen';
   final int chatRoomId;
   final int senderId; // 현재 로그인한 사용자의 Id
+  final int opponentMemberId;
   final String opponentName;
 
   const ChatScreen({
@@ -26,6 +27,7 @@ class ChatScreen extends StatefulWidget {
     required this.chatRoomId,
     required this.senderId,
     required this.opponentName,
+    required this.opponentMemberId,
   });
 
   @override
@@ -37,14 +39,11 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<ChatMessage> _messages = [];
   final TextEditingController _controller = TextEditingController();
 
-  late final WebSocketService _webSocektService;
-
   @override
   void initState() {
     super.initState();
     fetchPreviousMessages();
-    _webSocektService = WebSocketService();
-    _webSocektService.connect(
+    WebSocketService.instance.connect(
       chatRoomId: widget.chatRoomId,
       onMessage: (msg) {
         if (!mounted) return;
@@ -57,7 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    _webSocektService.disconnect();
+    WebSocketService.instance.disconnect();
     _controller.dispose();
     super.dispose();
   }
@@ -91,7 +90,13 @@ class _ChatScreenState extends State<ChatScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ScheduleScreen()),
+                MaterialPageRoute(
+                  builder:
+                      (context) => ScheduleScreen(
+                        chatRoomId: widget.chatRoomId,
+                        opponentMemberId: widget.opponentMemberId,
+                      ),
+                ),
               );
             },
             icon: FaIcon(FontAwesomeIcons.calendarCheck, size: 24.0),
@@ -171,7 +176,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             messageType: MessageType.CHAT,
                           );
 
-                          _webSocektService.sendMessage(message);
+                          WebSocketService.instance.sendMessage(message);
 
                           _controller.clear();
                         }

@@ -1,0 +1,35 @@
+import 'package:carely/services/api_service.dart';
+import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/utils/logger_config.dart';
+
+class MeetingService {
+  MeetingService._();
+  static final MeetingService instance = MeetingService._();
+
+  Future<int?> createMeeting({
+    required int opponentMemberId,
+    required DateTime startTime,
+    required DateTime endTime,
+    required String chore,
+  }) async {
+    try {
+      final token = await TokenStorageService.getToken();
+
+      final response = await APIService.instance.request(
+        '/meetings/new/$opponentMemberId',
+        DioMethod.post,
+        param: {
+          'startTime': startTime.toIso8601String(),
+          'endTime': endTime.toIso8601String(),
+          'chore': chore,
+        },
+        token: token,
+      );
+
+      return response.data['meetingId'];
+    } catch (e) {
+      logger.e('약속 생성 실패: $e');
+      return null;
+    }
+  }
+}

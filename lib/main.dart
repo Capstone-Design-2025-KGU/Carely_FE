@@ -96,8 +96,12 @@ class MyApp extends StatelessWidget {
         LoginScreen.id: (context) => const LoginScreen(),
         TermScreen.id: (context) => const TermScreen(),
         ChatScreen.id:
-            (context) =>
-                const ChatScreen(chatRoomId: 1, senderId: 1, opponentName: ''),
+            (context) => const ChatScreen(
+              chatRoomId: 1,
+              senderId: 1,
+              opponentName: '',
+              opponentMemberId: 1,
+            ),
         NavScreen.id: (context) => const NavScreen(),
         MapScreen.id: (context) => const MapScreen(),
       },
