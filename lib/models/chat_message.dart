@@ -5,7 +5,7 @@ part 'chat_message.freezed.dart';
 part 'chat_message.g.dart';
 
 @JsonEnum()
-enum MessageType { CHAT, JOIN, LEAVE }
+enum MessageType { CHAT, JOIN, LEAVE, MEETING_REQUEST, MEETING_ACCEPT }
 
 @freezed
 class ChatMessage with _$ChatMessage {
@@ -15,6 +15,7 @@ class ChatMessage with _$ChatMessage {
     required int chatroomId,
     required String content,
     required MessageType messageType,
+    int? meetingId,
     @FlexibleDateTimeConverter() DateTime? createdAt,
   }) = _ChatMessage;
 
