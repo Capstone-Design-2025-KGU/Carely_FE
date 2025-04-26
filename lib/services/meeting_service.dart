@@ -41,19 +41,26 @@ class MeetingService {
     required int chatRoomId,
     required int senderId,
   }) async {
-    final response = await APIService.instance.request(
-      '/meetings/$meetingId/${accept ? "accept" : "reject"}',
-      DioMethod.post,
-    );
+    try {
+      final token = await TokenStorageService.getToken();
 
-    // ✅ 수락 or 거절 성공하면 WebSocket으로 알림 보내기
-    final systemMessage = ChatMessage(
-      senderId: senderId,
-      chatroomId: chatRoomId,
-      content: accept ? '약속이 수락되었습니다.' : '약속이 거절되었습니다.',
-      messageType: MessageType.MEETING_ACCEPT,
-    );
+      await APIService.instance.request(
+        '/meetings/$meetingId',
+        accept ? DioMethod.post : DioMethod.patch,
+        token: token,
+      );
 
-    WebSocketService.instance.sendMessage(systemMessage);
+      // 수락 or 거절 성공하면 WebSocket 알림 보내기
+      final systemMessage = ChatMessage(
+        senderId: senderId,
+        chatroomId: chatRoomId,
+        content: accept ? '약속이 수락되었습니다.' : '약속이 거절되었습니다.',
+        messageType: MessageType.MEETING_ACCEPT,
+      );
+
+      WebSocketService.instance.sendMessage(systemMessage);
+    } catch (e) {
+      logger.e('약속 수락/거절 실패: $e');
+    }
   }
 }

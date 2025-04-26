@@ -96,6 +96,9 @@ class _MeetingMessageBubbleState extends State<MeetingMessageBubble> {
                             chore: extractChoreFromContent(
                               widget.message.content ?? '',
                             ),
+                            meetingId: widget.message.meetingId!,
+                            chatRoomId: widget.message.chatroomId,
+                            senderId: widget.message.senderId,
                           ),
                     ),
                   );

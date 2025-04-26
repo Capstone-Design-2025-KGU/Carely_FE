@@ -1,3 +1,4 @@
+import 'package:carely/services/meeting_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_button.dart';
@@ -11,6 +12,9 @@ class MeetingDetailScreen extends StatelessWidget {
   final String date;
   final String time;
   final String chore;
+  final int meetingId;
+  final int chatRoomId;
+  final int senderId;
 
   const MeetingDetailScreen({
     super.key,
@@ -21,6 +25,9 @@ class MeetingDetailScreen extends StatelessWidget {
     required this.date,
     required this.time,
     required this.chore,
+    required this.meetingId,
+    required this.chatRoomId,
+    required this.senderId,
   });
 
   @override
@@ -68,10 +75,29 @@ class MeetingDetailScreen extends StatelessWidget {
             ),
             Column(
               children: [
-                DefaultButton(content: '수락', onPressed: () {}),
+                DefaultButton(
+                  content: '수락',
+                  onPressed: () async {
+                    await MeetingService.instance.respondMeeting(
+                      meetingId: meetingId,
+                      accept: true,
+                      chatRoomId: chatRoomId,
+                      senderId: senderId,
+                    );
+                    Navigator.pop(context);
+                  },
+                ),
                 SizedBox(height: 16.0),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await MeetingService.instance.respondMeeting(
+                      meetingId: meetingId,
+                      accept: false,
+                      chatRoomId: chatRoomId,
+                      senderId: senderId,
+                    );
+                    Navigator.pop(context);
+                  },
                   style: TextButton.styleFrom(
                     minimumSize: Size(
                       ScreenSize.width(context, 336),
