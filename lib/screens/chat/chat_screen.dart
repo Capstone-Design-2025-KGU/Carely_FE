@@ -7,6 +7,7 @@ import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
 import 'package:carely/utils/member_color.dart';
 import 'package:carely/utils/member_type.dart';
+import 'package:carely/widgets/chat/accept_message_bubble.dart';
 import 'package:carely/widgets/chat/chat_bubble.dart';
 import 'package:carely/widgets/chat/chat_time_stamp.dart';
 import 'package:carely/widgets/chat/meeting_message_bubble.dart';
@@ -20,6 +21,7 @@ class ChatScreen extends StatefulWidget {
   static String id = 'chat-screen';
   final int chatRoomId;
   final int senderId; // 현재 로그인한 사용자의 Id
+  final MemberType senderType;
   final int opponentMemberId;
   final String opponentName;
 
@@ -29,6 +31,7 @@ class ChatScreen extends StatefulWidget {
     required this.senderId,
     required this.opponentName,
     required this.opponentMemberId,
+    required this.senderType,
   });
 
   @override
@@ -221,6 +224,16 @@ class _ChatScreenState extends State<ChatScreen> {
             message: message,
             isMine: message.senderId == widget.senderId,
             timeStamp: message.createdAt,
+            senderType: widget.senderType,
+          ),
+        );
+      } else if (message.messageType == MessageType.MEETING_ACCEPT) {
+        chatItems.add(
+          AcceptMessageBubble(
+            message: message,
+            isMine: message.senderId == widget.senderId,
+            timeStamp: message.createdAt,
+            senderType: widget.senderType,
           ),
         );
       } else {

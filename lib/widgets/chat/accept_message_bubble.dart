@@ -13,13 +13,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class MeetingMessageBubble extends StatefulWidget {
+class AcceptMessageBubble extends StatefulWidget {
   final ChatMessage message;
   final DateTime? timeStamp;
   final bool isMine;
   final MemberType senderType;
 
-  const MeetingMessageBubble({
+  const AcceptMessageBubble({
     super.key,
     required this.message,
     this.timeStamp,
@@ -28,11 +28,10 @@ class MeetingMessageBubble extends StatefulWidget {
   });
 
   @override
-  State<MeetingMessageBubble> createState() => _MeetingMessageBubbleState();
+  State<AcceptMessageBubble> createState() => _AcceptMessageBubbleState();
 }
 
-class _MeetingMessageBubbleState extends State<MeetingMessageBubble> {
-  Member? sender;
+class _AcceptMessageBubbleState extends State<AcceptMessageBubble> {
   bool isLoading = true;
 
   @override
@@ -49,18 +48,9 @@ class _MeetingMessageBubbleState extends State<MeetingMessageBubble> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '약속 요청을 보냈어요!',
+              '약속을 수락했어요!',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                fontSize: 16.0,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 20.0),
-            Text(
-              widget.message.content ?? '',
-              style: TextStyle(
-                fontWeight: FontWeight.w400,
                 fontSize: 16.0,
                 color: Colors.white,
               ),
@@ -158,12 +148,12 @@ class _MeetingMessageBubbleState extends State<MeetingMessageBubble> {
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Row(
         mainAxisAlignment:
-            widget.isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+            widget.isMine ? MainAxisAlignment.start : MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children:
             widget.isMine
-                ? [time, SizedBox(width: 6.0), bubble]
-                : [bubble, SizedBox(width: 6.0), time],
+                ? [bubble, SizedBox(width: 6.0), time]
+                : [time, SizedBox(width: 6.0), bubble],
       ),
     );
   }

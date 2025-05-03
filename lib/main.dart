@@ -101,6 +101,7 @@ class MyApp extends StatelessWidget {
               senderId: 1,
               opponentName: '',
               opponentMemberId: 1,
+              senderType: MemberType.caregiver,
             ),
         NavScreen.id: (context) => const NavScreen(),
         MapScreen.id: (context) => const MapScreen(),
