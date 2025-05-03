@@ -1,8 +1,10 @@
+import 'package:carely/providers/member_provider.dart';
 import 'package:carely/services/meeting_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_button.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MeetingDetailScreen extends StatelessWidget {
   final String name;
@@ -32,6 +34,9 @@ class MeetingDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUserId = context.watch<MemberProvider>().member!.memberId;
+    final isRequester = currentUserId == senderId;
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFF3F2),
       appBar: AppBar(
@@ -73,52 +78,53 @@ class MeetingDetailScreen extends StatelessWidget {
                 InfoRow(label: '주된 일', value: chore),
               ],
             ),
-            Column(
-              children: [
-                DefaultButton(
-                  content: '수락',
-                  onPressed: () async {
-                    await MeetingService.instance.respondMeeting(
-                      meetingId: meetingId,
-                      accept: true,
-                      chatRoomId: chatRoomId,
-                      senderId: senderId,
-                    );
-                    Navigator.pop(context);
-                  },
-                ),
-                SizedBox(height: 16.0),
-                TextButton(
-                  onPressed: () async {
-                    await MeetingService.instance.respondMeeting(
-                      meetingId: meetingId,
-                      accept: false,
-                      chatRoomId: chatRoomId,
-                      senderId: senderId,
-                    );
-                    Navigator.pop(context);
-                  },
-                  style: TextButton.styleFrom(
-                    minimumSize: Size(
-                      ScreenSize.width(context, 336),
-                      ScreenSize.height(context, 52),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      side: const BorderSide(color: Colors.red),
-                    ),
-                    foregroundColor: Colors.red,
-                    backgroundColor: Colors.white,
-                    textStyle: const TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w600,
-                    ),
+            if (!isRequester)
+              Column(
+                children: [
+                  DefaultButton(
+                    content: '수락',
+                    onPressed: () async {
+                      await MeetingService.instance.respondMeeting(
+                        meetingId: meetingId,
+                        accept: true,
+                        chatRoomId: chatRoomId,
+                        senderId: senderId,
+                      );
+                      Navigator.pop(context);
+                    },
                   ),
-                  child: Text('취소'),
-                ),
-                SizedBox(height: 20.0),
-              ],
-            ),
+                  SizedBox(height: 16.0),
+                  TextButton(
+                    onPressed: () async {
+                      await MeetingService.instance.respondMeeting(
+                        meetingId: meetingId,
+                        accept: false,
+                        chatRoomId: chatRoomId,
+                        senderId: senderId,
+                      );
+                      Navigator.pop(context);
+                    },
+                    style: TextButton.styleFrom(
+                      minimumSize: Size(
+                        ScreenSize.width(context, 336),
+                        ScreenSize.height(context, 52),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        side: const BorderSide(color: Colors.red),
+                      ),
+                      foregroundColor: Colors.red,
+                      backgroundColor: Colors.white,
+                      textStyle: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    child: Text('취소'),
+                  ),
+                  SizedBox(height: 20.0),
+                ],
+              ),
           ],
         ),
       ),
