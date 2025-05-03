@@ -23,6 +23,6 @@ class MemberTypeConverter implements JsonConverter<MemberType, String> {
 
   @override
   String toJson(MemberType object) {
-    return object.name; // 소문자로 나가게 하려면: object.name.toLowerCase()
+    return object.name.toUpperCase();
   }
 }
