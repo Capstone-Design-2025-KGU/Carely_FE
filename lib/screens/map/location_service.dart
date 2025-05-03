@@ -67,7 +67,7 @@ class LocationService {
       );
 
       if (placemarks.isNotEmpty) {
-        return '${placemarks.first.administrativeArea} ${placemarks.first.locality} ${placemarks.first.subLocality}';
+        return '${placemarks.first.administrativeArea} ${placemarks.first.subAdministrativeArea} ${placemarks.first.locality} ${placemarks.first.subLocality}';
       }
     } catch (e) {
       logger.e('주소 변환 실패: $e');

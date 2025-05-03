@@ -10,6 +10,14 @@ import 'package:carely/screens/map/dummy_data.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:carely/screens/map/location_service.dart';
 import 'package:carely/screens/map/filter_utilities.dart';
+import 'package:carely/screens/map/clustering/cluster_item.dart';
+import 'package:carely/screens/map/clustering/cluster_manager.dart'
+    as mycluster;
+import 'package:carely/screens/map/clustering/cluster_helper.dart';
+import 'package:carely/screens/map/clustering/custom_cluster_icon.dart';
+import 'package:carely/screens/map/clustering/cluster_circle_offset.dart';
+import 'package:carely/screens/map/clustering/avoid_cluster_overlap.dart';
+import 'dart:math';
 
 class MapScreen extends StatefulWidget {
   static String id = 'map-screen';
@@ -33,6 +41,9 @@ class _MapScreenState extends State<MapScreen>
   final double _maxChildSize = 0.35;
   late DraggableScrollableController _draggableController;
   double _currentSheetSize = 0.09;
+  double _currentZoom = 14.5;
+  List<ClusterItem> _allClusterItems = [];
+  List<ClusterItem> _selectedClusterItems = [];
 
   Map<String, BitmapDescriptor> normalMarkerIcons = {};
   Map<String, BitmapDescriptor> selectedMarkerIcons = {};
@@ -60,6 +71,29 @@ class _MapScreenState extends State<MapScreen>
     _draggableController = DraggableScrollableController();
     _loadMarkerIcons();
     _initializeLocation();
+    _allClusterItems =
+        dummyUsers.map((user) {
+          JobType jobType;
+          switch (user.jobType) {
+            case 'family':
+              jobType = JobType.family;
+              break;
+            case 'volunteer':
+              jobType = JobType.volunteer;
+              break;
+            case 'caregiver':
+              jobType = JobType.caregiver;
+              break;
+            default:
+              jobType = JobType.family;
+          }
+          return ClusterItem(
+            id: user.id,
+            position: user.location,
+            jobType: jobType,
+            data: {'user': user},
+          );
+        }).toList();
 
     // DraggableScrollableController 리스너 추가
     _draggableController.addListener(() {
@@ -109,28 +143,36 @@ class _MapScreenState extends State<MapScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // 지도
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: dummyUsers[0].location,
-              zoom: 14,
-            ),
-            markers: _getFilteredMarkers(),
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false, // 별도로 내 위치 버튼을 구현하기 위해 비활성화
-            onMapCreated: (GoogleMapController controller) {
-              _mapController = controller;
-            },
-            onTap: (LatLng position) {
-              setState(() {
-                _selectedMarkerId = null;
-              });
-
-              // DraggableScrollableSheet 최소화
-              _draggableController.animateTo(
-                _minChildSize,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOut,
+          FutureBuilder<Set<Marker>>(
+            future: _buildMarkersWithClusterIcons(),
+            builder: (context, snapshot) {
+              return GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: dummyUsers[0].location,
+                  zoom: 14.5,
+                ),
+                markers: snapshot.data ?? {},
+                myLocationEnabled: true,
+                myLocationButtonEnabled: false,
+                onMapCreated: (GoogleMapController controller) {
+                  _mapController = controller;
+                },
+                onCameraMove: (CameraPosition pos) {
+                  setState(() {
+                    _currentZoom = pos.zoom;
+                  });
+                },
+                onTap: (LatLng position) {
+                  setState(() {
+                    _selectedClusterItems = [];
+                    _selectedMarkerId = null;
+                  });
+                  _draggableController.animateTo(
+                    _minChildSize,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                },
               );
             },
           ),
@@ -322,9 +364,11 @@ class _MapScreenState extends State<MapScreen>
                     ),
                     // 현재 위치 지역명 표시
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 4,
-                        horizontal: 16,
+                      padding: const EdgeInsets.only(
+                        top: 4,
+                        left: 24,
+                        right: 16,
+                        bottom: 4,
                       ),
                       child: Text(
                         _currentAddress ?? '현재 위치를 불러오는 중...',
@@ -332,17 +376,19 @@ class _MapScreenState extends State<MapScreen>
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
-                        textAlign: TextAlign.center,
+                        textAlign: TextAlign.left,
                       ),
                     ),
 
                     const SizedBox(height: 10),
 
-                    // 선택된 사용자 정보 카드
-                    if (_selectedMarkerId != null)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: UserInfoCard(userId: _selectedMarkerId!),
+                    // 선택된 클러스터 내 사용자 정보 카드들
+                    if (_selectedClusterItems.isNotEmpty)
+                      ..._selectedClusterItems.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: UserInfoCard(userId: item.id),
+                        ),
                       ),
                   ],
                 ),
@@ -429,72 +475,137 @@ class _MapScreenState extends State<MapScreen>
     );
   }
 
-  /// 마커 생성
-  Set<Marker> _getFilteredMarkers() {
+  Future<Set<Marker>> _buildMarkersWithClusterIcons() async {
     Set<Marker> markers = {};
-    var filteredUsers = dummyUsers;
+    List<ClusterItem> filtered =
+        _allClusterItems.where((item) {
+          if (_searchText.isNotEmpty) {
+            final user = item.data['user'];
+            if (user == null ||
+                !(user.name.toLowerCase().contains(
+                  _searchText.toLowerCase(),
+                ))) {
+              return false;
+            }
+          }
+          if (_selectedFilters.isNotEmpty) {
+            final user = item.data['user'];
+            if (user == null) return false;
+            JobType jobType = item.jobType;
+            if (!_selectedFilters.contains(_getMemberTypeFromJobType(jobType)))
+              return false;
+          }
+          return true;
+        }).toList();
 
-    // 검색 필터링
-    if (_searchText.isNotEmpty) {
-      filteredUsers =
-          filteredUsers
-              .where(
-                (user) =>
-                    user.name.toLowerCase().contains(_searchText.toLowerCase()),
-              )
-              .toList();
-    }
-
-    // 유형 필터링
-    if (_selectedFilters.isNotEmpty) {
-      filteredUsers =
-          filteredUsers
-              .where(
-                (user) => _selectedFilters.contains(
-                  _getMemberTypeFromString(user.jobType),
-                ),
-              )
-              .toList();
-    }
-
-    for (var user in filteredUsers) {
-      bool isSelected = user.id == _selectedMarkerId;
-
-      // 마커 아이콘 가져오기
-      BitmapDescriptor icon =
-          isSelected
-              ? (selectedMarkerIcons[user.jobType] ??
-                  BitmapDescriptor.defaultMarker)
-              : (normalMarkerIcons[user.jobType] ??
-                  BitmapDescriptor.defaultMarker);
-
-      markers.add(
-        Marker(
-          markerId: MarkerId(
-            '${user.id}_${user.name}_${user.location.latitude}',
-          ),
-          icon: icon,
-          position: user.location,
-          zIndex: isSelected ? 2 : 1,
-          onTap: () {
-            setState(() {
-              _selectedMarkerId = user.id;
-            });
-
-            // DraggableScrollableSheet를 올림
-            _draggableController.animateTo(
-              _maxChildSize,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut,
+    if (_currentZoom <= 14.2) {
+      final bounds = await _mapController?.getVisibleRegion();
+      if (bounds != null) {
+        final diag = ClusterHelper.distance(bounds.southwest, bounds.northeast);
+        final clusterRadius = diag / 8;
+        // 1. 직업별로 분리하여 각각 클러스터링 및 겹침 해소
+        Map<JobType, List<ClusterWithRadius>> clustersByType = {};
+        for (var type in JobType.values) {
+          final itemsOfType = filtered.where((e) => e.jobType == type).toList();
+          final clusters = ClusterHelper.cluster(itemsOfType, clusterRadius);
+          clustersByType[type] = avoidClusterOverlap(clusters);
+        }
+        // 2. 전체 클러스터의 평균 중심점(지도 중심) 계산
+        List<LatLng> allCenters = [];
+        clustersByType.values
+            .expand((list) => list)
+            .forEach((c) => allCenters.add(c.center));
+        double avgLat =
+            allCenters.map((c) => c.latitude).reduce((a, b) => a + b) /
+            allCenters.length;
+        double avgLng =
+            allCenters.map((c) => c.longitude).reduce((a, b) => a + b) /
+            allCenters.length;
+        LatLng mapCenter = LatLng(avgLat, avgLng);
+        // 3. 직업별로 각도를 다르게 하여 오프셋 적용
+        final angleStep = 2 * 3.141592653589793 / JobType.values.length;
+        final baseOffset = 0.004; // 기준 오프셋
+        final offsetDistance = baseOffset * (14 / _currentZoom); // 줌에 따라 동적 조정
+        int idx = 0;
+        Map<JobType, List<ClusterWithRadius>> offsetClustersByType = {};
+        for (var type in JobType.values) {
+          double angle = angleStep * idx;
+          double offsetLat = offsetDistance * cos(angle);
+          double offsetLng = offsetDistance * sin(angle);
+          offsetClustersByType[type] =
+              clustersByType[type]!
+                  .map(
+                    (c) => ClusterWithRadius(
+                      LatLng(
+                        c.center.latitude + offsetLat,
+                        c.center.longitude + offsetLng,
+                      ),
+                      c.items,
+                      c.radius,
+                    ),
+                  )
+                  .toList();
+          idx++;
+        }
+        // 4. 마커 생성
+        for (var type in JobType.values) {
+          for (var group in offsetClustersByType[type]!) {
+            int count = group.items.length;
+            if (count == 0) continue;
+            BitmapDescriptor icon = await getCustomClusterIcon(count, type);
+            markers.add(
+              Marker(
+                markerId: MarkerId('${type}_${group.center}_$count'),
+                position: group.center,
+                icon: icon,
+                onTap: () {
+                  setState(() {
+                    _selectedClusterItems = group.items;
+                    _selectedMarkerId = null;
+                  });
+                  _draggableController.animateTo(
+                    _maxChildSize,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                },
+              ),
             );
-
-            _animateCameraToPosition(user.location);
-          },
-        ),
-      );
+          }
+        }
+      }
+    } else {
+      for (var item in filtered) {
+        final user = item.data['user'];
+        if (user == null) continue;
+        String typeKey = user.jobType;
+        bool isSelected = _selectedMarkerId == item.id;
+        BitmapDescriptor icon =
+            isSelected
+                ? (selectedMarkerIcons[typeKey] ??
+                    BitmapDescriptor.defaultMarker)
+                : (normalMarkerIcons[typeKey] ??
+                    BitmapDescriptor.defaultMarker);
+        markers.add(
+          Marker(
+            markerId: MarkerId(item.id),
+            position: item.position,
+            icon: icon,
+            onTap: () {
+              setState(() {
+                _selectedClusterItems = [item];
+                _selectedMarkerId = item.id;
+              });
+              _draggableController.animateTo(
+                _maxChildSize,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            },
+          ),
+        );
+      }
     }
-
-    // 현재 위치 마커 추가
     if (_currentPosition != null) {
       markers.add(
         Marker(
@@ -507,15 +618,41 @@ class _MapScreenState extends State<MapScreen>
         ),
       );
     }
-
     return markers;
+  }
+
+  // MemberType -> JobType 변환
+  JobType? _memberTypeToJobType(MemberType? memberType) {
+    switch (memberType) {
+      case MemberType.family:
+        return JobType.family;
+      case MemberType.volunteer:
+        return JobType.volunteer;
+      case MemberType.caregiver:
+        return JobType.caregiver;
+      default:
+        return null;
+    }
+  }
+
+  // JobType -> MemberType 변환
+  MemberType? _getMemberTypeFromJobType(JobType? jobType) {
+    if (jobType == null) return null;
+    switch (jobType) {
+      case JobType.family:
+        return MemberType.family;
+      case JobType.volunteer:
+        return MemberType.volunteer;
+      case JobType.caregiver:
+        return MemberType.caregiver;
+    }
   }
 
   // 이름으로 사용자 검색
   void _searchUser(String searchText) {
     if (searchText.isEmpty) {
       setState(() {
-        _selectedMarkerId = null;
+        _selectedClusterItems = [];
       });
       return;
     }
@@ -531,7 +668,17 @@ class _MapScreenState extends State<MapScreen>
 
     if (foundUser.isNotEmpty) {
       setState(() {
-        _selectedMarkerId = foundUser.first.id;
+        _selectedClusterItems = [
+          ClusterItem(
+            id: foundUser.first.id,
+            position: foundUser.first.location,
+            jobType:
+                _memberTypeToJobType(
+                  _getMemberTypeFromString(foundUser.first.jobType),
+                )!,
+            data: {'user': foundUser.first},
+          ),
+        ];
       });
 
       // 찾은 사용자 위치로 카메라 이동
