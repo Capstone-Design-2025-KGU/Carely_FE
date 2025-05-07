@@ -90,7 +90,7 @@ class MyApp extends StatelessWidget {
         ),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      initialRoute: NavScreen.id,
+      initialRoute: initialToken == null ? LoginScreen.id : NavScreen.id,
       routes: {
         HomeScreen.id: (context) => const HomeScreen(),
         LoginScreen.id: (context) => const LoginScreen(),
