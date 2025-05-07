@@ -26,6 +26,9 @@ mixin _$ChatMessage {
   String get content => throw _privateConstructorUsedError;
   MessageType get messageType => throw _privateConstructorUsedError;
   int? get meetingId => throw _privateConstructorUsedError;
+  String? get date => throw _privateConstructorUsedError;
+  String? get time => throw _privateConstructorUsedError;
+  String? get chore => throw _privateConstructorUsedError;
   @FlexibleDateTimeConverter()
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
@@ -52,6 +55,9 @@ abstract class $ChatMessageCopyWith<$Res> {
     String content,
     MessageType messageType,
     int? meetingId,
+    String? date,
+    String? time,
+    String? chore,
     @FlexibleDateTimeConverter() DateTime? createdAt,
   });
 }
@@ -76,6 +82,9 @@ class _$ChatMessageCopyWithImpl<$Res, $Val extends ChatMessage>
     Object? content = null,
     Object? messageType = null,
     Object? meetingId = freezed,
+    Object? date = freezed,
+    Object? time = freezed,
+    Object? chore = freezed,
     Object? createdAt = freezed,
   }) {
     return _then(
@@ -105,6 +114,21 @@ class _$ChatMessageCopyWithImpl<$Res, $Val extends ChatMessage>
                     ? _value.meetingId
                     : meetingId // ignore: cast_nullable_to_non_nullable
                         as int?,
+            date:
+                freezed == date
+                    ? _value.date
+                    : date // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            time:
+                freezed == time
+                    ? _value.time
+                    : time // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            chore:
+                freezed == chore
+                    ? _value.chore
+                    : chore // ignore: cast_nullable_to_non_nullable
+                        as String?,
             createdAt:
                 freezed == createdAt
                     ? _value.createdAt
@@ -131,6 +155,9 @@ abstract class _$$ChatMessageImplCopyWith<$Res>
     String content,
     MessageType messageType,
     int? meetingId,
+    String? date,
+    String? time,
+    String? chore,
     @FlexibleDateTimeConverter() DateTime? createdAt,
   });
 }
@@ -154,6 +181,9 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
     Object? content = null,
     Object? messageType = null,
     Object? meetingId = freezed,
+    Object? date = freezed,
+    Object? time = freezed,
+    Object? chore = freezed,
     Object? createdAt = freezed,
   }) {
     return _then(
@@ -183,6 +213,21 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
                 ? _value.meetingId
                 : meetingId // ignore: cast_nullable_to_non_nullable
                     as int?,
+        date:
+            freezed == date
+                ? _value.date
+                : date // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        time:
+            freezed == time
+                ? _value.time
+                : time // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        chore:
+            freezed == chore
+                ? _value.chore
+                : chore // ignore: cast_nullable_to_non_nullable
+                    as String?,
         createdAt:
             freezed == createdAt
                 ? _value.createdAt
@@ -203,6 +248,9 @@ class _$ChatMessageImpl implements _ChatMessage {
     required this.content,
     required this.messageType,
     this.meetingId,
+    this.date,
+    this.time,
+    this.chore,
     @FlexibleDateTimeConverter() this.createdAt,
   });
 
@@ -220,12 +268,18 @@ class _$ChatMessageImpl implements _ChatMessage {
   @override
   final int? meetingId;
   @override
+  final String? date;
+  @override
+  final String? time;
+  @override
+  final String? chore;
+  @override
   @FlexibleDateTimeConverter()
   final DateTime? createdAt;
 
   @override
   String toString() {
-    return 'ChatMessage(senderId: $senderId, chatroomId: $chatroomId, content: $content, messageType: $messageType, meetingId: $meetingId, createdAt: $createdAt)';
+    return 'ChatMessage(senderId: $senderId, chatroomId: $chatroomId, content: $content, messageType: $messageType, meetingId: $meetingId, date: $date, time: $time, chore: $chore, createdAt: $createdAt)';
   }
 
   @override
@@ -242,6 +296,9 @@ class _$ChatMessageImpl implements _ChatMessage {
                 other.messageType == messageType) &&
             (identical(other.meetingId, meetingId) ||
                 other.meetingId == meetingId) &&
+            (identical(other.date, date) || other.date == date) &&
+            (identical(other.time, time) || other.time == time) &&
+            (identical(other.chore, chore) || other.chore == chore) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
@@ -255,6 +312,9 @@ class _$ChatMessageImpl implements _ChatMessage {
     content,
     messageType,
     meetingId,
+    date,
+    time,
+    chore,
     createdAt,
   );
 
@@ -279,6 +339,9 @@ abstract class _ChatMessage implements ChatMessage {
     required final String content,
     required final MessageType messageType,
     final int? meetingId,
+    final String? date,
+    final String? time,
+    final String? chore,
     @FlexibleDateTimeConverter() final DateTime? createdAt,
   }) = _$ChatMessageImpl;
 
@@ -295,6 +358,12 @@ abstract class _ChatMessage implements ChatMessage {
   MessageType get messageType;
   @override
   int? get meetingId;
+  @override
+  String? get date;
+  @override
+  String? get time;
+  @override
+  String? get chore;
   @override
   @FlexibleDateTimeConverter()
   DateTime? get createdAt;

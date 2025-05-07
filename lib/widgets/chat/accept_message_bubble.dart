@@ -1,9 +1,6 @@
 import 'package:carely/models/chat_message.dart';
-import 'package:carely/models/member.dart';
-import 'package:carely/providers/member_provider.dart';
 import 'package:carely/screens/chat/meeting_detail_screen.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
-import 'package:carely/services/meeting_service.dart';
 import 'package:carely/services/member/member_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/member_color.dart';
@@ -11,13 +8,15 @@ import 'package:carely/utils/member_type.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class AcceptMessageBubble extends StatefulWidget {
   final ChatMessage message;
   final DateTime? timeStamp;
   final bool isMine;
   final MemberType senderType;
+  final String date;
+  final String time;
+  final String chore;
 
   const AcceptMessageBubble({
     super.key,
@@ -25,6 +24,9 @@ class AcceptMessageBubble extends StatefulWidget {
     this.timeStamp,
     required this.isMine,
     required this.senderType,
+    required this.date,
+    required this.time,
+    required this.chore,
   });
 
   @override
@@ -72,6 +74,13 @@ class _AcceptMessageBubbleState extends State<AcceptMessageBubble> {
                     return;
                   }
 
+                  if (widget.message.meetingId == null) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('meetingId가 없습니다')));
+                    return;
+                  }
+
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder:
@@ -81,18 +90,15 @@ class _AcceptMessageBubbleState extends State<AcceptMessageBubble> {
                             address:
                                 '${fetchedMember.address.province} ${fetchedMember.address.city} ${fetchedMember.address.district}',
                             detailAddress: fetchedMember.address.details ?? '',
-                            date: extractDateFromContent(
-                              widget.message.content ?? '',
-                            ),
-                            time: extractTimeFromContent(
-                              widget.message.content ?? '',
-                            ),
-                            chore: extractChoreFromContent(
-                              widget.message.content ?? '',
-                            ),
+                            date: widget.date,
+                            time: widget.time,
+                            chore: widget.chore,
                             meetingId: widget.message.meetingId!,
                             chatRoomId: widget.message.chatroomId,
                             senderId: widget.message.senderId,
+                            isAccepted:
+                                widget.message.messageType ==
+                                MessageType.MEETING_ACCEPT,
                           ),
                     ),
                   );
@@ -157,42 +163,17 @@ class _AcceptMessageBubbleState extends State<AcceptMessageBubble> {
       ),
     );
   }
-
-  void _respondMeeting(BuildContext context, bool isAccepted) async {
-    try {
-      if (widget.message.meetingId == null) {
-        throw Exception('Meeting ID가 없습니다.');
-      }
-      final memberProvider = Provider.of<MemberProvider>(
-        context,
-        listen: false,
-      );
-      final currentMember = memberProvider.member;
-      if (currentMember == null) return;
-
-      await MeetingService.instance.respondMeeting(
-        meetingId: widget.message.meetingId!,
-        accept: isAccepted,
-        chatRoomId: widget.message.chatroomId,
-        senderId: currentMember.memberId,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isAccepted ? '약속 수락 완료' : '약속 거절 완료')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('에러 발생: $e')));
-    }
-  }
 }
 
 int calculateAge(String birth) {
-  final parts = birth.split('-');
-  final year = int.parse(parts[0]);
-  final now = DateTime.now();
-  return now.year - year;
+  final birthDate = DateTime.parse(birth); // "2001-10-30" 형식이어야 함
+  final today = DateTime.now();
+  int age = today.year - birthDate.year;
+  if (today.month < birthDate.month ||
+      (today.month == birthDate.month && today.day < birthDate.day)) {
+    age--;
+  }
+  return age;
 }
 
 String extractDateFromContent(String content) {

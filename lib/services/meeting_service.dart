@@ -1,7 +1,5 @@
-import 'package:carely/models/chat_message.dart';
 import 'package:carely/services/api_service.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
-import 'package:carely/services/chat/web_socket_service.dart';
 import 'package:carely/utils/logger_config.dart';
 
 class MeetingService {
@@ -38,8 +36,6 @@ class MeetingService {
   Future<void> respondMeeting({
     required int meetingId,
     required bool accept,
-    required int chatRoomId,
-    required int senderId,
   }) async {
     try {
       final token = await TokenStorageService.getToken();
@@ -49,16 +45,6 @@ class MeetingService {
         accept ? DioMethod.post : DioMethod.patch,
         token: token,
       );
-
-      // 수락 or 거절 성공하면 WebSocket 알림 보내기
-      final systemMessage = ChatMessage(
-        senderId: senderId,
-        chatroomId: chatRoomId,
-        content: accept ? '약속이 수락되었습니다.' : '약속이 거절되었습니다.',
-        messageType: MessageType.MEETING_ACCEPT,
-      );
-
-      WebSocketService.instance.sendMessage(systemMessage);
     } catch (e) {
       logger.e('약속 수락/거절 실패: $e');
     }

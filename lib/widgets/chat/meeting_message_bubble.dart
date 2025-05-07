@@ -97,12 +97,13 @@ class _MeetingMessageBubbleState extends State<MeetingMessageBubble> {
                             time: extractTimeFromContent(
                               widget.message.content ?? '',
                             ),
-                            chore: extractChoreFromContent(
-                              widget.message.content ?? '',
-                            ),
+                            chore: widget.message.chore ?? '주된 일 정보가 없습니다.',
                             meetingId: widget.message.meetingId!,
                             chatRoomId: widget.message.chatroomId,
                             senderId: widget.message.senderId,
+                            isAccepted:
+                                widget.message.messageType ==
+                                MessageType.MEETING_ACCEPT,
                           ),
                     ),
                   );
@@ -183,8 +184,6 @@ class _MeetingMessageBubbleState extends State<MeetingMessageBubble> {
       await MeetingService.instance.respondMeeting(
         meetingId: widget.message.meetingId!,
         accept: isAccepted,
-        chatRoomId: widget.message.chatroomId,
-        senderId: currentMember.memberId,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -222,11 +221,4 @@ String extractTimeFromContent(String content) {
     return '${match.group(1)}:${match.group(2)} ~ ${match.group(3)}:${match.group(4)}';
   }
   return '';
-}
-
-String extractChoreFromContent(String content) {
-  // content 안에 chore 텍스트를 별도로 추가해두거나
-  // 따로 넘겨야 할 수도 있어
-  // 현재 구조만 보면, content에 chore 정보가 없으면 추가해야 함
-  return '주된 일 정보 없음'; // (필요하면 수정)
 }

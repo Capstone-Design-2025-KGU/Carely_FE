@@ -1,6 +1,9 @@
+import 'package:carely/models/chat_message.dart';
 import 'package:carely/providers/member_provider.dart';
+import 'package:carely/services/chat/web_socket_service.dart';
 import 'package:carely/services/meeting_service.dart';
 import 'package:carely/theme/colors.dart';
+import 'package:carely/utils/logger_config.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_button.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +20,7 @@ class MeetingDetailScreen extends StatelessWidget {
   final int meetingId;
   final int chatRoomId;
   final int senderId;
+  final bool isAccepted;
 
   const MeetingDetailScreen({
     super.key,
@@ -30,12 +34,19 @@ class MeetingDetailScreen extends StatelessWidget {
     required this.meetingId,
     required this.chatRoomId,
     required this.senderId,
+    required this.isAccepted,
   });
 
   @override
   Widget build(BuildContext context) {
-    final currentUserId = context.watch<MemberProvider>().member!.memberId;
-    final isRequester = currentUserId == senderId;
+    final memberProvider = context.watch<MemberProvider>();
+    final currentUserId = memberProvider.member?.memberId;
+
+    final isRequester = currentUserId != null && currentUserId == senderId;
+
+    if (memberProvider.member == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFF3F2),
@@ -78,7 +89,7 @@ class MeetingDetailScreen extends StatelessWidget {
                 InfoRow(label: '주된 일', value: chore),
               ],
             ),
-            if (!isRequester)
+            if (!isRequester && !isAccepted)
               Column(
                 children: [
                   DefaultButton(
@@ -87,9 +98,19 @@ class MeetingDetailScreen extends StatelessWidget {
                       await MeetingService.instance.respondMeeting(
                         meetingId: meetingId,
                         accept: true,
-                        chatRoomId: chatRoomId,
-                        senderId: senderId,
                       );
+
+                      final systemMessage = ChatMessage(
+                        senderId: senderId,
+                        chatroomId: chatRoomId,
+                        content: '약속이 수락되었습니다.',
+                        messageType: MessageType.MEETING_ACCEPT,
+                        meetingId: meetingId,
+                        date: date,
+                        time: time,
+                        chore: chore,
+                      );
+                      WebSocketService.instance.sendMessage(systemMessage);
                       Navigator.pop(context);
                     },
                   ),
@@ -99,9 +120,16 @@ class MeetingDetailScreen extends StatelessWidget {
                       await MeetingService.instance.respondMeeting(
                         meetingId: meetingId,
                         accept: false,
-                        chatRoomId: chatRoomId,
-                        senderId: senderId,
                       );
+                      final systemMessage = ChatMessage(
+                        senderId: senderId,
+                        chatroomId: chatRoomId,
+                        content: '약속이 거절되었습니다.',
+                        messageType: MessageType.MEETING_CANCEL,
+                        meetingId: meetingId,
+                      );
+
+                      WebSocketService.instance.sendMessage(systemMessage);
                       Navigator.pop(context);
                     },
                     style: TextButton.styleFrom(

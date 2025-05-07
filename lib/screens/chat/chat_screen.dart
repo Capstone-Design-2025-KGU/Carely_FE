@@ -234,6 +234,9 @@ class _ChatScreenState extends State<ChatScreen> {
             isMine: message.senderId == widget.senderId,
             timeStamp: message.createdAt,
             senderType: widget.senderType,
+            date: message.date ?? '날짜 정보가 없습니다.',
+            time: message.time ?? '시간 정보가 없습니다.',
+            chore: message.chore ?? '주된 일 정보가 없습니다.',
           ),
         );
       } else {

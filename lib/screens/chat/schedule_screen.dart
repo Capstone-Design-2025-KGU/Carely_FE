@@ -186,6 +186,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     content: content,
                     messageType: MessageType.MEETING_REQUEST,
                     meetingId: meetingId,
+                    chore: selectedMainWork,
                   );
 
                   WebSocketService.instance.sendMessage(meetingRequestMessage);

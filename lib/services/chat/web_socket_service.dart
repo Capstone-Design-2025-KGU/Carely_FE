@@ -64,6 +64,7 @@ class WebSocketService {
       destination: '/app/chat.sendMessage',
       body: jsonEncode(message.toJson()),
     );
+    logger.i(message.toJson());
   }
 
   void disconnect() {
