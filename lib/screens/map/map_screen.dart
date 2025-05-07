@@ -415,20 +415,11 @@ class _MapScreenState extends State<MapScreen>
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: _selectedFilters.isEmpty ? Colors.grey[400] : Colors.grey[800],
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color:
-                _selectedFilters.isEmpty
-                    ? Colors.grey[400]!
-                    : Colors.grey[800]!,
-            width: 1.5,
-          ),
-        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          children: const [Icon(Icons.refresh, size: 18, color: Colors.white)],
+          children: [
+            Image.asset('assets/images/reset.png', width: 32, height: 32),
+          ],
         ),
       ),
     );

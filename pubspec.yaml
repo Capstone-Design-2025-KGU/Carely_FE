@@ -77,6 +77,10 @@ flutter:
 >>>>>>> 0ef8dc6 (feat : create user list screen)
     - assets/images/temp-user-image.png
     - assets/images/no-chat-room.png
+    - assets/images/
+    - assets/images/markers/Red.png
+    - assets/images/markers/Blue.png
+    - assets/images/markers/Green.png
     - .env
 
 fonts:

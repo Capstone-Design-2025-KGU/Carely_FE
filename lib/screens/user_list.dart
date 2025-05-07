@@ -4,6 +4,8 @@ import 'package:carely/screens/map/dummy_data.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/screens/map/filter_utilities.dart';
+import 'package:carely/screens/map/location_service.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class UserListScreen extends StatefulWidget {
   static String id = 'user-list-screen';
@@ -17,6 +19,8 @@ class _UserListScreenState extends State<UserListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
   final Set<MemberType> _selectedFilters = {};
+  String? _currentAddress;
+  final LocationService _locationService = LocationService();
 
   // 필터 버튼 색상 정의
   final Map<MemberType, Color> filterColors = {
@@ -33,9 +37,25 @@ class _UserListScreenState extends State<UserListScreen> {
   };
 
   @override
+  void initState() {
+    super.initState();
+    _initializeLocation();
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  /// 위치 서비스 초기화
+  void _initializeLocation() async {
+    await _locationService.initialize();
+    _locationService.onLocationChanged((newPosition, address) {
+      setState(() {
+        _currentAddress = address;
+      });
+    });
   }
 
   @override
@@ -187,9 +207,10 @@ class _UserListScreenState extends State<UserListScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             alignment: Alignment.centerLeft,
-            child: const Text(
-              '서울특별시 강남구 역삼동',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            child: Text(
+              _currentAddress ?? '현재 위치를 불러오는 중...',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.left,
             ),
           ),
 
@@ -226,20 +247,11 @@ class _UserListScreenState extends State<UserListScreen> {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: _selectedFilters.isEmpty ? Colors.grey[400] : Colors.grey[800],
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color:
-                _selectedFilters.isEmpty
-                    ? Colors.grey[400]!
-                    : Colors.grey[800]!,
-            width: 1.5,
-          ),
-        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          children: const [Icon(Icons.refresh, size: 18, color: Colors.white)],
+          children: [
+            Image.asset('assets/images/reset.png', width: 32, height: 32),
+          ],
         ),
       ),
     );
