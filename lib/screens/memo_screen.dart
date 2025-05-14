@@ -1,7 +1,10 @@
 import 'package:carely/theme/colors.dart';
+import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
+import 'package:carely/widgets/default_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class MemoScreen extends StatefulWidget {
   const MemoScreen({super.key});
@@ -11,60 +14,178 @@ class MemoScreen extends StatefulWidget {
 }
 
 class _MemoScreenState extends State<MemoScreen> {
+  String _memoText = '';
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _speech = stt.SpeechToText();
+  }
+
+  void _startListening() async {
+    if (!_speech.isAvailable && !_speech.isListening) {
+      bool available = await _speech.initialize();
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(
+          onResult: (result) {
+            setState(() {
+              _memoText = result.recognizedWords;
+            });
+          },
+        );
+      }
+    } else if (!_speech.isListening) {
+      setState(() => _isListening = true);
+      _speech.listen(
+        onResult: (result) {
+          setState(() {
+            _memoText = result.recognizedWords;
+          });
+        },
+      );
+    }
+  }
+
+  void _stopListening() {
+    _speech.stop();
+    setState(() => _isListening = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: DefaultAppBar(title: ''),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            AICard(),
-            Container(color: AppColors.gray50, height: 8.0),
-            Container(
-              padding: EdgeInsets.all(20.0),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '메모',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      color: AppColors.gray500,
-                      fontWeight: FontWeight.w500,
+                  AICard(),
+                  Container(color: AppColors.gray50, height: 8.0),
+                  Container(
+                    padding: EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '메모',
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: AppColors.gray500,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 8.0),
+                        TextField(
+                          maxLines: 8,
+                          maxLength: 1000,
+                          cursorColor: AppColors.gray300,
+                          style: const TextStyle(fontSize: 16.0),
+                          decoration: InputDecoration(
+                            hintText: '간병의 특이사항이 있을 경우 메모로 남겨주세요!',
+                            hintStyle: const TextStyle(
+                              color: Color(0xFFC5C9D1), // 연한 회색
+                              fontSize: 16,
+                            ),
+                            counterText: '', // 하단 기본 카운터 제거
+                            contentPadding: const EdgeInsets.all(16.0),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: AppColors.gray100, // 테두리 색
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: AppColors.gray100,
+                              ),
+                            ),
+                          ),
+                          onChanged: (text) {
+                            setState(() {
+                              _memoText = text;
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 8.0),
-                  TextField(
-                    maxLines: 8,
-                    maxLength: 1000,
-                    cursorColor: AppColors.gray300,
-                    style: const TextStyle(fontSize: 16.0),
-                    decoration: InputDecoration(
-                      hintText: '간병의 특이사항이 있을 경우 메모로 남겨주세요!',
-                      hintStyle: const TextStyle(
-                        color: Color(0xFFC5C9D1), // 연한 회색
-                        fontSize: 16,
-                      ),
-                      counterText: '', // 하단 기본 카운터 제거
-                      contentPadding: const EdgeInsets.all(16.0),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: const BorderSide(
-                          color: AppColors.gray100, // 테두리 색
+                  Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            GestureDetector(
+                              onTap: _startListening,
+                              child: Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withAlpha(51),
+                                      blurRadius: 6,
+                                      offset: Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  Icons.mic,
+                                  color: AppColors.mainPrimary,
+                                  size: 32,
+                                ),
+                              ),
+                            ),
+                            DefaultButton(
+                              content: '메모 저장',
+                              onPressed: () {},
+                              isEnable: _memoText.trim().isNotEmpty,
+                              width: 300,
+                            ),
+                          ],
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: const BorderSide(color: AppColors.gray100),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20.0),
+                        child: TextButton(
+                          onPressed: () async {},
+                          style: TextButton.styleFrom(
+                            minimumSize: Size(
+                              ScreenSize.width(context, 336),
+                              ScreenSize.height(context, 52),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              side: const BorderSide(color: Colors.red),
+                            ),
+                            foregroundColor: Colors.red,
+                            backgroundColor: Colors.white,
+                            textStyle: const TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          child: Text('활동 중단'),
+                        ),
                       ),
-                    ),
-                    onChanged: (text) {},
+                      SizedBox(height: 20.0),
+                    ],
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -129,7 +250,7 @@ class _AICardState extends State<AICard> {
                     child: Row(
                       children:
                           categoryLabels.keys.map((key) {
-                            return IconButton(
+                            return SkillButton(
                               imagePath: key,
                               isActive: selectedCategory == key,
                               onPressed: () {
@@ -160,12 +281,12 @@ class _AICardState extends State<AICard> {
   }
 }
 
-class IconButton extends StatelessWidget {
+class SkillButton extends StatelessWidget {
   final String imagePath;
   final bool isActive;
   final VoidCallback onPressed;
 
-  const IconButton({
+  const SkillButton({
     super.key,
     required this.imagePath,
     required this.isActive,
