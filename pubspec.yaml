@@ -56,6 +56,7 @@ flutter:
     - assets/images/volunteer/profile/
     - assets/images/caregiver/skills/
     - assets/images/family/skills/
+    - assets/images/family/skills/unable/
     - assets/images/volunteer/skills/
     - assets/images/caregiver/logo.svg
     - assets/images/family/logo.svg
