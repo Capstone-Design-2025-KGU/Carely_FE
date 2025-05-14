@@ -1,4 +1,5 @@
 import 'package:carely/screens/chat/chat_room_screen.dart';
+import 'package:carely/screens/group/group_screen.dart';
 import 'package:carely/screens/home_screen.dart';
 import 'package:carely/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ class _NavScreenState extends State<NavScreen> {
   final List<Widget> _screens = const [
     HomeScreen(),
     MapScreen(),
-    HomeScreen(),
+    GroupScreen(),
     ChatRoomScreen(),
     ProfileScreen(),
   ]; // 다른 스크린 파일 생성시 홈 스크린 지우고 새 스크린 추가.
