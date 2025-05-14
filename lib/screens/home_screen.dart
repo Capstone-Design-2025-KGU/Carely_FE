@@ -1,3 +1,4 @@
+import 'package:carely/screens/memo_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -94,92 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 16.0,
-                        horizontal: 20.0,
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Image.asset('assets/images/family/profile/1.png'),
-                              SizedBox(width: 8.0),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          '이상덕님과의 약속',
-                                          style: TextStyle(
-                                            fontSize: 16.0,
-                                            color: AppColors.gray800,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        Icon(
-                                          CupertinoIcons.forward,
-                                          color: Colors.black,
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 4.0),
-                                    Text(
-                                      '2025년 05월 13일 12:00',
-                                      style: TextStyle(
-                                        fontSize: 14.0,
-                                        color: AppColors.gray600,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 16.0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SvgPicture.asset(
-                                'assets/images/carely-ai.svg',
-                                width: 100.0,
-                              ),
-                              Text(
-                                '이상덕님의 간병 정보를 요약해드려요.',
-                                style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: AppColors.gray300,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 16.0),
-                          Text(
-                            '투약은 하루 2번, 아침 10시와 저녁 6시에 진행합니다. 또한, 복약 후에는 환자 상태를 세심하게 관찰하여 이상 반응이 없는지 확인해야 합니다.',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              color: AppColors.mainPrimary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  MeetingCard(),
                   SizedBox(height: 40.0),
                   (member != null && member.isVerified!)
                       ? MemberStatusCard(
@@ -220,6 +136,97 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class MeetingCard extends StatelessWidget {
+  const MeetingCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (context) => MemoScreen()));
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Image.asset('assets/images/family/profile/1.png'),
+                  SizedBox(width: 8.0),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '이상덕님과의 약속',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: AppColors.gray800,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Icon(CupertinoIcons.forward, color: Colors.black),
+                          ],
+                        ),
+                        SizedBox(height: 4.0),
+                        Text(
+                          '2025년 05월 13일 12:00',
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: AppColors.gray600,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SvgPicture.asset('assets/images/carely-ai.svg', width: 100.0),
+                  Text(
+                    '이상덕님의 간병 정보를 요약해드려요.',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: AppColors.gray300,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                '투약은 하루 2번, 아침 10시와 저녁 6시에 진행합니다. 또한, 복약 후에는 환자 상태를 세심하게 관찰하여 이상 반응이 없는지 확인해야 합니다.',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: AppColors.mainPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

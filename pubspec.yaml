@@ -81,6 +81,7 @@ flutter:
     - assets/images/markers/Red.png
     - assets/images/markers/Blue.png
     - assets/images/markers/Green.png
+    - assets/images/mesh-gradient.png
     - .env
 
 fonts:
