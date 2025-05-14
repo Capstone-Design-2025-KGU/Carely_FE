@@ -57,16 +57,21 @@ class AICard extends StatelessWidget {
               ),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    IconButton(imagePath: 'all', onPressed: () {}),
-                    IconButton(imagePath: 'temperature', onPressed: () {}),
-                    IconButton(imagePath: 'all', onPressed: () {}),
-                    IconButton(imagePath: 'all', onPressed: () {}),
-                    IconButton(imagePath: 'all', onPressed: () {}),
-                  ],
+                child: SizedBox(
+                  height: 80.0,
+                  child: Row(
+                    children: [
+                      IconButton(imagePath: 'all', onPressed: () {}),
+                      IconButton(imagePath: 'temperature', onPressed: () {}),
+                      IconButton(imagePath: 'meal', onPressed: () {}),
+                      IconButton(imagePath: 'walk', onPressed: () {}),
+                      IconButton(imagePath: 'communication', onPressed: () {}),
+                      IconButton(imagePath: 'toilet', onPressed: () {}),
+                    ],
+                  ),
                 ),
               ),
+              Text('data'),
             ],
           ),
         ),
@@ -87,17 +92,21 @@ class IconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        shape: const CircleBorder(),
-        backgroundColor: Colors.white,
-        elevation: 2,
-      ),
-      child: Image.asset(
-        'assets/images/family/skills/$imagePath.png',
-        width: 60.0,
-        height: 60.0,
+    return Padding(
+      padding: const EdgeInsets.only(right: 12.0),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.zero,
+          shape: const CircleBorder(),
+          backgroundColor: Colors.white,
+          elevation: 2,
+        ),
+        child: Image.asset(
+          'assets/images/family/skills/$imagePath.png',
+          width: 60.0,
+          height: 60.0,
+        ),
       ),
     );
   }
