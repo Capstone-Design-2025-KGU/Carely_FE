@@ -422,7 +422,7 @@ class MemberStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: ScreenSize.height(context, 84.0),
+      height: ScreenSize.height(context, 88.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.0),
@@ -467,7 +467,7 @@ class MemberStatusCard extends StatelessWidget {
                   style: const TextStyle(
                     color: AppColors.gray600,
                     fontWeight: FontWeight.w500,
-                    fontSize: 16.0,
+                    fontSize: 14.0,
                   ),
                 ),
               ],
