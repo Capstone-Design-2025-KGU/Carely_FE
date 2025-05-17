@@ -1,3 +1,4 @@
+import 'package:carely/screens/group/group_detail_screen.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:flutter/material.dart';
@@ -67,28 +68,28 @@ class _GroupSearchView extends StatelessWidget {
             title: '도움의 손길',
             location: '경기도 용인시 수지구',
             recentUpdate: 12,
-            imagePath: 'assets/images/group-cover.png',
+            imagePath: '1',
             memberCount: 10,
           ),
           GroupCard(
             title: '함께하는 이웃들',
             location: '서울특별시 강남구',
             recentUpdate: 24,
-            imagePath: 'assets/images/group-cover.png',
+            imagePath: '2',
             memberCount: 24,
           ),
           GroupCard(
             title: '행복한 돌봄',
             location: '부산광역시 해운대구',
             recentUpdate: 3,
-            imagePath: 'assets/images/group-cover.png',
+            imagePath: '3',
             memberCount: 18,
           ),
           GroupCard(
             title: '어르신 안심 모임',
             location: '대전광역시 서구',
             recentUpdate: 1,
-            imagePath: 'assets/images/group-cover.png',
+            imagePath: '4',
             memberCount: 8,
           ),
         ],
@@ -115,77 +116,95 @@ class GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.asset(
-                        imagePath,
-                        width: 68.0,
-                        height: 68.0,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            color: AppColors.gray800,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16.0,
-                          ),
-                        ),
-                        const SizedBox(height: 4.0),
-                        Text(
-                          location,
-                          style: const TextStyle(
-                            color: AppColors.gray600,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14.0,
-                          ),
-                        ),
-                        const SizedBox(height: 4.0),
-                        Row(
-                          children: [
-                            const FaIcon(
-                              FontAwesomeIcons.newspaper,
-                              size: 16.0,
-                              color: AppColors.mainPrimary,
-                            ),
-                            const SizedBox(width: 4.0),
-                            Text(
-                              '$recentUpdate시간 전 새로운 소식',
-                              style: const TextStyle(
-                                color: AppColors.mainPrimary,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12.0,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                GroupMemberNumberCard(count: memberCount),
-              ],
+    return InkWell(
+      onTap:
+          () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder:
+                  (context) => GroupDetailScreen(
+                    title: title,
+                    location: location,
+                    recentUpdate: recentUpdate,
+                    imagePath: imagePath,
+                    memberCount: memberCount,
+                  ),
             ),
           ),
-        ),
-        const Divider(color: AppColors.gray50),
-      ],
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 16.0,
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Image.asset(
+                          'assets/images/group/$imagePath.png',
+                          width: 68.0,
+                          height: 68.0,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              color: AppColors.gray800,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                          const SizedBox(height: 4.0),
+                          Text(
+                            location,
+                            style: const TextStyle(
+                              color: AppColors.gray600,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14.0,
+                            ),
+                          ),
+                          const SizedBox(height: 4.0),
+                          Row(
+                            children: [
+                              const FaIcon(
+                                FontAwesomeIcons.newspaper,
+                                size: 16.0,
+                                color: AppColors.mainPrimary,
+                              ),
+                              const SizedBox(width: 4.0),
+                              Text(
+                                '$recentUpdate시간 전 새로운 소식',
+                                style: const TextStyle(
+                                  color: AppColors.mainPrimary,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  GroupMemberNumberCard(count: memberCount),
+                ],
+              ),
+            ),
+          ),
+          const Divider(color: AppColors.gray50),
+        ],
+      ),
     );
   }
 }
