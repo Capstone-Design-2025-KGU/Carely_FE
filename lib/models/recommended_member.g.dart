@@ -16,7 +16,7 @@ _$RecommendedMemberImpl _$$RecommendedMemberImplFromJson(
     json['memberType'] as String,
   ),
   distance: (json['distance'] as num).toDouble(),
-  withTime: (json['withTime'] as num).toInt(),
+  withTime: (json['withTime'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$$RecommendedMemberImplToJson(

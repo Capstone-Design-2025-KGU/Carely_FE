@@ -9,7 +9,7 @@ class RecommendedMemberService {
   ) async {
     try {
       final response = await APIService.instance.request(
-        '/v1/members/recommend',
+        '/members/recommend',
         DioMethod.get,
         token: token,
       );

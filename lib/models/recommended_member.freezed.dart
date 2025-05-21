@@ -27,7 +27,7 @@ mixin _$RecommendedMember {
   @MemberTypeConverter()
   MemberType get memberType => throw _privateConstructorUsedError;
   double get distance => throw _privateConstructorUsedError;
-  int get withTime => throw _privateConstructorUsedError;
+  int? get withTime => throw _privateConstructorUsedError;
 
   /// Serializes this RecommendedMember to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -52,7 +52,7 @@ abstract class $RecommendedMemberCopyWith<$Res> {
     String? profileImage,
     @MemberTypeConverter() MemberType memberType,
     double distance,
-    int withTime,
+    int? withTime,
   });
 }
 
@@ -76,7 +76,7 @@ class _$RecommendedMemberCopyWithImpl<$Res, $Val extends RecommendedMember>
     Object? profileImage = freezed,
     Object? memberType = null,
     Object? distance = null,
-    Object? withTime = null,
+    Object? withTime = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -106,10 +106,10 @@ class _$RecommendedMemberCopyWithImpl<$Res, $Val extends RecommendedMember>
                     : distance // ignore: cast_nullable_to_non_nullable
                         as double,
             withTime:
-                null == withTime
+                freezed == withTime
                     ? _value.withTime
                     : withTime // ignore: cast_nullable_to_non_nullable
-                        as int,
+                        as int?,
           )
           as $Val,
     );
@@ -131,7 +131,7 @@ abstract class _$$RecommendedMemberImplCopyWith<$Res>
     String? profileImage,
     @MemberTypeConverter() MemberType memberType,
     double distance,
-    int withTime,
+    int? withTime,
   });
 }
 
@@ -154,7 +154,7 @@ class __$$RecommendedMemberImplCopyWithImpl<$Res>
     Object? profileImage = freezed,
     Object? memberType = null,
     Object? distance = null,
-    Object? withTime = null,
+    Object? withTime = freezed,
   }) {
     return _then(
       _$RecommendedMemberImpl(
@@ -184,10 +184,10 @@ class __$$RecommendedMemberImplCopyWithImpl<$Res>
                 : distance // ignore: cast_nullable_to_non_nullable
                     as double,
         withTime:
-            null == withTime
+            freezed == withTime
                 ? _value.withTime
                 : withTime // ignore: cast_nullable_to_non_nullable
-                    as int,
+                    as int?,
       ),
     );
   }
@@ -202,7 +202,7 @@ class _$RecommendedMemberImpl implements _RecommendedMember {
     this.profileImage,
     @MemberTypeConverter() required this.memberType,
     required this.distance,
-    required this.withTime,
+    this.withTime,
   });
 
   factory _$RecommendedMemberImpl.fromJson(Map<String, dynamic> json) =>
@@ -220,7 +220,7 @@ class _$RecommendedMemberImpl implements _RecommendedMember {
   @override
   final double distance;
   @override
-  final int withTime;
+  final int? withTime;
 
   @override
   String toString() {
@@ -281,7 +281,7 @@ abstract class _RecommendedMember implements RecommendedMember {
     final String? profileImage,
     @MemberTypeConverter() required final MemberType memberType,
     required final double distance,
-    required final int withTime,
+    final int? withTime,
   }) = _$RecommendedMemberImpl;
 
   factory _RecommendedMember.fromJson(Map<String, dynamic> json) =
@@ -299,7 +299,7 @@ abstract class _RecommendedMember implements RecommendedMember {
   @override
   double get distance;
   @override
-  int get withTime;
+  int? get withTime;
 
   /// Create a copy of RecommendedMember
   /// with the given fields replaced by the non-null parameter values.

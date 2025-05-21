@@ -12,7 +12,7 @@ class RecommendedMember with _$RecommendedMember {
     String? profileImage,
     @MemberTypeConverter() required MemberType memberType,
     required double distance,
-    required int withTime,
+    int? withTime,
   }) = _RecommendedMember;
 
   factory RecommendedMember.fromJson(Map<String, dynamic> json) =>

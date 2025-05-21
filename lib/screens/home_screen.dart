@@ -1,4 +1,7 @@
+import 'package:carely/models/recommended_member.dart';
 import 'package:carely/screens/memo_screen.dart';
+import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/services/member/recommended_member_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -21,6 +24,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late Future<List<RecommendedMember>> _recommendedMembers;
+
+  @override
+  void initState() {
+    super.initState();
+    _recommendedMembers = _loadRecommendedMembers();
+  }
+
+  Future<List<RecommendedMember>> _loadRecommendedMembers() async {
+    final token = await TokenStorageService.getToken();
+    if (token == null) return [];
+    return await RecommendedMemberService.fetchRecommendedMembers(token);
+  }
+
   String _displayMemberType(MemberType? type) {
     switch (type) {
       case MemberType.family:
@@ -112,11 +129,31 @@ class _HomeScreenState extends State<HomeScreen> {
                       clipBehavior: Clip.none,
                       child: Row(
                         children: [
-                          MemberCard(),
-                          MemberCard(),
-                          MemberCard(),
-                          MemberCard(),
-                          MemberCard(),
+                          FutureBuilder(
+                            future: _recommendedMembers,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Text('에러 발생: ${snapshot.error}');
+                              }
+
+                              final members = snapshot.data!;
+                              return SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                clipBehavior: Clip.none,
+                                child: Row(
+                                  children:
+                                      members
+                                          .map((m) => MemberCard(member: m))
+                                          .toList(),
+                                ),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -614,13 +651,13 @@ class MenuTitle extends StatelessWidget {
 }
 
 class MemberCard extends StatelessWidget {
-  const MemberCard({super.key});
+  final RecommendedMember member;
+  const MemberCard({super.key, required this.member});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
-      //TODO: 패딩 동적으로 수정
       child: Container(
         width: ScreenSize.width(context, 126.0),
         height: ScreenSize.height(context, 160.0),
@@ -634,43 +671,34 @@ class MemberCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/family/profile/1.png'),
-            SizedBox(height: 4.0),
-            Text(
-              '이규민',
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.w600,
-                color: AppColors.gray800,
-              ),
+            Image.asset(
+              'assets/images/${member.memberType.name}/profile/${member.profileImage}.png',
+              fit: BoxFit.cover,
+              height: 60,
             ),
-            SizedBox(height: 4.0),
+            const SizedBox(height: 4.0),
             Text(
-              '3Km',
-              style: TextStyle(
-                fontSize: 12.0,
-                fontWeight: FontWeight.w500,
-                color: AppColors.gray300,
-              ),
+              member.name,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            SizedBox(height: 4.0),
+            Text('${member.distance.toStringAsFixed(1)}Km'),
+            const SizedBox(height: 4.0),
             Container(
               width: ScreenSize.width(context, 100.0),
               height: ScreenSize.height(context, 26.0),
-              decoration: BoxDecoration(color: AppColors.main50),
+              decoration: const BoxDecoration(color: AppColors.main50),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  FaIcon(
+                  const FaIcon(
                     FontAwesomeIcons.solidClock,
                     size: 16.0,
                     color: AppColors.mainPrimary,
                   ),
-                  SizedBox(width: 4.0),
+                  const SizedBox(width: 4.0),
                   Text(
-                    '함께한 22시간',
-                    style: TextStyle(
+                    '함께한 ${(member.withTime ?? 0) ~/ 60}시간',
+                    style: const TextStyle(
                       color: AppColors.mainPrimary,
                       fontWeight: FontWeight.w600,
                     ),
