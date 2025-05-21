@@ -207,9 +207,9 @@ class MeetingCard extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (context) => MemoScreen()));
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => MemoScreen(meeting: meeting)),
+        );
       },
       child: Container(
         decoration: BoxDecoration(

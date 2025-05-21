@@ -1,3 +1,4 @@
+import 'package:carely/models/nearest_meeting.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
@@ -7,7 +8,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class MemoScreen extends StatefulWidget {
-  const MemoScreen({super.key});
+  final NearestMeeting meeting;
+
+  const MemoScreen({super.key, required this.meeting});
 
   @override
   State<MemoScreen> createState() => _MemoScreenState();
@@ -64,7 +67,7 @@ class _MemoScreenState extends State<MemoScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  AICard(),
+                  AICard(meeting: widget.meeting),
                   Container(color: AppColors.gray50, height: 8.0),
                   Container(
                     padding: EdgeInsets.all(20.0),
@@ -192,19 +195,42 @@ class _MemoScreenState extends State<MemoScreen> {
 }
 
 class AICard extends StatefulWidget {
-  const AICard({super.key});
+  final NearestMeeting meeting;
+
+  const AICard({super.key, required this.meeting});
 
   @override
   State<AICard> createState() => _AICardState();
 }
 
 class _AICardState extends State<AICard> {
+  String get summary {
+    switch (selectedCategory) {
+      case 'walk':
+        return widget.meeting.walk;
+      case 'temperature':
+        return widget.meeting.health;
+      case 'medic':
+        return widget.meeting.medic;
+      case 'meal':
+        return widget.meeting.meal;
+      case 'communication':
+        return widget.meeting.comm;
+      case 'toilet':
+        return widget.meeting.toilet;
+      case 'all':
+      default:
+        return '${widget.meeting.walk}\n${widget.meeting.health}\n${widget.meeting.medic}\n${widget.meeting.meal}\n${widget.meeting.toilet}\n${widget.meeting.comm}';
+    }
+  }
+
   String selectedCategory = 'all';
 
   final Map<String, String> categoryLabels = {
     'all': '전체 요약',
     'temperature': '체온 및 건강상태',
-    'meal': '식사 및 약물복용',
+    'medic': '약물 복용',
+    'meal': '식사 활동',
     'walk': '신체 활동',
     'communication': '정서 및 사회적 상호작용',
     'toilet': '화장실 사용',
@@ -265,8 +291,7 @@ class _AICardState extends State<AICard> {
                 ),
               ),
               Text(
-                // 요건 필요하면 선택된 항목에 따라 바꾸는 로직 넣어도 됨
-                '이상덕 간병인님의 투약은 하루 2번, 아침 10시와 저녁 6시에 진행합니다. 또한, 복약 후에는 환자 상태를 세심하게 관찰하여 이상 반응이 없는지 확인해야 합니다.\n\n식사는 매일 아침 8시와 저녁 5시에 급여됩니다. 식단은 계란과 우유를 필수로 급여해야합니다. 필요한 경우 추가적인 수분 보충을 권장합니다. ',
+                summary,
                 style: TextStyle(
                   fontSize: 16.0,
                   color: AppColors.mainPrimary,
