@@ -178,7 +178,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   if (meetingId == null) return;
 
                   final content =
-                      '장소 : ${currentMember.address.toReadableString()}\n시간 : ${_formatDateTimeRange(selectedDate!, selectedStartTime!, selectedEndTime!)}';
+                      '장소 : ${currentMember.address!.toReadableString()}\n시간 : ${_formatDateTimeRange(selectedDate!, selectedStartTime!, selectedEndTime!)}';
 
                   final meetingRequestMessage = ChatMessage(
                     senderId: currentMember.memberId,

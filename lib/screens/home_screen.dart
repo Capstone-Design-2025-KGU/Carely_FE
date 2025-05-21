@@ -1,7 +1,9 @@
+import 'package:carely/models/nearest_meeting.dart';
 import 'package:carely/models/recommended_member.dart';
 import 'package:carely/screens/memo_screen.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
 import 'package:carely/services/member/recommended_member_service.dart';
+import 'package:carely/services/nearest_meeting_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -25,11 +27,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<RecommendedMember>> _recommendedMembers;
+  NearestMeeting? _nearestMeeting;
 
   @override
   void initState() {
     super.initState();
     _recommendedMembers = _loadRecommendedMembers();
+    _loadNearestMeeting();
+  }
+
+  Future<void> _loadNearestMeeting() async {
+    final meeting = await NearestMeetingService.fetchNearestMeeting();
+    setState(() {
+      _nearestMeeting = meeting;
+    });
   }
 
   Future<List<RecommendedMember>> _loadRecommendedMembers() async {
@@ -111,7 +122,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  MeetingCard(),
+                  _nearestMeeting != null
+                      ? MeetingCard(meeting: _nearestMeeting!)
+                      : const SizedBox.shrink(),
                   SizedBox(height: 40.0),
                   (member != null && member.isVerified!)
                       ? MemberStatusCard(
@@ -178,10 +191,20 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class MeetingCard extends StatelessWidget {
-  const MeetingCard({super.key});
+  final NearestMeeting meeting;
+
+  const MeetingCard({super.key, required this.meeting});
 
   @override
   Widget build(BuildContext context) {
+    final counterpart = meeting.sender;
+    final date = meeting.startTime;
+    final formattedDate =
+        '${date.year}년 ${date.month.toString().padLeft(2, '0')}월 ${date.day.toString().padLeft(2, '0')}일 '
+        '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+
+    final summary = meeting.medic;
+
     return InkWell(
       onTap: () {
         Navigator.of(
@@ -200,7 +223,9 @@ class MeetingCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Image.asset('assets/images/family/profile/1.png'),
+                  Image.asset(
+                    'assets/images/${counterpart.memberType.name}/profile/${counterpart.profileImage}.png',
+                  ),
                   SizedBox(width: 8.0),
                   Expanded(
                     child: Column(
@@ -210,7 +235,7 @@ class MeetingCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '이상덕님과의 약속',
+                              '${counterpart.name}님과의 약속',
                               style: TextStyle(
                                 fontSize: 16.0,
                                 color: AppColors.gray800,
@@ -222,7 +247,7 @@ class MeetingCard extends StatelessWidget {
                         ),
                         SizedBox(height: 4.0),
                         Text(
-                          '2025년 05월 13일 12:00',
+                          formattedDate,
                           style: TextStyle(
                             fontSize: 14.0,
                             color: AppColors.gray600,
@@ -240,7 +265,7 @@ class MeetingCard extends StatelessWidget {
                 children: [
                   SvgPicture.asset('assets/images/carely-ai.svg', width: 100.0),
                   Text(
-                    '이상덕님의 간병 정보를 요약해드려요.',
+                    '${counterpart.name}님의 간병 정보를 요약해드려요.',
                     style: TextStyle(
                       fontSize: 14.0,
                       color: AppColors.gray300,
@@ -251,7 +276,8 @@ class MeetingCard extends StatelessWidget {
               ),
               SizedBox(height: 16.0),
               Text(
-                '투약은 하루 2번, 아침 10시와 저녁 6시에 진행합니다. 또한, 복약 후에는 환자 상태를 세심하게 관찰하여 이상 반응이 없는지 확인해야 합니다.',
+                // '투약은 하루 2번, 아침 10시와 저녁 6시에 진행합니다. 또한, 복약 후에는 환자 상태를 세심하게 관찰하여 이상 반응이 없는지 확인해야 합니다.',
+                summary,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(

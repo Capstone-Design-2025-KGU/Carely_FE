@@ -88,8 +88,8 @@ class _AcceptMessageBubbleState extends State<AcceptMessageBubble> {
                             name: fetchedMember.name,
                             age: calculateAge(fetchedMember.birth).toString(),
                             address:
-                                '${fetchedMember.address.province} ${fetchedMember.address.city} ${fetchedMember.address.district}',
-                            detailAddress: fetchedMember.address.details ?? '',
+                                '${fetchedMember.address!.province} ${fetchedMember.address!.city} ${fetchedMember.address!.district}',
+                            detailAddress: fetchedMember.address!.details ?? '',
                             date: widget.date,
                             time: widget.time,
                             chore: widget.chore,

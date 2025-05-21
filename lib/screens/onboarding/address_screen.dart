@@ -82,13 +82,14 @@ class _AddressScreenState extends State<AddressScreen> {
                       label: '상세 주소',
                       hintText: '상세 주소를 적어주세요',
                       onChanged: (value) {
-                        context.read<MemberProvider>().updatePartial(
-                          address: context
-                              .read<MemberProvider>()
-                              .member!
-                              .address
-                              .copyWith(details: value),
-                        );
+                        final provider = context.read<MemberProvider>();
+                        final member = provider.member;
+
+                        if (member?.address != null) {
+                          provider.updatePartial(
+                            address: member!.address!.copyWith(details: value),
+                          );
+                        }
                       },
                     ),
                   ],

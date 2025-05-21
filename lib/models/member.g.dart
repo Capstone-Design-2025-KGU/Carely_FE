@@ -21,7 +21,10 @@ _$MemberImpl _$$MemberImplFromJson(Map<String, dynamic> json) => _$MemberImpl(
   isVerified: json['isVerified'] as bool?,
   profileImage: json['profileImage'] as String?,
   createdAt: const FlexibleDateTimeConverter().fromJson(json['createdAt']),
-  address: Address.fromJson(json['address'] as Map<String, dynamic>),
+  address:
+      json['address'] == null
+          ? null
+          : Address.fromJson(json['address'] as Map<String, dynamic>),
   skill:
       json['skill'] == null
           ? null
@@ -42,6 +45,6 @@ Map<String, dynamic> _$$MemberImplToJson(_$MemberImpl instance) =>
       'isVerified': instance.isVerified,
       'profileImage': instance.profileImage,
       'createdAt': const FlexibleDateTimeConverter().toJson(instance.createdAt),
-      'address': instance.address.toJson(),
+      'address': instance.address?.toJson(),
       'skill': instance.skill?.toJson(),
     };

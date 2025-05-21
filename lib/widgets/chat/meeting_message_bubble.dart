@@ -89,8 +89,8 @@ class _MeetingMessageBubbleState extends State<MeetingMessageBubble> {
                             name: fetchedMember.name,
                             age: calculateAge(fetchedMember.birth).toString(),
                             address:
-                                '${fetchedMember.address.province} ${fetchedMember.address.city} ${fetchedMember.address.district}',
-                            detailAddress: fetchedMember.address.details ?? '',
+                                '${fetchedMember.address!.province} ${fetchedMember.address!.city} ${fetchedMember.address!.district}',
+                            detailAddress: fetchedMember.address!.details ?? '',
                             date: extractDateFromContent(
                               widget.message.content ?? '',
                             ),

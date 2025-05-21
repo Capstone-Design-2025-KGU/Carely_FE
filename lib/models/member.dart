@@ -29,7 +29,7 @@ class Member with _$Member {
 
     @FlexibleDateTimeConverter() DateTime? createdAt,
 
-    required Address address,
+    Address? address,
     Skill? skill,
   }) = _Member;
 

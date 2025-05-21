@@ -36,7 +36,7 @@ mixin _$Member {
   String? get profileImage => throw _privateConstructorUsedError;
   @FlexibleDateTimeConverter()
   DateTime? get createdAt => throw _privateConstructorUsedError;
-  Address get address => throw _privateConstructorUsedError;
+  Address? get address => throw _privateConstructorUsedError;
   Skill? get skill => throw _privateConstructorUsedError;
 
   /// Serializes this Member to a JSON map.
@@ -66,11 +66,11 @@ abstract class $MemberCopyWith<$Res> {
     bool? isVerified,
     String? profileImage,
     @FlexibleDateTimeConverter() DateTime? createdAt,
-    Address address,
+    Address? address,
     Skill? skill,
   });
 
-  $AddressCopyWith<$Res> get address;
+  $AddressCopyWith<$Res>? get address;
   $SkillCopyWith<$Res>? get skill;
 }
 
@@ -101,7 +101,7 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
     Object? isVerified = freezed,
     Object? profileImage = freezed,
     Object? createdAt = freezed,
-    Object? address = null,
+    Object? address = freezed,
     Object? skill = freezed,
   }) {
     return _then(
@@ -167,10 +167,10 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
                     : createdAt // ignore: cast_nullable_to_non_nullable
                         as DateTime?,
             address:
-                null == address
+                freezed == address
                     ? _value.address
                     : address // ignore: cast_nullable_to_non_nullable
-                        as Address,
+                        as Address?,
             skill:
                 freezed == skill
                     ? _value.skill
@@ -185,8 +185,12 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $AddressCopyWith<$Res> get address {
-    return $AddressCopyWith<$Res>(_value.address, (value) {
+  $AddressCopyWith<$Res>? get address {
+    if (_value.address == null) {
+      return null;
+    }
+
+    return $AddressCopyWith<$Res>(_value.address!, (value) {
       return _then(_value.copyWith(address: value) as $Val);
     });
   }
@@ -227,12 +231,12 @@ abstract class _$$MemberImplCopyWith<$Res> implements $MemberCopyWith<$Res> {
     bool? isVerified,
     String? profileImage,
     @FlexibleDateTimeConverter() DateTime? createdAt,
-    Address address,
+    Address? address,
     Skill? skill,
   });
 
   @override
-  $AddressCopyWith<$Res> get address;
+  $AddressCopyWith<$Res>? get address;
   @override
   $SkillCopyWith<$Res>? get skill;
 }
@@ -263,7 +267,7 @@ class __$$MemberImplCopyWithImpl<$Res>
     Object? isVerified = freezed,
     Object? profileImage = freezed,
     Object? createdAt = freezed,
-    Object? address = null,
+    Object? address = freezed,
     Object? skill = freezed,
   }) {
     return _then(
@@ -329,10 +333,10 @@ class __$$MemberImplCopyWithImpl<$Res>
                 : createdAt // ignore: cast_nullable_to_non_nullable
                     as DateTime?,
         address:
-            null == address
+            freezed == address
                 ? _value.address
                 : address // ignore: cast_nullable_to_non_nullable
-                    as Address,
+                    as Address?,
         skill:
             freezed == skill
                 ? _value.skill
@@ -360,7 +364,7 @@ class _$MemberImpl implements _Member {
     this.isVerified,
     this.profileImage,
     @FlexibleDateTimeConverter() this.createdAt,
-    required this.address,
+    this.address,
     this.skill,
   });
 
@@ -395,7 +399,7 @@ class _$MemberImpl implements _Member {
   @FlexibleDateTimeConverter()
   final DateTime? createdAt;
   @override
-  final Address address;
+  final Address? address;
   @override
   final Skill? skill;
 
@@ -482,7 +486,7 @@ abstract class _Member implements Member {
     final bool? isVerified,
     final String? profileImage,
     @FlexibleDateTimeConverter() final DateTime? createdAt,
-    required final Address address,
+    final Address? address,
     final Skill? skill,
   }) = _$MemberImpl;
 
@@ -516,7 +520,7 @@ abstract class _Member implements Member {
   @FlexibleDateTimeConverter()
   DateTime? get createdAt;
   @override
-  Address get address;
+  Address? get address;
   @override
   Skill? get skill;
 
