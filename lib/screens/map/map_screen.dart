@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:carely/screens/user_list.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:carely/screens/map/marker_utils.dart';
 import 'package:carely/utils/logger_config.dart';
@@ -21,6 +23,7 @@ import 'dart:math';
 
 class MapScreen extends StatefulWidget {
   static String id = 'map-screen';
+
   const MapScreen({super.key});
 
   @override
@@ -39,6 +42,7 @@ class _MapScreenState extends State<MapScreen>
 
   final double _minChildSize = 0.09;
   final double _maxChildSize = 0.35;
+  final double _clusterMaxChildSize = 0.65;
   late DraggableScrollableController _draggableController;
   double _currentSheetSize = 0.09;
   double _currentZoom = 14.5;
@@ -48,28 +52,24 @@ class _MapScreenState extends State<MapScreen>
   Map<String, BitmapDescriptor> normalMarkerIcons = {};
   Map<String, BitmapDescriptor> selectedMarkerIcons = {};
 
-  // 필터 버튼 색상 정의
   final Map<MemberType, Color> filterColors = {
     MemberType.family: AppColors.red300,
     MemberType.volunteer: AppColors.blue300,
     MemberType.caregiver: AppColors.green300,
   };
 
-  // 필터 버튼 비활성화 색상 정의
   final Map<MemberType, Color> filterInactiveColors = {
     MemberType.family: AppColors.red100,
     MemberType.volunteer: AppColors.blue100,
     MemberType.caregiver: AppColors.green100,
   };
 
-  // LocationService 인스턴스 생성
   final LocationService _locationService = LocationService();
 
   @override
   void initState() {
     super.initState();
     _draggableController = DraggableScrollableController();
-    _loadMarkerIcons();
     _initializeLocation();
     _allClusterItems =
         dummyUsers.map((user) {
@@ -92,15 +92,23 @@ class _MapScreenState extends State<MapScreen>
             position: user.location,
             jobType: jobType,
             data: {'user': user},
+            // 마커가 줌 레벨에 상관없이 고정되도록 설정
+            anchor: const Offset(0.5, 1.0),
+            iconSize: const Size(40, 60),
           );
         }).toList();
 
-    // DraggableScrollableController 리스너 추가
     _draggableController.addListener(() {
       setState(() {
         _currentSheetSize = _draggableController.size;
       });
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadMarkerIcons();
   }
 
   @override
@@ -110,7 +118,6 @@ class _MapScreenState extends State<MapScreen>
     super.dispose();
   }
 
-  /// 위치 서비스 초기화
   void _initializeLocation() async {
     await _locationService.initialize();
     _locationService.onLocationChanged((newPosition, address) {
@@ -121,20 +128,21 @@ class _MapScreenState extends State<MapScreen>
     });
   }
 
-  /// 마커 아이콘 로드
   void _loadMarkerIcons() async {
     try {
       final markerIcons = await MarkerUtils.loadAllMarkerIcons(
-        normalSize: 40,
-        selectedSize: 50,
+        context: context,
+        normalSize: 64,
+        selectedSize: 72,
+        clusterSize: 80,
       );
       setState(() {
         normalMarkerIcons = markerIcons['normal']!;
         selectedMarkerIcons = markerIcons['selected']!;
       });
-      logger.i('마커 아이콘 로드 성공');
-    } catch (e) {
-      logger.e('마커 아이콘 로드 실패: $e');
+      logger.i('마커 아이콘 로드 성공: ${normalMarkerIcons.keys}');
+    } catch (e, stackTrace) {
+      logger.e('마커 아이콘 로드 실패: $e\n$stackTrace');
     }
   }
 
@@ -186,7 +194,6 @@ class _MapScreenState extends State<MapScreen>
               color: Colors.white,
               child: Row(
                 children: [
-                  // 검색 바
                   Expanded(
                     child: Container(
                       height: 50,
@@ -223,16 +230,10 @@ class _MapScreenState extends State<MapScreen>
                               },
                             ),
                           ),
-                          // 유저 리스트 아이콘 버튼
                           Container(
                             margin: const EdgeInsets.only(right: 8),
-                            child: IconButton(
-                              icon: Image.asset(
-                                'assets/images/user-list.png',
-                                width: 24,
-                                height: 24,
-                              ),
-                              onPressed: () {
+                            child: InkWell(
+                              onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -241,6 +242,15 @@ class _MapScreenState extends State<MapScreen>
                                   ),
                                 );
                               },
+                              customBorder: const CircleBorder(),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SvgPicture.asset(
+                                  'assets/images/user-list.svg',
+                                  width: 28,
+                                  height: 28,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -306,23 +316,24 @@ class _MapScreenState extends State<MapScreen>
             ),
           ),
 
-          // 내 위치 버튼 - DraggableScrollableSheet와 함께 움직이도록 설정
+          // 내 위치 버튼
           Positioned(
             bottom: _calculateMyLocationButtonPosition(),
             right: 8,
-            child: Container(
-              decoration: BoxDecoration(shape: BoxShape.circle),
-              child: IconButton(
-                icon: Image.asset(
-                  'assets/images/my-location.png',
-                  width: 40,
-                  height: 40,
+            child: InkWell(
+              onTap: () {
+                if (_currentPosition != null) {
+                  _animateCameraToPosition(_currentPosition!);
+                }
+              },
+              customBorder: const CircleBorder(), // Optional
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SvgPicture.asset(
+                  'assets/images/my-location.svg',
+                  width: 32,
+                  height: 32,
                 ),
-                onPressed: () {
-                  if (_currentPosition != null) {
-                    _animateCameraToPosition(_currentPosition!);
-                  }
-                },
               ),
             ),
           ),
@@ -333,17 +344,17 @@ class _MapScreenState extends State<MapScreen>
             maxChildSize: _maxChildSize,
             builder: (BuildContext context, ScrollController scrollController) {
               return Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
+                      color: Colors.black26,
                       blurRadius: 10,
-                      offset: const Offset(0, -2),
+                      offset: Offset(0, -2),
                     ),
                   ],
                 ),
@@ -362,7 +373,6 @@ class _MapScreenState extends State<MapScreen>
                         ),
                       ),
                     ),
-                    // 현재 위치 지역명 표시
                     Padding(
                       padding: const EdgeInsets.only(
                         top: 4,
@@ -379,10 +389,7 @@ class _MapScreenState extends State<MapScreen>
                         textAlign: TextAlign.left,
                       ),
                     ),
-
                     const SizedBox(height: 10),
-
-                    // 선택된 클러스터 내 사용자 정보 카드들
                     if (_selectedClusterItems.isNotEmpty)
                       ..._selectedClusterItems.map(
                         (item) => Padding(
@@ -400,32 +407,29 @@ class _MapScreenState extends State<MapScreen>
     );
   }
 
-  // 내 위치 버튼 위치 계산 - DraggableScrollableSheet의 현재 크기에 따라 조정
   double _calculateMyLocationButtonPosition() {
     return MediaQuery.of(context).size.height * _currentSheetSize;
   }
 
-  // 필터 리셋 버튼
   Widget _buildResetFilterButton() {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         setState(() {
           _selectedFilters.clear();
         });
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset('assets/images/reset.png', width: 32, height: 32),
-          ],
+      customBorder: const CircleBorder(), // Optional
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SvgPicture.asset(
+          'assets/images/reset.svg',
+          width: 32,
+          height: 32,
         ),
       ),
     );
   }
 
-  // 필터 칩 위젯
   Widget _buildFilterChip({
     required String label,
     required bool isSelected,
@@ -473,9 +477,7 @@ class _MapScreenState extends State<MapScreen>
           if (_searchText.isNotEmpty) {
             final user = item.data['user'];
             if (user == null ||
-                !(user.name.toLowerCase().contains(
-                  _searchText.toLowerCase(),
-                ))) {
+                !user.name.toLowerCase().contains(_searchText.toLowerCase())) {
               return false;
             }
           }
@@ -494,29 +496,30 @@ class _MapScreenState extends State<MapScreen>
       if (bounds != null) {
         final diag = ClusterHelper.distance(bounds.southwest, bounds.northeast);
         final clusterRadius = diag / 8;
-        // 1. 직업별로 분리하여 각각 클러스터링 및 겹침 해소
         Map<JobType, List<ClusterWithRadius>> clustersByType = {};
         for (var type in JobType.values) {
           final itemsOfType = filtered.where((e) => e.jobType == type).toList();
           final clusters = ClusterHelper.cluster(itemsOfType, clusterRadius);
           clustersByType[type] = avoidClusterOverlap(clusters);
         }
-        // 2. 전체 클러스터의 평균 중심점(지도 중심) 계산
         List<LatLng> allCenters = [];
         clustersByType.values
             .expand((list) => list)
             .forEach((c) => allCenters.add(c.center));
         double avgLat =
-            allCenters.map((c) => c.latitude).reduce((a, b) => a + b) /
-            allCenters.length;
+            allCenters.isNotEmpty
+                ? allCenters.map((c) => c.latitude).reduce((a, b) => a + b) /
+                    allCenters.length
+                : 0;
         double avgLng =
-            allCenters.map((c) => c.longitude).reduce((a, b) => a + b) /
-            allCenters.length;
+            allCenters.isNotEmpty
+                ? allCenters.map((c) => c.longitude).reduce((a, b) => a + b) /
+                    allCenters.length
+                : 0;
         LatLng mapCenter = LatLng(avgLat, avgLng);
-        // 3. 직업별로 각도를 다르게 하여 오프셋 적용
-        final angleStep = 2 * 3.141592653589793 / JobType.values.length;
-        final baseOffset = 0.004; // 기준 오프셋
-        final offsetDistance = baseOffset * (14 / _currentZoom); // 줌에 따라 동적 조정
+        final angleStep = 2 * pi / JobType.values.length;
+        final baseOffset = 0.004;
+        final offsetDistance = baseOffset * (14 / _currentZoom);
         int idx = 0;
         Map<JobType, List<ClusterWithRadius>> offsetClustersByType = {};
         for (var type in JobType.values) {
@@ -538,7 +541,6 @@ class _MapScreenState extends State<MapScreen>
                   .toList();
           idx++;
         }
-        // 4. 마커 생성
         for (var type in JobType.values) {
           for (var group in offsetClustersByType[type]!) {
             int count = group.items.length;
@@ -555,7 +557,7 @@ class _MapScreenState extends State<MapScreen>
                     _selectedMarkerId = null;
                   });
                   _draggableController.animateTo(
-                    _maxChildSize,
+                    _clusterMaxChildSize,
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeOut,
                   );
@@ -566,54 +568,77 @@ class _MapScreenState extends State<MapScreen>
         }
       }
     } else {
-      for (var item in filtered) {
+      // 클러스터링이 해제된 경우, 개별 마커 위치를 오직 원본 사용자 location에 고정
+      for (var item in _allClusterItems) {
         final user = item.data['user'];
         if (user == null) continue;
+        // 필터 및 검색 조건 적용
+        if (_searchText.isNotEmpty &&
+            !user.name.toLowerCase().contains(_searchText.toLowerCase())) {
+          continue;
+        }
+        if (_selectedFilters.isNotEmpty &&
+            !_selectedFilters.contains(
+              _getMemberTypeFromJobType(item.jobType),
+            )) {
+          continue;
+        }
         String typeKey = user.jobType;
         bool isSelected = _selectedMarkerId == item.id;
-        BitmapDescriptor icon =
-            isSelected
-                ? (selectedMarkerIcons[typeKey] ??
-                    BitmapDescriptor.defaultMarker)
-                : (normalMarkerIcons[typeKey] ??
-                    BitmapDescriptor.defaultMarker);
+
+        // 마커 아이콘 크기 설정 (선택시 크게, 기본은 작게)
+        int markerSize = isSelected ? 45 : 40;
+        
+        // 작업해야 할 마커 종류
+        final String jobType = user.jobType;
+        
+        // 마커 이미지 로드
+        final markerIcon = await MarkerUtils.loadJobTypeMarker(
+          context,
+          jobType,
+          isSelected: isSelected,
+          size: Size(markerSize.toDouble(), markerSize.toDouble()),
+        );
+        
+        final icon = markerIcon;
+
         markers.add(
           Marker(
             markerId: MarkerId(item.id),
-            position: item.position,
+            position: item.position, // 사용자의 실제 위치
             icon: icon,
+            // 줌 레벨 변경 시 마커가 움직이지 않도록 anchor 설정
+            // 아이콘의 하단 중앙을 기준으로 합니다. (0.0 ~ 1.0 범위)
+            // (0.5, 1.0)은 아이콘 너비의 중간, 높이의 가장 아랫부분을 의미합니다.
+            // 아이콘 모양이 원형이거나 중심을 기준으로 하고 싶다면 Offset(0.5, 0.5)로 변경
+            anchor: const Offset(0.5, 1.0),
+            zIndex: isSelected ? 1.0 : 0.0, // 선택된 마커가 다른 마커 위에 오도록 zIndex 설정
             onTap: () {
               setState(() {
-                _selectedClusterItems = [item];
                 _selectedMarkerId = item.id;
+                _selectedClusterItems =
+                    _allClusterItems
+                        .where((clusterItem) => clusterItem.id == item.id)
+                        .toList();
               });
               _draggableController.animateTo(
                 _maxChildSize,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOut,
               );
+              _mapController?.animateCamera(
+                CameraUpdate.newLatLng(item.position),
+              );
             },
           ),
         );
       }
     }
-    if (_currentPosition != null) {
-      markers.add(
-        Marker(
-          markerId: const MarkerId('currentLocation'),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueViolet,
-          ),
-          position: _currentPosition!,
-          infoWindow: const InfoWindow(title: '현재 위치'),
-        ),
-      );
-    }
+
     return markers;
   }
 
-  // MemberType -> JobType 변환
-  JobType? _memberTypeToJobType(MemberType? memberType) {
+  JobType _memberTypeToJobType(MemberType? memberType) {
     switch (memberType) {
       case MemberType.family:
         return JobType.family;
@@ -622,11 +647,10 @@ class _MapScreenState extends State<MapScreen>
       case MemberType.caregiver:
         return JobType.caregiver;
       default:
-        return null;
+        return JobType.family;
     }
   }
 
-  // JobType -> MemberType 변환
   MemberType? _getMemberTypeFromJobType(JobType? jobType) {
     if (jobType == null) return null;
     switch (jobType) {
@@ -639,7 +663,6 @@ class _MapScreenState extends State<MapScreen>
     }
   }
 
-  // 이름으로 사용자 검색
   void _searchUser(String searchText) {
     if (searchText.isEmpty) {
       setState(() {
@@ -648,7 +671,6 @@ class _MapScreenState extends State<MapScreen>
       return;
     }
 
-    // 검색어와 일치하는 첫 번째 사용자 찾기
     final foundUser =
         dummyUsers
             .where(
@@ -663,28 +685,23 @@ class _MapScreenState extends State<MapScreen>
           ClusterItem(
             id: foundUser.first.id,
             position: foundUser.first.location,
-            jobType:
-                _memberTypeToJobType(
-                  _getMemberTypeFromString(foundUser.first.jobType),
-                )!,
+            jobType: _memberTypeToJobType(
+              _getMemberTypeFromString(foundUser.first.jobType),
+            ),
             data: {'user': foundUser.first},
           ),
         ];
       });
 
-      // 찾은 사용자 위치로 카메라 이동
       _animateCameraToPosition(foundUser.first.location);
-
-      // 정보 패널 확장
       _draggableController.animateTo(
-        _maxChildSize,
+        _clusterMaxChildSize,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
     }
   }
 
-  // String을 MemberType으로 변환하는 함수
   MemberType? _getMemberTypeFromString(String typeString) {
     switch (typeString) {
       case 'family':
@@ -698,8 +715,14 @@ class _MapScreenState extends State<MapScreen>
     }
   }
 
-  /// 카메라 이동 애니메이션
   void _animateCameraToPosition(LatLng position) {
     _mapController?.animateCamera(CameraUpdate.newLatLng(position));
+  }
+
+  void _resetFiltersAndCamera() {
+    setState(() {
+      _selectedFilters.clear();
+    });
+    _animateCameraToPosition(dummyUsers[0].location);
   }
 }

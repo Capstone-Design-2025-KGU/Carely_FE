@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
@@ -9,6 +10,7 @@ typedef LocationCallback = void Function(LatLng position, String? address);
 class LocationService {
   final loc.Location _locationController = loc.Location();
   LocationCallback? _locationCallback;
+  LatLng? _lastPosition;
 
   /// 위치 서비스 초기화
   Future<bool> initialize() async {
@@ -55,6 +57,10 @@ class LocationService {
       if (_locationCallback != null) {
         _locationCallback!(position, address);
       }
+      if (_lastPosition != null) {
+        double distance = _calculateDistance(_lastPosition!, position);
+        if (distance < 10) return;
+      }
     }
   }
 
@@ -67,11 +73,31 @@ class LocationService {
       );
 
       if (placemarks.isNotEmpty) {
-        return '${placemarks.first.administrativeArea} ${placemarks.first.subAdministrativeArea} ${placemarks.first.locality} ${placemarks.first.subLocality}';
+        final p = placemarks.first;
+        return [p.administrativeArea, p.subAdministrativeArea, p.locality, p.subLocality]
+            .where((e) => e != null && e.isNotEmpty)
+            .join(' ');
       }
     } catch (e) {
       logger.e('주소 변환 실패: $e');
     }
     return null;
+  }
+
+  double _calculateDistance(LatLng pos1, LatLng pos2) {
+    const double earthRadius = 6371000; // 지구 반지름 (미터)
+    double lat1 = pos1.latitude * (pi / 180);
+    double lat2 = pos2.latitude * (pi / 180);
+    double lon1 = pos1.longitude * (pi / 180);
+    double lon2 = pos2.longitude * (pi / 180);
+
+    double dLat = lat2 - lat1;
+    double dLon = lon2 - lon1;
+
+    double a =
+        sin(dLat / 2) * sin(dLat / 2) +
+        cos(lat1) * cos(lat2) * sin(dLon / 2) * sin(dLon / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return earthRadius * c;
   }
 }
