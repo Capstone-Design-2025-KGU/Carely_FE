@@ -90,21 +90,22 @@ class _ChatScreenState extends State<ChatScreen> {
         title: widget.opponentName,
         color: getBackgroundColor(memberType),
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => ScheduleScreen(
-                        chatRoomId: widget.chatRoomId,
-                        opponentMemberId: widget.opponentMemberId,
-                      ),
-                ),
-              );
-            },
-            icon: FaIcon(FontAwesomeIcons.calendarCheck, size: 24.0),
-          ),
+          if (memberType != MemberType.family)
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => ScheduleScreen(
+                          chatRoomId: widget.chatRoomId,
+                          opponentMemberId: widget.opponentMemberId,
+                        ),
+                  ),
+                );
+              },
+              icon: FaIcon(FontAwesomeIcons.calendarCheck, size: 24.0),
+            ),
         ],
       ),
       body: Column(
