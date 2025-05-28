@@ -2,6 +2,7 @@ import 'package:carely/models/address.dart';
 import 'package:carely/models/member.dart';
 import 'package:carely/models/skill.dart';
 import 'package:carely/providers/member_provider.dart';
+import 'package:carely/providers/nearest_meeting_provider.dart';
 import 'package:carely/screens/chat/chat_screen.dart';
 import 'package:carely/screens/home_screen.dart';
 import 'package:carely/screens/nav_screen.dart';
@@ -58,6 +59,7 @@ void main() async {
             return provider;
           },
         ),
+        ChangeNotifierProvider(create: (_) => NearestMeetingProvider()),
       ],
       child: MyApp(initialToken: validToken),
     ),
