@@ -1,5 +1,6 @@
 import 'package:carely/models/chat_message.dart';
 import 'package:carely/providers/member_provider.dart';
+import 'package:carely/providers/nearest_meeting_provider.dart';
 import 'package:carely/services/chat/web_socket_service.dart';
 import 'package:carely/services/meeting_service.dart';
 import 'package:carely/theme/colors.dart';
@@ -111,6 +112,11 @@ class MeetingDetailScreen extends StatelessWidget {
                         chore: chore,
                       );
                       WebSocketService.instance.sendMessage(systemMessage);
+                      Provider.of<NearestMeetingProvider>(
+                        context,
+                        listen: false,
+                      ).loadNearestMeeting();
+
                       Navigator.pop(context);
                     },
                   ),
@@ -130,6 +136,11 @@ class MeetingDetailScreen extends StatelessWidget {
                       );
 
                       WebSocketService.instance.sendMessage(systemMessage);
+                      Provider.of<NearestMeetingProvider>(
+                        context,
+                        listen: false,
+                      ).loadNearestMeeting();
+
                       Navigator.pop(context);
                     },
                     style: TextButton.styleFrom(
