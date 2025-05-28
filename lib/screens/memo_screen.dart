@@ -1,4 +1,6 @@
 import 'package:carely/models/nearest_meeting.dart';
+import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/services/memo_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
@@ -150,7 +152,30 @@ class _MemoScreenState extends State<MemoScreen> {
                             ),
                             DefaultButton(
                               content: '메모 저장',
-                              onPressed: () {},
+                              onPressed: () async {
+                                final token =
+                                    await TokenStorageService.getToken();
+                                final memberId =
+                                    widget.meeting.receiver.memberId;
+
+                                if (token != null) {
+                                  try {
+                                    await MemoService.updateMemo(
+                                      memberId: memberId,
+                                      memoText: _memoText,
+                                      token: token,
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('메모가 저장되었습니다')),
+                                    );
+                                  } catch (_) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('메모 저장에 실패했습니다')),
+                                    );
+                                  }
+                                }
+                              },
+
                               isEnable: _memoText.trim().isNotEmpty,
                               width: 300,
                             ),
