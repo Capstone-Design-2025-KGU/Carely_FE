@@ -1,8 +1,11 @@
+import 'package:carely/models/memory.dart';
 import 'package:carely/models/nearest_meeting.dart';
 import 'package:carely/models/recommended_member.dart';
+import 'package:carely/providers/nearest_meeting_provider.dart';
 import 'package:carely/screens/memo_screen.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
 import 'package:carely/services/member/recommended_member_service.dart';
+import 'package:carely/services/memory_service.dart';
 import 'package:carely/services/nearest_meeting_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,20 +30,25 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<RecommendedMember>> _recommendedMembers;
-  NearestMeeting? _nearestMeeting;
+  Future<List<Memory>>? _memory;
 
   @override
   void initState() {
     super.initState();
     _recommendedMembers = _loadRecommendedMembers();
-    _loadNearestMeeting();
+    _memory = _loadMemories();
+    Future.microtask(
+      () =>
+          Provider.of<NearestMeetingProvider>(
+            context,
+            listen: false,
+          ).loadNearestMeeting(),
+    );
   }
 
-  Future<void> _loadNearestMeeting() async {
-    final meeting = await NearestMeetingService.fetchNearestMeeting();
-    setState(() {
-      _nearestMeeting = meeting;
-    });
+  Future<List<Memory>> _loadMemories() async {
+    final member = context.read<MemberProvider>().member!;
+    return await MemoryService.fetchMyMemories(member.memberId);
   }
 
   Future<List<RecommendedMember>> _loadRecommendedMembers() async {
@@ -87,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final memberType = member?.memberType;
     final logoPath = _pathMemberType(memberType);
     final backgroundColor = getBackgroundColor(memberType!);
+    final nearestMeeting = context.watch<NearestMeetingProvider>().meeting;
 
     return Scaffold(
       appBar: DefaultAppBar(title: '', isHome: true),
@@ -122,8 +131,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  _nearestMeeting != null
-                      ? MeetingCard(meeting: _nearestMeeting!)
+
+                  nearestMeeting != null
+                      ? MeetingCard(meeting: nearestMeeting)
                       : const SizedBox.shrink(),
                   SizedBox(height: 40.0),
                   (member != null && member.isVerified!)
@@ -176,9 +186,34 @@ class _HomeScreenState extends State<HomeScreen> {
                   //TODO: 지도 추가 필요
                   SizedBox(height: 36.0),
                   MenuTitle(title: '함께한 추억'),
-                  MemoryCard(),
-                  SizedBox(height: 12.0),
-                  MemoryCard(),
+                  FutureBuilder<List<Memory>>(
+                    future: _memory,
+                    builder: (context, snapshot) {
+                      if (_memory == null) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Text('에러 발생: ${snapshot.error}');
+                      } else {
+                        final memories = snapshot.data!;
+                        return Column(
+                          children:
+                              memories
+                                  .map(
+                                    (memory) => Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 12.0,
+                                      ),
+                                      child: MemoryCard(memory: memory),
+                                    ),
+                                  )
+                                  .toList(),
+                        );
+                      }
+                    },
+                  ),
                   SizedBox(height: 40.0),
                 ],
               ),
@@ -197,7 +232,11 @@ class MeetingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final counterpart = meeting.sender;
+    final member = context.watch<MemberProvider>().member;
+    final myType = member?.memberType;
+
+    final counterpart =
+        myType == MemberType.family ? meeting.sender : meeting.receiver;
     final date = meeting.startTime;
     final formattedDate =
         '${date.year}년 ${date.month.toString().padLeft(2, '0')}월 ${date.day.toString().padLeft(2, '0')}일 '
@@ -567,7 +606,9 @@ class MemberStatusCard extends StatelessWidget {
 }
 
 class MemoryCard extends StatelessWidget {
-  const MemoryCard({super.key});
+  final Memory memory;
+
+  const MemoryCard({super.key, required this.memory});
 
   @override
   Widget build(BuildContext context) {
@@ -601,6 +642,7 @@ class MemoryCard extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
+                  //TODO : 멤버 프로필 이미지 반영 필요
                   Image.asset('assets/images/family/profile/1.png'),
                   SizedBox(width: 12.0),
                   Expanded(
@@ -609,7 +651,8 @@ class MemoryCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '간병인 이상덕님',
+                          //TODO : 멤버 타입 반영 필요
+                          '간병인 ${memory.oppoName}님',
                           style: TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.w600,
@@ -618,7 +661,7 @@ class MemoryCard extends StatelessWidget {
                         ),
                         SizedBox(height: 4.0),
                         Text(
-                          '전문적이세요! 너무 너무 감사합니다. 다음에 또 뵐 수 있으면 좋겠습니다. 다음에 또 뵈면 제가 맛있는 음식을 대접하는 것으로 약속',
+                          memory.oppoMemo,
                           style: TextStyle(
                             fontSize: 12.0,
                             fontWeight: FontWeight.w400,
