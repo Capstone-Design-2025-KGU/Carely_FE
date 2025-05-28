@@ -128,20 +128,20 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                                       senderId,
                                       senderType!,
                                     ),
-                                    SizedBox(height: 32.0),
-                                    Text(
-                                      '모임 대화',
-                                      style: TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    SizedBox(height: 20.0),
-                                    ..._buildChatRoomList(
-                                      groupChats,
-                                      senderId,
-                                      senderType,
-                                    ),
+                                    // SizedBox(height: 32.0),
+                                    // Text(
+                                    //   '모임 대화',
+                                    //   style: TextStyle(
+                                    //     fontSize: 16.0,
+                                    //     fontWeight: FontWeight.w700,
+                                    //   ),
+                                    // ),
+                                    // SizedBox(height: 20.0),
+                                    // ..._buildChatRoomList(
+                                    //   groupChats,
+                                    //   senderId,
+                                    //   senderType,
+                                    // ),
                                   ],
                         ),
                       ),
@@ -210,9 +210,9 @@ class ChatRoomCard extends StatelessWidget {
         ).then((_) => onChatUpdated());
       },
       child: SizedBox(
-        height: ScreenSize.height(context, 48.0),
+        height: ScreenSize.height(context, 56.0),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image(
               image: AssetImage(
@@ -241,6 +241,7 @@ class ChatRoomCard extends StatelessWidget {
                         ),
                       ),
                       Text(
+                        overflow: TextOverflow.ellipsis,
                         _formatTime(chatRoom.createdAt),
                         style: TextStyle(
                           color: AppColors.gray500,
