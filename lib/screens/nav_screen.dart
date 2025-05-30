@@ -21,6 +21,7 @@ class _NavScreenState extends State<NavScreen> {
     HomeScreen(),
     MapScreen(),
     GroupScreen(),
+    HomeScreen(),
     ChatRoomScreen(),
     ProfileScreen(),
   ]; // 다른 스크린 파일 생성시 홈 스크린 지우고 새 스크린 추가.
