@@ -6,12 +6,14 @@ class DefaultButton extends StatelessWidget {
   final String content;
   final VoidCallback onPressed;
   final bool isEnable;
+  final int? width;
 
   const DefaultButton({
     super.key,
     required this.content,
     required this.onPressed,
     this.isEnable = true,
+    this.width,
   });
 
   @override
@@ -20,7 +22,7 @@ class DefaultButton extends StatelessWidget {
       onPressed: isEnable ? onPressed : null,
       style: TextButton.styleFrom(
         minimumSize: Size(
-          ScreenSize.width(context, 336),
+          width != null ? width!.toDouble() : ScreenSize.width(context, 336),
           ScreenSize.height(context, 52),
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),

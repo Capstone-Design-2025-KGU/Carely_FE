@@ -1,8 +1,17 @@
+import 'package:carely/models/memory.dart';
+import 'package:carely/models/nearest_meeting.dart';
+import 'package:carely/models/recommended_member.dart';
+import 'package:carely/providers/nearest_meeting_provider.dart';
+import 'package:carely/screens/memo_screen.dart';
+import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/services/member/recommended_member_service.dart';
+import 'package:carely/services/memory_service.dart';
+import 'package:carely/services/nearest_meeting_service.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-
 import 'package:carely/models/address.dart';
 import 'package:carely/providers/member_provider.dart';
 import 'package:carely/theme/colors.dart';
@@ -20,6 +29,34 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late Future<List<RecommendedMember>> _recommendedMembers;
+  Future<List<Memory>>? _memory;
+
+  @override
+  void initState() {
+    super.initState();
+    _recommendedMembers = _loadRecommendedMembers();
+    _memory = _loadMemories();
+    Future.microtask(
+      () =>
+          Provider.of<NearestMeetingProvider>(
+            context,
+            listen: false,
+          ).loadNearestMeeting(),
+    );
+  }
+
+  Future<List<Memory>> _loadMemories() async {
+    final member = context.read<MemberProvider>().member!;
+    return await MemoryService.fetchMyMemories(member.memberId);
+  }
+
+  Future<List<RecommendedMember>> _loadRecommendedMembers() async {
+    final token = await TokenStorageService.getToken();
+    if (token == null) return [];
+    return await RecommendedMemberService.fetchRecommendedMembers(token);
+  }
+
   String _displayMemberType(MemberType? type) {
     switch (type) {
       case MemberType.family:
@@ -58,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final memberType = member?.memberType;
     final logoPath = _pathMemberType(memberType);
     final backgroundColor = getBackgroundColor(memberType!);
+    final nearestMeeting = context.watch<NearestMeetingProvider>().meeting;
 
     return Scaffold(
       appBar: DefaultAppBar(title: '', isHome: true),
@@ -93,7 +131,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  (member != null && member.isVerified)
+
+                  nearestMeeting != null
+                      ? MeetingCard(meeting: nearestMeeting)
+                      : const SizedBox.shrink(),
+                  SizedBox(height: 40.0),
+                  (member != null && member.isVerified!)
                       ? MemberStatusCard(
                         displayType: _displayMemberType(member.memberType),
                         address: _formatAddress(member.address),
@@ -109,11 +152,31 @@ class _HomeScreenState extends State<HomeScreen> {
                       clipBehavior: Clip.none,
                       child: Row(
                         children: [
-                          MemberCard(),
-                          MemberCard(),
-                          MemberCard(),
-                          MemberCard(),
-                          MemberCard(),
+                          FutureBuilder(
+                            future: _recommendedMembers,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Text('에러 발생: ${snapshot.error}');
+                              }
+
+                              final members = snapshot.data!;
+                              return SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                clipBehavior: Clip.none,
+                                child: Row(
+                                  children:
+                                      members
+                                          .map((m) => MemberCard(member: m))
+                                          .toList(),
+                                ),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -123,15 +186,148 @@ class _HomeScreenState extends State<HomeScreen> {
                   //TODO: 지도 추가 필요
                   SizedBox(height: 36.0),
                   MenuTitle(title: '함께한 추억'),
-                  MemoryCard(),
-                  SizedBox(height: 12.0),
-                  MemoryCard(),
+                  FutureBuilder<List<Memory>>(
+                    future: _memory,
+                    builder: (context, snapshot) {
+                      if (_memory == null) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Text('에러 발생: ${snapshot.error}');
+                      } else {
+                        final memories = snapshot.data!;
+                        return Column(
+                          children:
+                              memories
+                                  .map(
+                                    (memory) => Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 12.0,
+                                      ),
+                                      child: MemoryCard(memory: memory),
+                                    ),
+                                  )
+                                  .toList(),
+                        );
+                      }
+                    },
+                  ),
                   SizedBox(height: 40.0),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class MeetingCard extends StatelessWidget {
+  final NearestMeeting meeting;
+
+  const MeetingCard({super.key, required this.meeting});
+
+  @override
+  Widget build(BuildContext context) {
+    final member = context.watch<MemberProvider>().member;
+    final myType = member?.memberType;
+
+    final counterpart =
+        myType == MemberType.family ? meeting.sender : meeting.receiver;
+    final date = meeting.startTime;
+    final formattedDate =
+        '${date.year}년 ${date.month.toString().padLeft(2, '0')}월 ${date.day.toString().padLeft(2, '0')}일 '
+        '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+
+    final summary = meeting.medic;
+
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => MemoScreen(meeting: meeting)),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Image.asset(
+                    'assets/images/${counterpart.memberType.name}/profile/${counterpart.profileImage}.png',
+                  ),
+                  SizedBox(width: 8.0),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${counterpart.name}님과의 약속',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: AppColors.gray800,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Icon(CupertinoIcons.forward, color: Colors.black),
+                          ],
+                        ),
+                        SizedBox(height: 4.0),
+                        Text(
+                          formattedDate,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: AppColors.gray600,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SvgPicture.asset('assets/images/carely-ai.svg', width: 100.0),
+                  Text(
+                    '${counterpart.name}님의 간병 정보를 요약해드려요.',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: AppColors.gray300,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                // '투약은 하루 2번, 아침 10시와 저녁 6시에 진행합니다. 또한, 복약 후에는 환자 상태를 세심하게 관찰하여 이상 반응이 없는지 확인해야 합니다.',
+                summary,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: AppColors.mainPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -334,7 +530,7 @@ class MemberStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: ScreenSize.height(context, 84.0),
+      height: ScreenSize.height(context, 88.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.0),
@@ -379,7 +575,7 @@ class MemberStatusCard extends StatelessWidget {
                   style: const TextStyle(
                     color: AppColors.gray600,
                     fontWeight: FontWeight.w500,
-                    fontSize: 16.0,
+                    fontSize: 14.0,
                   ),
                 ),
               ],
@@ -410,7 +606,9 @@ class MemberStatusCard extends StatelessWidget {
 }
 
 class MemoryCard extends StatelessWidget {
-  const MemoryCard({super.key});
+  final Memory memory;
+
+  const MemoryCard({super.key, required this.memory});
 
   @override
   Widget build(BuildContext context) {
@@ -444,6 +642,7 @@ class MemoryCard extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
+                  //TODO : 멤버 프로필 이미지 반영 필요
                   Image.asset('assets/images/family/profile/1.png'),
                   SizedBox(width: 12.0),
                   Expanded(
@@ -452,7 +651,8 @@ class MemoryCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '간병인 이상덕님',
+                          //TODO : 멤버 타입 반영 필요
+                          '간병인 ${memory.oppoName}님',
                           style: TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.w600,
@@ -461,7 +661,7 @@ class MemoryCard extends StatelessWidget {
                         ),
                         SizedBox(height: 4.0),
                         Text(
-                          '전문적이세요! 너무 너무 감사합니다. 다음에 또 뵐 수 있으면 좋겠습니다. 다음에 또 뵈면 제가 맛있는 음식을 대접하는 것으로 약속',
+                          memory.oppoMemo,
                           style: TextStyle(
                             fontSize: 12.0,
                             fontWeight: FontWeight.w400,
@@ -520,13 +720,13 @@ class MenuTitle extends StatelessWidget {
 }
 
 class MemberCard extends StatelessWidget {
-  const MemberCard({super.key});
+  final RecommendedMember member;
+  const MemberCard({super.key, required this.member});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
-      //TODO: 패딩 동적으로 수정
       child: Container(
         width: ScreenSize.width(context, 126.0),
         height: ScreenSize.height(context, 160.0),
@@ -540,43 +740,34 @@ class MemberCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/family/profile/1.png'),
-            SizedBox(height: 4.0),
-            Text(
-              '이규민',
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.w600,
-                color: AppColors.gray800,
-              ),
+            Image.asset(
+              'assets/images/${member.memberType.name}/profile/${member.profileImage}.png',
+              fit: BoxFit.cover,
+              height: 60,
             ),
-            SizedBox(height: 4.0),
+            const SizedBox(height: 4.0),
             Text(
-              '3Km',
-              style: TextStyle(
-                fontSize: 12.0,
-                fontWeight: FontWeight.w500,
-                color: AppColors.gray300,
-              ),
+              member.name,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            SizedBox(height: 4.0),
+            Text('${member.distance.toStringAsFixed(1)}Km'),
+            const SizedBox(height: 4.0),
             Container(
               width: ScreenSize.width(context, 100.0),
               height: ScreenSize.height(context, 26.0),
-              decoration: BoxDecoration(color: AppColors.main50),
+              decoration: const BoxDecoration(color: AppColors.main50),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  FaIcon(
+                  const FaIcon(
                     FontAwesomeIcons.solidClock,
                     size: 16.0,
                     color: AppColors.mainPrimary,
                   ),
-                  SizedBox(width: 4.0),
+                  const SizedBox(width: 4.0),
                   Text(
-                    '함께한 22시간',
-                    style: TextStyle(
+                    '함께한 ${(member.withTime ?? 0) ~/ 60}시간',
+                    style: const TextStyle(
                       color: AppColors.mainPrimary,
                       fontWeight: FontWeight.w600,
                     ),

@@ -42,7 +42,11 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     });
   }
 
-  List<Widget> _buildChatRoomList(List<ChatRoom> chats, int senderId) {
+  List<Widget> _buildChatRoomList(
+    List<ChatRoom> chats,
+    int senderId,
+    MemberType senderType,
+  ) {
     final List<Widget> widgets = [];
     for (int i = 0; i < chats.length; i++) {
       widgets.add(
@@ -59,6 +63,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               loadChatRoom(memberId);
             }
           },
+          senderType: senderType,
         ),
       );
       if (i != chats.length - 1) {
@@ -72,6 +77,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   Widget build(BuildContext context) {
     final currentMember = Provider.of<MemberProvider>(context).member;
     final senderId = currentMember?.memberId;
+    final senderType = currentMember?.memberType;
 
     return Scaffold(
       appBar: AppBar(
@@ -120,17 +126,22 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                                     ..._buildChatRoomList(
                                       neighborChats,
                                       senderId,
+                                      senderType!,
                                     ),
-                                    SizedBox(height: 32.0),
-                                    Text(
-                                      '모임 대화',
-                                      style: TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    SizedBox(height: 20.0),
-                                    ..._buildChatRoomList(groupChats, senderId),
+                                    // SizedBox(height: 32.0),
+                                    // Text(
+                                    //   '모임 대화',
+                                    //   style: TextStyle(
+                                    //     fontSize: 16.0,
+                                    //     fontWeight: FontWeight.w700,
+                                    //   ),
+                                    // ),
+                                    // SizedBox(height: 20.0),
+                                    // ..._buildChatRoomList(
+                                    //   groupChats,
+                                    //   senderId,
+                                    //   senderType,
+                                    // ),
                                   ],
                         ),
                       ),
@@ -146,12 +157,14 @@ class ChatRoomCard extends StatelessWidget {
   final ChatRoom chatRoom;
   final int senderId;
   final VoidCallback onChatUpdated;
+  final MemberType senderType;
 
   const ChatRoomCard({
     super.key,
     required this.chatRoom,
     required this.onChatUpdated,
     required this.senderId,
+    required this.senderType,
   });
 
   String get displayName {
@@ -190,14 +203,16 @@ class ChatRoomCard extends StatelessWidget {
                   chatRoomId: chatRoom.chatRoomId,
                   senderId: senderId,
                   opponentName: displayName,
+                  opponentMemberId: chatRoom.memberId,
+                  senderType: senderType,
                 ),
           ),
         ).then((_) => onChatUpdated());
       },
       child: SizedBox(
-        height: ScreenSize.height(context, 48.0),
+        height: ScreenSize.height(context, 56.0),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image(
               image: AssetImage(
@@ -226,6 +241,7 @@ class ChatRoomCard extends StatelessWidget {
                         ),
                       ),
                       Text(
+                        overflow: TextOverflow.ellipsis,
                         _formatTime(chatRoom.createdAt),
                         style: TextStyle(
                           color: AppColors.gray500,

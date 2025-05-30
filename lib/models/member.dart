@@ -13,9 +13,9 @@ class Member with _$Member {
   const factory Member({
     required int memberId,
     required String username,
-    required String password,
+    String? password,
     required String name,
-    required String phoneNumber,
+    String? phoneNumber,
 
     @JsonKey(fromJson: _birthFromJson) required String birth,
 
@@ -23,25 +23,25 @@ class Member with _$Member {
 
     @MemberTypeConverter() required MemberType memberType,
 
-    required bool isVisible,
-    required bool isVerified,
+    bool? isVisible,
+    bool? isVerified,
     String? profileImage,
 
     @FlexibleDateTimeConverter() DateTime? createdAt,
 
-    required Address address,
-    required Skill skill,
+    Address? address,
+    Skill? skill,
   }) = _Member;
 
   factory Member.fromJson(Map<String, dynamic> json) => _$MemberFromJson(json);
 }
 
 // [2001, 10, 30] → "2001-10-30"
-String _birthFromJson(List<dynamic> birthList) {
-  if (birthList.length >= 3) {
-    final year = birthList[0];
-    final month = birthList[1].toString().padLeft(2, '0');
-    final day = birthList[2].toString().padLeft(2, '0');
+String _birthFromJson(dynamic birthJson) {
+  if (birthJson is List && birthJson.length >= 3) {
+    final year = birthJson[0];
+    final month = birthJson[1].toString().padLeft(2, '0');
+    final day = birthJson[2].toString().padLeft(2, '0');
     return '$year-$month-$day';
   }
   return '';

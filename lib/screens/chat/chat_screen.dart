@@ -7,8 +7,10 @@ import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/logger_config.dart';
 import 'package:carely/utils/member_color.dart';
 import 'package:carely/utils/member_type.dart';
+import 'package:carely/widgets/chat/accept_message_bubble.dart';
 import 'package:carely/widgets/chat/chat_bubble.dart';
 import 'package:carely/widgets/chat/chat_time_stamp.dart';
+import 'package:carely/widgets/chat/meeting_message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -19,6 +21,8 @@ class ChatScreen extends StatefulWidget {
   static String id = 'chat-screen';
   final int chatRoomId;
   final int senderId; // 현재 로그인한 사용자의 Id
+  final MemberType senderType;
+  final int opponentMemberId;
   final String opponentName;
 
   const ChatScreen({
@@ -26,6 +30,8 @@ class ChatScreen extends StatefulWidget {
     required this.chatRoomId,
     required this.senderId,
     required this.opponentName,
+    required this.opponentMemberId,
+    required this.senderType,
   });
 
   @override
@@ -37,14 +43,11 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<ChatMessage> _messages = [];
   final TextEditingController _controller = TextEditingController();
 
-  late final WebSocketService _webSocektService;
-
   @override
   void initState() {
     super.initState();
     fetchPreviousMessages();
-    _webSocektService = WebSocketService();
-    _webSocektService.connect(
+    WebSocketService.instance.connect(
       chatRoomId: widget.chatRoomId,
       onMessage: (msg) {
         if (!mounted) return;
@@ -57,7 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    _webSocektService.disconnect();
+    WebSocketService.instance.disconnect();
     _controller.dispose();
     super.dispose();
   }
@@ -87,15 +90,22 @@ class _ChatScreenState extends State<ChatScreen> {
         title: widget.opponentName,
         color: getBackgroundColor(memberType),
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ScheduleScreen()),
-              );
-            },
-            icon: FaIcon(FontAwesomeIcons.calendarCheck, size: 24.0),
-          ),
+          if (memberType != MemberType.family)
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => ScheduleScreen(
+                          chatRoomId: widget.chatRoomId,
+                          opponentMemberId: widget.opponentMemberId,
+                        ),
+                  ),
+                );
+              },
+              icon: FaIcon(FontAwesomeIcons.calendarCheck, size: 24.0),
+            ),
         ],
       ),
       body: Column(
@@ -171,7 +181,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             messageType: MessageType.CHAT,
                           );
 
-                          _webSocektService.sendMessage(message);
+                          WebSocketService.instance.sendMessage(message);
 
                           _controller.clear();
                         }
@@ -209,13 +219,36 @@ class _ChatScreenState extends State<ChatScreen> {
         lastDate = currentDate;
       }
 
-      chatItems.add(
-        ChatBubble(
-          content: message.content,
-          isMine: message.senderId == widget.senderId,
-          timeStamp: message.createdAt,
-        ),
-      );
+      if (message.messageType == MessageType.MEETING_REQUEST) {
+        chatItems.add(
+          MeetingMessageBubble(
+            message: message,
+            isMine: message.senderId == widget.senderId,
+            timeStamp: message.createdAt,
+            senderType: widget.senderType,
+          ),
+        );
+      } else if (message.messageType == MessageType.MEETING_ACCEPT) {
+        chatItems.add(
+          AcceptMessageBubble(
+            message: message,
+            isMine: message.senderId == widget.senderId,
+            timeStamp: message.createdAt,
+            senderType: widget.senderType,
+            date: message.date ?? '날짜 정보가 없습니다.',
+            time: message.time ?? '시간 정보가 없습니다.',
+            chore: message.chore ?? '주된 일 정보가 없습니다.',
+          ),
+        );
+      } else {
+        chatItems.add(
+          ChatBubble(
+            content: message.content,
+            isMine: message.senderId == widget.senderId,
+            timeStamp: message.createdAt,
+          ),
+        );
+      }
     }
     return chatItems;
   }
