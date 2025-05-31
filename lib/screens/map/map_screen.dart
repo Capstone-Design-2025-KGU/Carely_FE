@@ -46,6 +46,7 @@ class _MapScreenState extends State<MapScreen>
   late DraggableScrollableController _draggableController;
   double _currentSheetSize = 0.09;
   double _currentZoom = 14.5;
+  bool _isClusterSelected = false;
   List<ClusterItem> _allClusterItems = [];
   List<ClusterItem> _selectedClusterItems = [];
 
@@ -174,6 +175,7 @@ class _MapScreenState extends State<MapScreen>
                   setState(() {
                     _selectedClusterItems = [];
                     _selectedMarkerId = null;
+                    _isClusterSelected = false;
                   });
                   _draggableController.animateTo(
                     _minChildSize,
@@ -341,7 +343,8 @@ class _MapScreenState extends State<MapScreen>
             controller: _draggableController,
             initialChildSize: _minChildSize,
             minChildSize: _minChildSize,
-            maxChildSize: _maxChildSize,
+            maxChildSize:
+                _isClusterSelected ? _clusterMaxChildSize : _maxChildSize,
             builder: (BuildContext context, ScrollController scrollController) {
               return Container(
                 decoration: const BoxDecoration(
@@ -555,9 +558,17 @@ class _MapScreenState extends State<MapScreen>
                   setState(() {
                     _selectedClusterItems = group.items;
                     _selectedMarkerId = null;
+                    _isClusterSelected = true;
                   });
+
+                  // 클러스터에 포함된 아이템이 3개 이상이면 바로 0.65 위치로 올라오도록 설정
+                  double targetSize =
+                      group.items.length >= 3
+                          ? _clusterMaxChildSize
+                          : _maxChildSize;
+
                   _draggableController.animateTo(
-                    _clusterMaxChildSize,
+                    targetSize,
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeOut,
                   );
@@ -588,10 +599,10 @@ class _MapScreenState extends State<MapScreen>
 
         // 마커 아이콘 크기 설정 (선택시 크게, 기본은 작게)
         int markerSize = isSelected ? 45 : 40;
-        
+
         // 작업해야 할 마커 종류
         final String jobType = user.jobType;
-        
+
         // 마커 이미지 로드
         final markerIcon = await MarkerUtils.loadJobTypeMarker(
           context,
@@ -599,20 +610,16 @@ class _MapScreenState extends State<MapScreen>
           isSelected: isSelected,
           size: Size(markerSize.toDouble(), markerSize.toDouble()),
         );
-        
+
         final icon = markerIcon;
 
         markers.add(
           Marker(
             markerId: MarkerId(item.id),
-            position: item.position, // 사용자의 실제 위치
+            position: item.position,
             icon: icon,
-            // 줌 레벨 변경 시 마커가 움직이지 않도록 anchor 설정
-            // 아이콘의 하단 중앙을 기준으로 합니다. (0.0 ~ 1.0 범위)
-            // (0.5, 1.0)은 아이콘 너비의 중간, 높이의 가장 아랫부분을 의미합니다.
-            // 아이콘 모양이 원형이거나 중심을 기준으로 하고 싶다면 Offset(0.5, 0.5)로 변경
             anchor: const Offset(0.5, 1.0),
-            zIndex: isSelected ? 1.0 : 0.0, // 선택된 마커가 다른 마커 위에 오도록 zIndex 설정
+            zIndex: isSelected ? 1.0 : 0.0,
             onTap: () {
               setState(() {
                 _selectedMarkerId = item.id;
@@ -620,6 +627,7 @@ class _MapScreenState extends State<MapScreen>
                     _allClusterItems
                         .where((clusterItem) => clusterItem.id == item.id)
                         .toList();
+                _isClusterSelected = false;
               });
               _draggableController.animateTo(
                 _maxChildSize,
