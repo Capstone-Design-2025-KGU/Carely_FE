@@ -5,7 +5,10 @@ import 'package:carely/utils/member_type.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/screens/map/filter_utilities.dart';
 import 'package:carely/screens/map/location_service.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart' as loc;
+import 'package:carely/utils/logger_config.dart';
 
 class UserListScreen extends StatefulWidget {
   static String id = 'user-list-screen';
@@ -20,6 +23,7 @@ class _UserListScreenState extends State<UserListScreen> {
   String _searchText = '';
   final Set<MemberType> _selectedFilters = {};
   String? _currentAddress;
+  LatLng? _currentPosition;
   final LocationService _locationService = LocationService();
 
   // 필터 버튼 색상 정의
@@ -53,14 +57,91 @@ class _UserListScreenState extends State<UserListScreen> {
     await _locationService.initialize();
     _locationService.onLocationChanged((newPosition, address) {
       setState(() {
+        _currentPosition = newPosition;
         _currentAddress = address;
       });
     });
+
+    _getCurrentLocation();
+  }
+
+  void _getCurrentLocation() async {
+    try {
+      // 먼저 마지막으로 저장된 위치 정보가 있는지 확인
+      if (_locationService.lastKnownAddress != null) {
+        setState(() {
+          _currentPosition = _locationService.lastKnownPosition;
+          _currentAddress = _locationService.lastKnownAddress;
+        });
+        logger.i('저장된 위치 정보 사용: ${_locationService.lastKnownAddress}');
+        return;
+      }
+      
+      setState(() {
+        _currentAddress = '현재 위치를 불러오는 중...';
+      });
+
+      bool serviceEnabled =
+          await _locationService.locationController.serviceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled =
+            await _locationService.locationController.requestService();
+        if (!serviceEnabled) {
+          setState(() {
+            _currentAddress = '위치 서비스가 비활성화되어 있습니다.';
+          });
+          return;
+        }
+      }
+
+      // 위치 권한 확인
+      var permissionGranted =
+          await _locationService.locationController.hasPermission();
+      if (permissionGranted == loc.PermissionStatus.denied) {
+        permissionGranted =
+            await _locationService.locationController.requestPermission();
+        if (permissionGranted != loc.PermissionStatus.granted) {
+          setState(() {
+            _currentAddress = '위치 권한이 없습니다.';
+          });
+          return;
+        }
+      }
+
+      // 위치 정보 가져오기
+      final locationData =
+          await _locationService.locationController.getLocation();
+      if (locationData.latitude != null && locationData.longitude != null) {
+        LatLng position = LatLng(
+          locationData.latitude!,
+          locationData.longitude!,
+        );
+
+        // 주소 변환
+        String? address = await _locationService.getAddressFromLatLng(position);
+
+        // 디버그 로그
+        logger.i('현재 위치: $position, 주소: $address');
+
+        setState(() {
+          _currentPosition = position;
+          _currentAddress = address ?? '주소를 찾을 수 없습니다.';
+        });
+      } else {
+        setState(() {
+          _currentAddress = '위치 정보를 가져올 수 없습니다.';
+        });
+      }
+    } catch (e) {
+      logger.e('위치 정보 가져오기 오류: $e');
+      setState(() {
+        _currentAddress = '위치 정보를 가져오는 중 오류가 발생했습니다.';
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // 검색어와 필터를 적용한 사용자 목록
     List<UserData> filteredUsers = FilterUtils.applyFilters(
       items: dummyUsers,
       searchText: _searchText,
@@ -123,8 +204,8 @@ class _UserListScreenState extends State<UserListScreen> {
                         Container(
                           margin: const EdgeInsets.only(right: 8),
                           child: IconButton(
-                            icon: Image.asset(
-                              'assets/images/map-trifold.png',
+                            icon: SvgPicture.asset(
+                              'assets/images/map-trifold.svg',
                               width: 24,
                               height: 24,
                             ),
@@ -207,10 +288,24 @@ class _UserListScreenState extends State<UserListScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             alignment: Alignment.centerLeft,
-            child: Text(
-              _currentAddress ?? '현재 위치를 불러오는 중...',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.left,
+            child: Row(
+              children: [
+                Text(
+                  _currentAddress ?? '현재 위치를 불러오는 중...',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+
+                Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  width: 16,
+                  height: 16,
+                ),
+                const Spacer(),
+              ],
             ),
           ),
 
@@ -250,7 +345,7 @@ class _UserListScreenState extends State<UserListScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset('assets/images/reset.png', width: 32, height: 32),
+            SvgPicture.asset('assets/images/reset.svg', width: 32, height: 32),
           ],
         ),
       ),
