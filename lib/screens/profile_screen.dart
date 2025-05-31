@@ -148,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Positioned(
             left: 0,
             right: 0,
-            bottom: 30,
+            bottom: 0,
             child: _buildChatButton(buttonColor),
           ),
         ],
@@ -281,9 +281,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         badgeLabel,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 10.5,
                           color: AppColors.red300,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -299,7 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildChatButton(Color buttonColor) {
     return Container(
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 15),
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 35, top: 15),
       color: Colors.white,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
@@ -329,23 +329,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final String title =
         memberType == MemberType.family ? '제가 모시는 분은,' : '제가 할 수 있는 일은,';
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.gray800,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.gray800,
+              ),
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 90,
-          child: _buildSkillItems(user, _getDarkerColor(memberType)),
-        ),
-      ],
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 90,
+            child: _buildSkillItems(user, _getDarkerColor(memberType)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -363,14 +370,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                width: 60,
-                height: 60,
+                width: 52,
+                height: 52,
                 child: Padding(
                   padding: const EdgeInsets.all(1.0),
                   child: Image.asset(
                     imagePath,
-                    width: 58,
-                    height: 58,
+                    width: 52,
+                    height: 52,
                     fit: BoxFit.contain,
                     errorBuilder:
                         (context, error, stackTrace) => Container(
