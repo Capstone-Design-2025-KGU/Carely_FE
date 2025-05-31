@@ -1,0 +1,276 @@
+import 'package:carely/screens/group/group_detail_screen.dart';
+import 'package:carely/theme/colors.dart';
+import 'package:carely/utils/screen_size.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+class GroupScreen extends StatefulWidget {
+  static String id = 'group-screen';
+  const GroupScreen({super.key});
+
+  @override
+  State<GroupScreen> createState() => _GroupScreenState();
+}
+
+class _GroupScreenState extends State<GroupScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(''),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: AppColors.mainPrimary,
+          unselectedLabelColor: AppColors.gray400,
+          indicatorColor: AppColors.mainPrimary,
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14.0,
+          ),
+          tabs: const [Tab(text: '내 모임'), Tab(text: '이웃 모임 둘러보기')],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _EmptyGroupView(message: '아직 내 모임이 없어요!\n이웃 모임을 둘러보세요'),
+          // _EmptyGroupView(message: '이웃 모임이 없어요'),
+          _GroupSearchView(),
+        ],
+      ),
+    );
+  }
+}
+
+class _GroupSearchView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          GroupCard(
+            title: '도움의 손길',
+            location: '경기도 용인시 수지구',
+            recentUpdate: 12,
+            imagePath: '1',
+            memberCount: 10,
+          ),
+          GroupCard(
+            title: '함께하는 이웃들',
+            location: '서울특별시 강남구',
+            recentUpdate: 24,
+            imagePath: '2',
+            memberCount: 24,
+          ),
+          GroupCard(
+            title: '행복한 돌봄',
+            location: '부산광역시 해운대구',
+            recentUpdate: 3,
+            imagePath: '3',
+            memberCount: 18,
+          ),
+          GroupCard(
+            title: '어르신 안심 모임',
+            location: '대전광역시 서구',
+            recentUpdate: 1,
+            imagePath: '4',
+            memberCount: 8,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class GroupCard extends StatelessWidget {
+  final String title;
+  final String location;
+  final int recentUpdate;
+  final String imagePath;
+  final int memberCount;
+
+  const GroupCard({
+    super.key,
+    required this.title,
+    required this.location,
+    required this.recentUpdate,
+    required this.imagePath,
+    required this.memberCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap:
+          () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder:
+                  (context) => GroupDetailScreen(
+                    title: title,
+                    location: location,
+                    recentUpdate: recentUpdate,
+                    imagePath: imagePath,
+                    memberCount: memberCount,
+                  ),
+            ),
+          ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 16.0,
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Image.asset(
+                          'assets/images/group/$imagePath.png',
+                          width: 68.0,
+                          height: 68.0,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              color: AppColors.gray800,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                          const SizedBox(height: 4.0),
+                          Text(
+                            location,
+                            style: const TextStyle(
+                              color: AppColors.gray600,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14.0,
+                            ),
+                          ),
+                          const SizedBox(height: 4.0),
+                          Row(
+                            children: [
+                              const FaIcon(
+                                FontAwesomeIcons.newspaper,
+                                size: 16.0,
+                                color: AppColors.mainPrimary,
+                              ),
+                              const SizedBox(width: 4.0),
+                              Text(
+                                '$recentUpdate시간 전 새로운 소식',
+                                style: const TextStyle(
+                                  color: AppColors.mainPrimary,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  GroupMemberNumberCard(count: memberCount),
+                ],
+              ),
+            ),
+          ),
+          const Divider(color: AppColors.gray50),
+        ],
+      ),
+    );
+  }
+}
+
+class GroupMemberNumberCard extends StatelessWidget {
+  final int count;
+
+  const GroupMemberNumberCard({super.key, required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+      decoration: BoxDecoration(
+        color: AppColors.gray25,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Row(
+        children: [
+          const FaIcon(
+            FontAwesomeIcons.userGroup,
+            size: 16.0,
+            color: AppColors.mainPrimary,
+          ),
+          const SizedBox(width: 4.0),
+          Text(
+            '$count명',
+            style: const TextStyle(
+              color: AppColors.mainPrimary,
+              fontWeight: FontWeight.w600,
+              fontSize: 12.0,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyGroupView extends StatelessWidget {
+  final String message;
+
+  const _EmptyGroupView({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/no-chat-room.png',
+            width: ScreenSize.width(context, 248.0),
+          ),
+          const SizedBox(height: 16.0),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AppColors.gray300,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
