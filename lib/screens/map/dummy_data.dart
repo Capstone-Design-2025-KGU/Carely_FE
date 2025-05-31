@@ -1,3 +1,4 @@
+import 'package:carely/utils/logger_config.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class UserData {
@@ -8,6 +9,9 @@ class UserData {
   final String togetherTime;
   final Map<String, String> skills;
   final LatLng location;
+  final int? age;
+  final String? story;
+  final List<Map<String, String>>? companions;
 
   UserData({
     required this.id,
@@ -17,9 +21,22 @@ class UserData {
     required this.togetherTime,
     required this.skills,
     required this.location,
+    this.age,
+    this.story,
+    this.companions,
   });
 
-  String get profileImagePath => 'assets/images/$jobType/profile/$id.png';
+  String get profileImagePath => 'assets/images/$jobType/profile/$id.svg';
+  String get squareProfileImagePath =>
+      'assets/images/$jobType/profile_square/$id.svg';
+
+  /// skillKey에 해당하는 skill 이미지 경로 반환
+  String getSkillImagePath(String skillKey) {
+    final path = 'assets/images/$jobType/skills/$skillKey.png';
+    logger.i('스킬 이미지 경로 요청: $path');
+    return path;
+  }
+
   String get skillImagePath => 'assets/images/$jobType/skills/$id.png';
 
   static String convertSkillLevel(String jobType, String skillLevel) {
@@ -64,6 +81,18 @@ final List<UserData> dummyUsers = [
       'walk': UserData.convertSkillLevel('family', 'MIDDLE'),
     },
     location: LatLng(37.5865, 126.9980),
+    age: 67,
+    story:
+        '안녕하세요, 이상덕입니다. 가족을 돌보는 일에 최선을 다하고 있습니다. 도움이 필요하시면 언제든지 연락주세요. 함께 어려움을 나누고 싶습니다. 따뜻한 마음으로 서로에게 힘이 되어주는 관계를 만들어가고 싶습니다. 잘 부탁드립니다.',
+    companions: [
+      {'name': '박서준', 'date': '2024.05.10', 'msg': '세심한 배려에 감동했습니다. 정말 감사합니다.'},
+      {
+        'name': '김민경',
+        'date': '2024.04.22',
+        'msg': '정말 큰 도움이 되었어요, 감사합니다! 다음에 또 뵙고 싶네요.',
+      },
+      {'name': '이영희', 'date': '2024.03.15', 'msg': '항상 친절하게 대해주셔서 편안했습니다.'},
+    ],
   ),
   UserData(
     id: '2',
@@ -79,6 +108,17 @@ final List<UserData> dummyUsers = [
       'walk': UserData.convertSkillLevel('volunteer', 'MIDDLE'),
     },
     location: LatLng(37.5441, 126.9555),
+    age: 28,
+    story:
+        '자원봉사자 박지민입니다. 따뜻한 마음으로 봉사활동에 참여하고 있습니다. 작은 도움이라도 드릴 수 있다면 기쁩니다. 함께하는 세상을 만들어가요. 저의 작은 손길이 필요한 곳에 닿기를 바랍니다.',
+    companions: [
+      {
+        'name': '이수현',
+        'date': '2024.05.01',
+        'msg': '친절하게 대해주셔서 감사합니다. 봉사자님의 따뜻한 마음에 감동했어요.',
+      },
+      {'name': '강지훈', 'date': '2024.04.10', 'msg': '짧은 시간이었지만 많은 도움을 받았습니다.'},
+    ],
   ),
   UserData(
     id: '3',
@@ -94,6 +134,27 @@ final List<UserData> dummyUsers = [
       'walk': UserData.convertSkillLevel('caregiver', 'HIGH'),
     },
     location: LatLng(37.5878, 126.9974),
+    age: 45,
+    story:
+        '전문 요양보호사 정수연입니다. 다년간의 경험과 전문 지식을 바탕으로 어르신들을 정성껏 모시고 있습니다. 믿고 맡겨주시면 최선을 다하겠습니다. 어르신들의 편안하고 행복한 하루를 위해 노력합니다.',
+    companions: [
+      {
+        'name': '최현우',
+        'date': '2024.03.15',
+        'msg': '전문적인 케어 감사합니다. 덕분에 안심할 수 있었어요.',
+      },
+      {
+        'name': '윤지아',
+        'date': '2024.02.20',
+        'msg': '덕분에 안심하고 일할 수 있었어요. 정말 든든합니다.',
+      },
+      {
+        'name': '강태민',
+        'date': '2024.01.10',
+        'msg': '항상 밝게 대해주셔서 좋아요. 기분까지 좋아집니다.',
+      },
+      {'name': '배수지', 'date': '2023.12.05', 'msg': '세심하게 신경 써주셔서 감사합니다.'},
+    ],
   ),
   UserData(
     id: '4',
@@ -109,6 +170,9 @@ final List<UserData> dummyUsers = [
       'walk': UserData.convertSkillLevel('family', 'HIGH'),
     },
     location: LatLng(37.5900, 127.0000),
+    age: 52,
+    story: '가족을 사랑하는 마음으로 간병하고 있습니다.',
+    companions: [],
   ),
   UserData(
     id: '5',
@@ -124,21 +188,31 @@ final List<UserData> dummyUsers = [
       'walk': UserData.convertSkillLevel('volunteer', 'HIGH'),
     },
     location: LatLng(37.5920, 127.0020),
+    age: 33,
+    story: '봉사를 통해 함께 성장하고 싶습니다.',
+    companions: [
+      {'name': '송예나', 'date': '2024.04.05', 'msg': '시간 내주셔서 감사합니다.'},
+    ],
   ),
   UserData(
     id: '6',
-    name: '한서연',
+    name: '최수아',
     jobType: 'caregiver',
-    distance: 1.8,
-    togetherTime: '3시간 55분',
+    distance: 0.3,
+    togetherTime: '1시간 15분',
     skills: {
       'communication': UserData.convertSkillLevel('caregiver', 'HIGH'),
       'meal': UserData.convertSkillLevel('caregiver', 'MIDDLE'),
-      'toilet': UserData.convertSkillLevel('caregiver', 'LOW'),
-      'bath': UserData.convertSkillLevel('caregiver', 'HIGH'),
+      'toilet': UserData.convertSkillLevel('caregiver', 'HIGH'),
+      'bath': UserData.convertSkillLevel('caregiver', 'LOW'),
       'walk': UserData.convertSkillLevel('caregiver', 'MIDDLE'),
     },
-    location: LatLng(37.5890, 126.9990),
+    location: LatLng(37.5885, 126.9995),
+    age: 39,
+    story: '진심을 담아 돌보겠습니다.',
+    companions: [
+      {'name': '김영철', 'date': '2024.05.18', 'msg': '꼼꼼하게 잘 챙겨주셔서 감사합니다.'},
+    ],
   ),
   UserData(
     id: '7',

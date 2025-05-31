@@ -35,12 +35,12 @@ class AppColors {
   static const Color red100 = Color(0xFFFFF5F6);
 
   // Blue
-  static const Color blue300 = Color(0xFF00AEFE);
-  static const Color blue200 = Color(0xFFCAE8FF);
-  static const Color blue100 = Color(0xFFEEF7FF);
+  static const Color blue300 = Color(0xFF00AEFF);
+  static const Color blue200 = Color(0xFFDEF2FF);
+  static const Color blue100 = Color(0xFFEFF9FF);
 
   // Green
-  static const Color green300 = Color(0xFF0CD380);
-  static const Color green200 = Color(0xFF9FF3D0);
-  static const Color green100 = Color(0xFFD8FBED);
+  static const Color green300 = Color(0xFF20CE86);
+  static const Color green200 = Color(0xFFCEFDE3);
+  static const Color green100 = Color(0xFFEBFEF4);
 }

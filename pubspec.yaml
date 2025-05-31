@@ -53,15 +53,33 @@ flutter:
   assets:
     - assets/images/group/
     - assets/images/caregiver/profile/
+    - assets/images/caregiver/profile_square/
+
     - assets/images/family/profile/
+    - assets/images/family/profile_square/
+
     - assets/images/volunteer/profile/
+    - assets/images/volunteer/profile_square/
+
     - assets/images/caregiver/skills/
     - assets/images/family/skills/
     - assets/images/family/skills/unable/
     - assets/images/volunteer/skills/
+
     - assets/images/caregiver/logo.svg
+    - assets/images/caregiver/minilogo.svg
+    - assets/images/caregiver/profile_logo.svg
+
     - assets/images/family/logo.svg
+    - assets/images/family/minilogo.svg
+    - assets/images/family/profile_logo.svg
+
+    - assets/images/markers/
+
     - assets/images/volunteer/logo.svg
+    - assets/images/volunteer/minilogo.svg
+    - assets/images/volunteer/profile_logo.svg
+
     - assets/images/family/
     - assets/images/volunteer/
     - assets/images/caregiver/

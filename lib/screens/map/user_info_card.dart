@@ -1,13 +1,16 @@
 import 'package:carely/theme/colors.dart';
+import 'package:carely/utils/logger_config.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/screens/map/dummy_data.dart';
 import 'package:carely/utils/member_type.dart';
+import 'package:carely/screens/profile_screen.dart';
+import 'package:flutter_svg/svg.dart';
 
 class UserInfoCard extends StatelessWidget {
   final String userId;
   final double? width;
 
-  const UserInfoCard({super.key, required this.userId, this.width});
+  UserInfoCard({super.key, required this.userId, this.width});
 
   @override
   Widget build(BuildContext context) {
@@ -18,76 +21,114 @@ class UserInfoCard extends StatelessWidget {
     // 직업 유형별 배경색 설정
     Color backgroundColor = _getBackgroundColor(userData.jobType);
 
-    return Container(
-      width: width ?? double.infinity,
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min, // 높이를 내용에 맞게 자동 조정
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.white,
-                backgroundImage: AssetImage(userData.profileImagePath),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ProfileScreen(userId: userId)),
+        );
+      },
+      child: Container(
+        width: width ?? double.infinity,
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -15,
+              bottom: -40,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomRight: Radius.circular(12),
+                ),
+                child: SvgPicture.asset(
+                  'assets/images/${userData.jobType}/profile_logo.svg',
+                  width: 132,
+                  height: 132,
+                  alignment: Alignment.bottomRight,
+                ),
               ),
-              const SizedBox(width: 12),
-
-              // 이름 및 정보
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${_getJobTypeText(userData.jobType)} ${userData.name}님',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.white,
+                        child: ClipOval(
+                          child: SvgPicture.asset(
+                            userData.profileImagePath,
+                            fit: BoxFit.cover,
+                            width: 60,
+                            height: 60,
+                          ),
+                        ),
                       ),
+                      const SizedBox(width: 12),
+
+                      // 이름 및 정보
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${_getJobTypeText(userData.jobType)} ${userData.name}님',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 7),
+
+                            // 배지 표시
+                            Row(children: [_buildJobBadge(userData)]),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '${userData.distance}km',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.gray300,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    const SizedBox(height: 5),
-
-                    // 배지 표시
-                    Row(children: [_buildJobBadge(userData)]),
-                  ],
-                ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 4,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: _buildSkillIcons(userData),
+                    ),
+                  ),
+                ],
               ),
-
-              // 거리 표시
-              Text(
-                '${userData.distance}km',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.gray300,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 15),
-
-          // 스킬 아이콘을 `Wrap`으로 변경하여 Overflow 방지
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            alignment: WrapAlignment.center,
-            children: _buildSkillIcons(userData),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -164,11 +205,7 @@ class UserInfoCard extends StatelessWidget {
     for (var skillKey in skillKeys) {
       if (userData.skills.containsKey(skillKey)) {
         skillWidgets.add(
-          _buildSkillIcon(
-            skillKey,
-            userData.skills[skillKey]!,
-            userData.jobType,
-          ),
+          _buildSkillIcon(skillKey, userData.skills[skillKey]!, userData),
         );
       }
     }
@@ -176,35 +213,76 @@ class UserInfoCard extends StatelessWidget {
     return skillWidgets;
   }
 
+  final Map<String, Map<String, String>> _skillAssetPaths = {
+    'caregiver': {
+      'communication': 'assets/images/caregiver/skills/communication.png',
+      'meal': 'assets/images/caregiver/skills/meal.png',
+      'toilet': 'assets/images/caregiver/skills/toilet.png',
+      'bath': 'assets/images/caregiver/skills/bath.png',
+      'walk': 'assets/images/caregiver/skills/walk.png',
+    },
+    'family': {
+      'communication': 'assets/images/family/skills/communication.png',
+      'meal': 'assets/images/family/skills/meal.png',
+      'toilet': 'assets/images/family/skills/toilet.png',
+      'bath': 'assets/images/family/skills/bath.png',
+      'walk': 'assets/images/family/skills/walk.png',
+    },
+    'volunteer': {
+      'communication': 'assets/images/volunteer/skills/communication.png',
+      'meal': 'assets/images/volunteer/skills/meal.png',
+      'toilet': 'assets/images/volunteer/skills/toilet.png',
+      'bath': 'assets/images/volunteer/skills/bath.png',
+      'walk': 'assets/images/volunteer/skills/walk.png',
+    },
+  };
+
   /// 스킬 아이콘 UI
-  Widget _buildSkillIcon(String skillKey, String skillLevel, String jobType) {
-    String imagePath = 'assets/images/$jobType/skills/$skillKey.png';
+  Widget _buildSkillIcon(
+    String skillKey,
+    String skillLevel,
+    UserData userData,
+  ) {
+    String imagePath = userData.getSkillImagePath(skillKey);
+    logger.i(
+      'Attempting to load skill icon for ${userData.jobType} - $skillKey from: $imagePath',
+    );
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 60,
           height: 60,
           decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 3,
-                offset: const Offset(0, 1),
-              ),
-            ],
+            color: AppColors.gray25.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Center(child: Image.asset(imagePath, width: 52, height: 52)),
+          child: Padding(
+            padding: const EdgeInsets.all(1),
+            child: Image.asset(
+              imagePath,
+              width: 44,
+              height: 44,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                logger.e('스킬 아이콘 로드 오류: $imagePath - $error');
+                return const Icon(
+                  Icons.error_outline,
+                  size: 28,
+                  color: AppColors.gray800,
+                );
+              },
+            ),
+          ),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 4),
         Text(
           skillLevel,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
-            color: _getColorForJobType(jobType),
+            color: AppColors.gray800,
           ),
         ),
       ],
