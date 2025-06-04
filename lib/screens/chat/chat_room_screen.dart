@@ -186,7 +186,7 @@ class ChatRoomCard extends StatelessWidget {
   String _getProfileImagePath(MemberType memberType, String? profileImage) {
     final type = memberType.name;
     final imageName = profileImage ?? '1';
-    return 'assets/images/$type/profile/$imageName.svg';
+    return 'assets/images/$type/profile/$imageName.png';
   }
 
   @override
@@ -227,6 +227,7 @@ class ChatRoomCard extends StatelessWidget {
             SizedBox(width: 16.0),
             Expanded(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
