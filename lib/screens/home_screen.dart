@@ -316,7 +316,7 @@ class MeetingCard extends StatelessWidget {
               SizedBox(height: 16.0),
               Text(
                 // '투약은 하루 2번, 아침 10시와 저녁 6시에 진행합니다. 또한, 복약 후에는 환자 상태를 세심하게 관찰하여 이상 반응이 없는지 확인해야 합니다.',
-                summary,
+                summary!,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(

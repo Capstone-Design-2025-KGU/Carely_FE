@@ -13,12 +13,12 @@ _$NearestMeetingImpl _$$NearestMeetingImplFromJson(Map<String, dynamic> json) =>
       receiver: Member.fromJson(json['receiver'] as Map<String, dynamic>),
       startTime: DateTime.parse(json['startTime'] as String),
       memoId: (json['memoId'] as num).toInt(),
-      walk: json['walk'] as String,
-      health: json['health'] as String,
-      medic: json['medic'] as String,
-      toilet: json['toilet'] as String,
-      comm: json['comm'] as String,
-      meal: json['meal'] as String,
+      walk: json['walk'] as String?,
+      health: json['health'] as String?,
+      medic: json['medic'] as String?,
+      toilet: json['toilet'] as String?,
+      comm: json['comm'] as String?,
+      meal: json['meal'] as String?,
     );
 
 Map<String, dynamic> _$$NearestMeetingImplToJson(

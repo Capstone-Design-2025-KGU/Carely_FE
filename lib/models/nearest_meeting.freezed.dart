@@ -26,12 +26,12 @@ mixin _$NearestMeeting {
   Member get receiver => throw _privateConstructorUsedError;
   DateTime get startTime => throw _privateConstructorUsedError;
   int get memoId => throw _privateConstructorUsedError;
-  String get walk => throw _privateConstructorUsedError;
-  String get health => throw _privateConstructorUsedError;
-  String get medic => throw _privateConstructorUsedError;
-  String get toilet => throw _privateConstructorUsedError;
-  String get comm => throw _privateConstructorUsedError;
-  String get meal => throw _privateConstructorUsedError;
+  String? get walk => throw _privateConstructorUsedError;
+  String? get health => throw _privateConstructorUsedError;
+  String? get medic => throw _privateConstructorUsedError;
+  String? get toilet => throw _privateConstructorUsedError;
+  String? get comm => throw _privateConstructorUsedError;
+  String? get meal => throw _privateConstructorUsedError;
 
   /// Serializes this NearestMeeting to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -56,12 +56,12 @@ abstract class $NearestMeetingCopyWith<$Res> {
     Member receiver,
     DateTime startTime,
     int memoId,
-    String walk,
-    String health,
-    String medic,
-    String toilet,
-    String comm,
-    String meal,
+    String? walk,
+    String? health,
+    String? medic,
+    String? toilet,
+    String? comm,
+    String? meal,
   });
 
   $MemberCopyWith<$Res> get sender;
@@ -88,12 +88,12 @@ class _$NearestMeetingCopyWithImpl<$Res, $Val extends NearestMeeting>
     Object? receiver = null,
     Object? startTime = null,
     Object? memoId = null,
-    Object? walk = null,
-    Object? health = null,
-    Object? medic = null,
-    Object? toilet = null,
-    Object? comm = null,
-    Object? meal = null,
+    Object? walk = freezed,
+    Object? health = freezed,
+    Object? medic = freezed,
+    Object? toilet = freezed,
+    Object? comm = freezed,
+    Object? meal = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -123,35 +123,35 @@ class _$NearestMeetingCopyWithImpl<$Res, $Val extends NearestMeeting>
                     : memoId // ignore: cast_nullable_to_non_nullable
                         as int,
             walk:
-                null == walk
+                freezed == walk
                     ? _value.walk
                     : walk // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
             health:
-                null == health
+                freezed == health
                     ? _value.health
                     : health // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
             medic:
-                null == medic
+                freezed == medic
                     ? _value.medic
                     : medic // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
             toilet:
-                null == toilet
+                freezed == toilet
                     ? _value.toilet
                     : toilet // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
             comm:
-                null == comm
+                freezed == comm
                     ? _value.comm
                     : comm // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
             meal:
-                null == meal
+                freezed == meal
                     ? _value.meal
                     : meal // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
           )
           as $Val,
     );
@@ -193,12 +193,12 @@ abstract class _$$NearestMeetingImplCopyWith<$Res>
     Member receiver,
     DateTime startTime,
     int memoId,
-    String walk,
-    String health,
-    String medic,
-    String toilet,
-    String comm,
-    String meal,
+    String? walk,
+    String? health,
+    String? medic,
+    String? toilet,
+    String? comm,
+    String? meal,
   });
 
   @override
@@ -226,12 +226,12 @@ class __$$NearestMeetingImplCopyWithImpl<$Res>
     Object? receiver = null,
     Object? startTime = null,
     Object? memoId = null,
-    Object? walk = null,
-    Object? health = null,
-    Object? medic = null,
-    Object? toilet = null,
-    Object? comm = null,
-    Object? meal = null,
+    Object? walk = freezed,
+    Object? health = freezed,
+    Object? medic = freezed,
+    Object? toilet = freezed,
+    Object? comm = freezed,
+    Object? meal = freezed,
   }) {
     return _then(
       _$NearestMeetingImpl(
@@ -261,35 +261,35 @@ class __$$NearestMeetingImplCopyWithImpl<$Res>
                 : memoId // ignore: cast_nullable_to_non_nullable
                     as int,
         walk:
-            null == walk
+            freezed == walk
                 ? _value.walk
                 : walk // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
         health:
-            null == health
+            freezed == health
                 ? _value.health
                 : health // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
         medic:
-            null == medic
+            freezed == medic
                 ? _value.medic
                 : medic // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
         toilet:
-            null == toilet
+            freezed == toilet
                 ? _value.toilet
                 : toilet // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
         comm:
-            null == comm
+            freezed == comm
                 ? _value.comm
                 : comm // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
         meal:
-            null == meal
+            freezed == meal
                 ? _value.meal
                 : meal // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
       ),
     );
   }
@@ -304,12 +304,12 @@ class _$NearestMeetingImpl implements _NearestMeeting {
     required this.receiver,
     required this.startTime,
     required this.memoId,
-    required this.walk,
-    required this.health,
-    required this.medic,
-    required this.toilet,
-    required this.comm,
-    required this.meal,
+    this.walk,
+    this.health,
+    this.medic,
+    this.toilet,
+    this.comm,
+    this.meal,
   });
 
   factory _$NearestMeetingImpl.fromJson(Map<String, dynamic> json) =>
@@ -326,17 +326,17 @@ class _$NearestMeetingImpl implements _NearestMeeting {
   @override
   final int memoId;
   @override
-  final String walk;
+  final String? walk;
   @override
-  final String health;
+  final String? health;
   @override
-  final String medic;
+  final String? medic;
   @override
-  final String toilet;
+  final String? toilet;
   @override
-  final String comm;
+  final String? comm;
   @override
-  final String meal;
+  final String? meal;
 
   @override
   String toString() {
@@ -405,12 +405,12 @@ abstract class _NearestMeeting implements NearestMeeting {
     required final Member receiver,
     required final DateTime startTime,
     required final int memoId,
-    required final String walk,
-    required final String health,
-    required final String medic,
-    required final String toilet,
-    required final String comm,
-    required final String meal,
+    final String? walk,
+    final String? health,
+    final String? medic,
+    final String? toilet,
+    final String? comm,
+    final String? meal,
   }) = _$NearestMeetingImpl;
 
   factory _NearestMeeting.fromJson(Map<String, dynamic> json) =
@@ -427,17 +427,17 @@ abstract class _NearestMeeting implements NearestMeeting {
   @override
   int get memoId;
   @override
-  String get walk;
+  String? get walk;
   @override
-  String get health;
+  String? get health;
   @override
-  String get medic;
+  String? get medic;
   @override
-  String get toilet;
+  String? get toilet;
   @override
-  String get comm;
+  String? get comm;
   @override
-  String get meal;
+  String? get meal;
 
   /// Create a copy of NearestMeeting
   /// with the given fields replaced by the non-null parameter values.
