@@ -1,16 +1,33 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 enum DioMethod { post, get, put, delete, patch }
 
 class APIService {
-  APIService._singleton();
-  static final APIService instance = APIService._singleton();
+  APIService._singleton(this.baseUrl);
 
-  final serverURL = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8081';
+  static final APIService instance = APIService._createInstance();
+  static final APIService aiInstance = APIService._createAiInstance();
+
+  final String baseUrl;
+
+  static APIService _createInstance() {
+    final serverUrl = dotenv.get('SERVER_URL', fallback: '');
+    if (serverUrl.isEmpty) {
+      throw Exception('SERVER_URL is missing in .env');
+    }
+    return APIService._singleton(serverUrl);
+  }
+
+  static APIService _createAiInstance() {
+    final aiUrl = dotenv.get('AI_URL', fallback: '');
+    if (aiUrl.isEmpty) {
+      throw Exception('AI_URL is missing in .env');
+    }
+    return APIService._singleton(aiUrl);
+  }
 
   final logger = PrettyDioLogger(
     requestHeader: true,
@@ -19,14 +36,6 @@ class APIService {
     responseHeader: false,
     compact: false,
   );
-
-  String get baseUrl {
-    if (kDebugMode) {
-      return '$serverURL/api';
-    } else {
-      return '$serverURL/api';
-    }
-  }
 
   Future<Response> request(
     String endpoint,
@@ -56,9 +65,6 @@ class APIService {
         return dio.put(endpoint, data: param ?? formData);
       case DioMethod.delete:
         return dio.delete(endpoint, data: param ?? formData);
-      // ignore: unreachable_switch_default
-      default:
-        return dio.post(endpoint, data: param ?? formData);
     }
   }
 }

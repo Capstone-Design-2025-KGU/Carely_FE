@@ -8,7 +8,7 @@ class MemoService {
     required String token,
   }) async {
     try {
-      await APIService.instance.request(
+      await APIService.aiInstance.request(
         '/memos/$memberId',
         DioMethod.put,
         param: {'original': memoText},

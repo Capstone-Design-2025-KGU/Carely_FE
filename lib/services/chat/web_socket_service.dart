@@ -10,7 +10,7 @@ class WebSocketService {
   static final WebSocketService instance =
       WebSocketService._privateConstructor();
 
-  final String _url = dotenv.env['SERVER_URL'] ?? 'http://10.0.2.2:8080/ws';
+  final String _url = dotenv.env['WEBSOCKET_URL'] ?? 'http://10.0.2.2:8080/ws';
 
   StompClient? _stompClient; // ✅ nullable로 변경 (초기엔 null)
 
