@@ -12,12 +12,12 @@ class NearestMeeting with _$NearestMeeting {
     required Member receiver,
     required DateTime startTime,
     required int memoId,
-    required String walk,
-    required String health,
-    required String medic,
-    required String toilet,
-    required String comm,
-    required String meal,
+    String? walk,
+    String? health,
+    String? medic,
+    String? toilet,
+    String? comm,
+    String? meal,
   }) = _NearestMeeting;
 
   factory NearestMeeting.fromJson(Map<String, dynamic> json) =>

@@ -22,11 +22,45 @@ class _MemoScreenState extends State<MemoScreen> {
   String _memoText = '';
   late stt.SpeechToText _speech;
   bool _isListening = false;
+  late NearestMeeting _meeting;
+  String selectedCategory = 'all';
+  String summary = '';
 
   @override
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
+    _meeting = widget.meeting;
+    summary = _buildSummary(_meeting, selectedCategory);
+  }
+
+  String _buildSummary(NearestMeeting meeting, String category) {
+    String safe(String? text) => text?.trim().isNotEmpty == true ? text! : '-';
+
+    switch (category) {
+      case 'walk':
+        return safe(meeting.walk);
+      case 'temperature':
+        return safe(meeting.health);
+      case 'medic':
+        return safe(meeting.medic);
+      case 'meal':
+        return safe(meeting.meal);
+      case 'communication':
+        return safe(meeting.comm);
+      case 'toilet':
+        return safe(meeting.toilet);
+      case 'all':
+      default:
+        return [
+          meeting.walk,
+          meeting.health,
+          meeting.medic,
+          meeting.meal,
+          meeting.toilet,
+          meeting.comm,
+        ].map(safe).join('\n');
+    }
   }
 
   void _startListening() async {
@@ -69,7 +103,16 @@ class _MemoScreenState extends State<MemoScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  AICard(meeting: widget.meeting),
+                  AICard(
+                    selectedCategory: selectedCategory,
+                    summary: summary,
+                    onCategoryChanged: (category) {
+                      setState(() {
+                        selectedCategory = category;
+                        summary = _buildSummary(_meeting, category);
+                      });
+                    },
+                  ),
                   Container(color: AppColors.gray50, height: 8.0),
                   Container(
                     padding: EdgeInsets.all(20.0),
@@ -160,11 +203,37 @@ class _MemoScreenState extends State<MemoScreen> {
 
                                 if (token != null) {
                                   try {
+                                    // 1. 저장 요청
                                     await MemoService.updateMemo(
                                       memberId: memberId,
                                       memoText: _memoText,
                                       token: token,
                                     );
+
+                                    final updated =
+                                        await MemoService.getMemoSummary(
+                                          memberId: memberId,
+                                          token: token,
+                                        );
+
+                                    if (updated != null) {
+                                      setState(() {
+                                        _meeting = _meeting.copyWith(
+                                          walk: updated.walk,
+                                          health: updated.health,
+                                          medic: updated.medic,
+                                          meal: updated.meal,
+                                          toilet: updated.toilet,
+                                          comm: updated.comm,
+                                        );
+
+                                        summary = _buildSummary(
+                                          _meeting,
+                                          selectedCategory,
+                                        );
+                                      });
+                                    }
+
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text('메모가 저장되었습니다')),
                                     );
@@ -175,7 +244,6 @@ class _MemoScreenState extends State<MemoScreen> {
                                   }
                                 }
                               },
-
                               isEnable: _memoText.trim().isNotEmpty,
                               width: 300,
                             ),
@@ -219,39 +287,19 @@ class _MemoScreenState extends State<MemoScreen> {
   }
 }
 
-class AICard extends StatefulWidget {
-  final NearestMeeting meeting;
+class AICard extends StatelessWidget {
+  final String selectedCategory;
+  final String summary;
+  final void Function(String) onCategoryChanged;
 
-  const AICard({super.key, required this.meeting});
+  const AICard({
+    super.key,
+    required this.selectedCategory,
+    required this.summary,
+    required this.onCategoryChanged,
+  });
 
-  @override
-  State<AICard> createState() => _AICardState();
-}
-
-class _AICardState extends State<AICard> {
-  String get summary {
-    switch (selectedCategory) {
-      case 'walk':
-        return widget.meeting.walk;
-      case 'temperature':
-        return widget.meeting.health;
-      case 'medic':
-        return widget.meeting.medic;
-      case 'meal':
-        return widget.meeting.meal;
-      case 'communication':
-        return widget.meeting.comm;
-      case 'toilet':
-        return widget.meeting.toilet;
-      case 'all':
-      default:
-        return '${widget.meeting.walk}\n${widget.meeting.health}\n${widget.meeting.medic}\n${widget.meeting.meal}\n${widget.meeting.toilet}\n${widget.meeting.comm}';
-    }
-  }
-
-  String selectedCategory = 'all';
-
-  final Map<String, String> categoryLabels = {
+  final Map<String, String> categoryLabels = const {
     'all': '전체 요약',
     'temperature': '체온 및 건강상태',
     'medic': '약물 복용',
@@ -304,11 +352,7 @@ class _AICardState extends State<AICard> {
                             return SkillButton(
                               imagePath: key,
                               isActive: selectedCategory == key,
-                              onPressed: () {
-                                setState(() {
-                                  selectedCategory = key;
-                                });
-                              },
+                              onPressed: () => onCategoryChanged(key),
                             );
                           }).toList(),
                     ),
