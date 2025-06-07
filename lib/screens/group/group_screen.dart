@@ -103,6 +103,7 @@ class _GroupSearchViewState extends State<_GroupSearchView> {
           itemBuilder: (context, index) {
             final team = teams[index];
             return GroupCard(
+              teamId: team.teamId,
               title: team.teamName,
               location:
                   '${team.address.province} ${team.address.city} ${team.address.district}',
@@ -118,6 +119,7 @@ class _GroupSearchViewState extends State<_GroupSearchView> {
 }
 
 class GroupCard extends StatelessWidget {
+  final int teamId;
   final String title;
   final String location;
   final int recentUpdate;
@@ -131,6 +133,7 @@ class GroupCard extends StatelessWidget {
     required this.recentUpdate,
     required this.imagePath,
     required this.memberCount,
+    required this.teamId,
   });
 
   @override
@@ -141,6 +144,7 @@ class GroupCard extends StatelessWidget {
             MaterialPageRoute(
               builder:
                   (context) => GroupDetailScreen(
+                    teamId: teamId,
                     title: title,
                     location: location,
                     recentUpdate: recentUpdate,

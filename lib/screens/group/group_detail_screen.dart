@@ -1,10 +1,14 @@
+import 'package:carely/models/post_outline.dart';
+import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/services/team_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class GroupDetailScreen extends StatelessWidget {
+class GroupDetailScreen extends StatefulWidget {
+  final int teamId;
   final String title;
   final String location;
   final int recentUpdate;
@@ -18,20 +22,39 @@ class GroupDetailScreen extends StatelessWidget {
     required this.recentUpdate,
     required this.imagePath,
     required this.memberCount,
+    required this.teamId,
   });
+
+  @override
+  State<GroupDetailScreen> createState() => _GroupDetailScreenState();
+}
+
+class _GroupDetailScreenState extends State<GroupDetailScreen> {
+  late Future<List<PostOutline>> _postFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _postFuture = _fetchPosts();
+  }
+
+  Future<List<PostOutline>> _fetchPosts() async {
+    final token = await TokenStorageService.getToken();
+    return TeamService.fetchPosts(teamId: widget.teamId, token: token!);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: DefaultAppBar(title: title),
+      appBar: DefaultAppBar(title: widget.title),
       body: SingleChildScrollView(
         child: Column(
           children: [
             GroupCover(
-              imagePath: imagePath,
-              title: title,
-              location: location,
-              memberCount: memberCount,
+              imagePath: widget.imagePath,
+              title: widget.title,
+              location: widget.location,
+              memberCount: widget.memberCount,
             ),
             SizedBox(height: 36.0),
             Column(
@@ -61,35 +84,31 @@ class GroupDetailScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 16.0),
-                NeighborNewsCard(
-                  imageIndex: '1',
-                  title: '안녕하세요 새롭게 가입하게 되었습니다. 잘 부탁드립니다.',
-                  content: '모두들 만나서 반가우요모두들 만나서 반가우요반가우요반가우요',
-                  commentCount: 3,
-                ),
-                NeighborNewsCard(
-                  imageIndex: '2',
-                  title: '오늘 날씨 진짜 좋네요!',
-                  content: '우리 동네도 산책 나가기 딱 좋습니다요~',
-                  commentCount: 5,
-                ),
-                NeighborNewsCard(
-                  imageIndex: '3',
-                  title: '행복한 아침 ^^',
-                  content: '이웃 여러분 오늘도 아침 해가 동그랗게 떳습니다. 아자아자 힘을 내고',
-                  commentCount: 6,
-                ),
-                NeighborNewsCard(
-                  imageIndex: '3',
-                  title: '행복한 아침 ^^',
-                  content: '이웃 여러분 오늘도 아침 해가 동그랗게 떳습니다. 아자아자 힘을 내고',
-                  commentCount: 6,
-                ),
-                NeighborNewsCard(
-                  imageIndex: '3',
-                  title: '행복한 아침 ^^',
-                  content: '이웃 여러분 오늘도 아침 해가 동그랗게 떳습니다. 아자아자 힘을 내고',
-                  commentCount: 6,
+                FutureBuilder<List<PostOutline>>(
+                  future: _postFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError ||
+                        !snapshot.hasData ||
+                        snapshot.data!.isEmpty) {
+                      return const Center(child: Text('게시글이 없습니다.'));
+                    }
+
+                    final posts = snapshot.data!;
+                    return Column(
+                      children:
+                          posts.map((post) {
+                            return NeighborNewsCard(
+                              imageIndex: '1', // 임시 프로필
+                              title: post.title,
+                              content: '${post.writer.name}님의 게시글',
+                              commentCount: post.commentCount,
+                            );
+                          }).toList(),
+                    );
+                  },
                 ),
               ],
             ),
