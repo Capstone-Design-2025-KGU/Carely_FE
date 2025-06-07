@@ -6,7 +6,6 @@ import 'package:carely/screens/memo_screen.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
 import 'package:carely/services/member/recommended_member_service.dart';
 import 'package:carely/services/memory_service.dart';
-import 'package:carely/services/nearest_meeting_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -242,7 +241,14 @@ class MeetingCard extends StatelessWidget {
         '${date.year}년 ${date.month.toString().padLeft(2, '0')}월 ${date.day.toString().padLeft(2, '0')}일 '
         '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
 
-    final summary = meeting.medic;
+    final summary = [
+      meeting.medic,
+      meeting.health,
+      meeting.meal,
+      meeting.walk,
+      meeting.comm,
+      meeting.toilet,
+    ].firstWhere((e) => e?.trim().isNotEmpty == true, orElse: () => '요약 정보 없음');
 
     return InkWell(
       onTap: () {
@@ -306,7 +312,7 @@ class MeetingCard extends StatelessWidget {
                   Text(
                     '${counterpart.name}님의 간병 정보를 요약해드려요.',
                     style: TextStyle(
-                      fontSize: 14.0,
+                      fontSize: 12.0,
                       color: AppColors.gray300,
                       fontWeight: FontWeight.w400,
                     ),
@@ -530,7 +536,7 @@ class MemberStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: ScreenSize.height(context, 88.0),
+      height: ScreenSize.height(context, 92.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.0),
