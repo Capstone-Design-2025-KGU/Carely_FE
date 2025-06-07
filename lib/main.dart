@@ -3,6 +3,7 @@ import 'package:carely/models/member.dart';
 import 'package:carely/models/skill.dart';
 import 'package:carely/providers/member_provider.dart';
 import 'package:carely/providers/nearest_meeting_provider.dart';
+import 'package:carely/providers/team_provider.dart';
 import 'package:carely/screens/chat/chat_screen.dart';
 import 'package:carely/screens/home_screen.dart';
 import 'package:carely/screens/nav_screen.dart';
@@ -60,6 +61,7 @@ void main() async {
           },
         ),
         ChangeNotifierProvider(create: (_) => NearestMeetingProvider()),
+        ChangeNotifierProvider(create: (_) => TeamProvider()),
       ],
       child: MyApp(initialToken: validToken),
     ),

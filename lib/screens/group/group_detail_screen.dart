@@ -1,11 +1,14 @@
 import 'package:carely/models/post_outline.dart';
+import 'package:carely/providers/team_provider.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
 import 'package:carely/services/team_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
+import 'package:carely/widgets/default_button.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
 class GroupDetailScreen extends StatefulWidget {
   final int teamId;
@@ -43,8 +46,31 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     return TeamService.fetchPosts(teamId: widget.teamId, token: token!);
   }
 
+  Future<void> _joinTeam() async {
+    final token = await TokenStorageService.getToken();
+    final success = await TeamService.joinTeam(
+      teamId: widget.teamId,
+      token: token!,
+    );
+    if (success) {
+      Provider.of<TeamProvider>(
+        context,
+        listen: false,
+      ).markAsJoined(widget.teamId);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('모임에 가입했어요!')));
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('가입에 실패했어요.')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isJoined = Provider.of<TeamProvider>(context).isJoined(widget.teamId);
+
     return Scaffold(
       appBar: DefaultAppBar(title: widget.title),
       body: SingleChildScrollView(
@@ -113,6 +139,13 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
               ],
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+        child: DefaultButton(
+          content: '모임 가입하기',
+          onPressed: isJoined ? null : () => _joinTeam().then((_) {}),
         ),
       ),
     );

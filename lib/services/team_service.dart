@@ -38,4 +38,28 @@ class TeamService {
       rethrow;
     }
   }
+
+  static Future<bool> joinTeam({
+    required int teamId,
+    required String token,
+  }) async {
+    final response = await APIService.instance.request(
+      '/teams/$teamId/join',
+      DioMethod.post,
+      token: token,
+    );
+
+    return response.data == true;
+  }
+
+  static Future<List<Team>> fetchMyTeams({required String token}) async {
+    final response = await APIService.instance.request(
+      '/teams/',
+      DioMethod.get,
+      token: token,
+    );
+
+    final List<dynamic> data = response.data;
+    return data.map((e) => Team.fromJson(e)).toList();
+  }
 }

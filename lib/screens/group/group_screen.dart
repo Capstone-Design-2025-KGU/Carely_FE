@@ -1,4 +1,3 @@
-import 'package:carely/models/address.dart';
 import 'package:carely/models/team.dart';
 import 'package:carely/screens/group/group_detail_screen.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
@@ -51,11 +50,7 @@ class _GroupScreenState extends State<GroupScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _EmptyGroupView(message: '아직 내 모임이 없어요!\n이웃 모임을 둘러보세요'),
-          // _EmptyGroupView(message: '이웃 모임이 없어요'),
-          _GroupSearchView(),
-        ],
+        children: [_MyGroupView(), _GroupSearchView()],
       ),
     );
   }
@@ -294,6 +289,59 @@ class _EmptyGroupView extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MyGroupView extends StatefulWidget {
+  @override
+  State<_MyGroupView> createState() => _MyGroupViewState();
+}
+
+class _MyGroupViewState extends State<_MyGroupView> {
+  late Future<List<Team>> _myTeamsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _myTeamsFuture = _fetchMyTeams();
+  }
+
+  Future<List<Team>> _fetchMyTeams() async {
+    final token = await TokenStorageService.getToken();
+    return TeamService.fetchMyTeams(token: token!);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<Team>>(
+      future: _myTeamsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return const _EmptyGroupView(message: '아직 내 모임이 없어요!\n이웃 모임을 둘러보세요');
+        }
+
+        final teams = snapshot.data!;
+        return ListView.builder(
+          padding: const EdgeInsets.only(top: 20),
+          itemCount: teams.length,
+          itemBuilder: (context, index) {
+            final team = teams[index];
+            return GroupCard(
+              teamId: team.teamId,
+              title: team.teamName,
+              location:
+                  '${team.address.province} ${team.address.city} ${team.address.district}',
+              recentUpdate: 0,
+              imagePath: '${index % 4 + 1}',
+              memberCount: team.memberCount,
+            );
+          },
+        );
+      },
     );
   }
 }
