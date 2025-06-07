@@ -19,16 +19,61 @@ class _GroupScreenState extends State<GroupScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
+  late Future<Map<String, List<Team>>> _groupDataFuture;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _groupDataFuture = _fetchGroupedTeams();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<Map<String, List<Team>>> _fetchGroupedTeams() async {
+    final token = await TokenStorageService.getToken();
+
+    final myTeams = await TeamService.fetchMyTeams(token: token!);
+    final neighborTeams = await TeamService.fetchNeighborTeams(token: token);
+
+    final myTeamIds = myTeams.map((t) => t.teamId).toSet();
+
+    final filteredNeighborTeams =
+        neighborTeams
+            .where((team) => !myTeamIds.contains(team.teamId))
+            .toList();
+
+    return {'my': myTeams, 'neighbor': filteredNeighborTeams};
+  }
+
+  Widget _buildTeamListView(List<Team> teams, {required bool isJoined}) {
+    if (teams.isEmpty) {
+      return _EmptyGroupView(
+        message: isJoined ? '아직 내 모임이 없어요!\n이웃 모임을 둘러보세요' : '이웃 모임이 없어요',
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(top: 20),
+      itemCount: teams.length,
+      itemBuilder: (context, index) {
+        final team = teams[index];
+        return GroupCard(
+          teamId: team.teamId,
+          title: team.teamName,
+          location:
+              '${team.address.province} ${team.address.city} ${team.address.district}',
+          recentUpdate: 0,
+          imagePath: '${index % 4 + 1}',
+          memberCount: team.memberCount,
+          isJoined: isJoined,
+        );
+      },
+    );
   }
 
   @override
@@ -48,67 +93,29 @@ class _GroupScreenState extends State<GroupScreen>
           tabs: const [Tab(text: '내 모임'), Tab(text: '이웃 모임 둘러보기')],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [_MyGroupView(), _GroupSearchView()],
+      body: FutureBuilder<Map<String, List<Team>>>(
+        future: _groupDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError || !snapshot.hasData) {
+            return const Center(child: Text('모임 데이터를 불러오지 못했어요.'));
+          }
+
+          final myTeams = snapshot.data!['my']!;
+          final neighborTeams = snapshot.data!['neighbor']!;
+
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _buildTeamListView(myTeams, isJoined: true),
+              _buildTeamListView(neighborTeams, isJoined: false),
+            ],
+          );
+        },
       ),
-    );
-  }
-}
-
-class _GroupSearchView extends StatefulWidget {
-  @override
-  State<_GroupSearchView> createState() => _GroupSearchViewState();
-}
-
-class _GroupSearchViewState extends State<_GroupSearchView> {
-  late Future<List<Team>> _teamFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _teamFuture = _fetchTeams();
-  }
-
-  Future<List<Team>> _fetchTeams() async {
-    final token = await TokenStorageService.getToken();
-    return TeamService.fetchNeighborTeams(token: token!);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Team>>(
-      future: _teamFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return const Center(child: Text('이웃 모임을 불러오지 못했습니다.'));
-        }
-
-        final teams = snapshot.data!;
-        if (teams.isEmpty) {
-          return const _EmptyGroupView(message: '이웃 모임이 없어요');
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.only(top: 20),
-          itemCount: teams.length,
-          itemBuilder: (context, index) {
-            final team = teams[index];
-            return GroupCard(
-              teamId: team.teamId,
-              title: team.teamName,
-              location:
-                  '${team.address.province} ${team.address.city} ${team.address.district}',
-              recentUpdate: 0, // 추후 추가 예정
-              imagePath: '${index % 4 + 1}', // 1~4 반복
-              memberCount: team.memberCount,
-            );
-          },
-        );
-      },
     );
   }
 }
@@ -120,6 +127,7 @@ class GroupCard extends StatelessWidget {
   final int recentUpdate;
   final String imagePath;
   final int memberCount;
+  final bool isJoined;
 
   const GroupCard({
     super.key,
@@ -129,6 +137,7 @@ class GroupCard extends StatelessWidget {
     required this.imagePath,
     required this.memberCount,
     required this.teamId,
+    required this.isJoined,
   });
 
   @override
@@ -145,6 +154,7 @@ class GroupCard extends StatelessWidget {
                     recentUpdate: recentUpdate,
                     imagePath: imagePath,
                     memberCount: memberCount,
+                    isJoined: isJoined,
                   ),
             ),
           ),
@@ -289,59 +299,6 @@ class _EmptyGroupView extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _MyGroupView extends StatefulWidget {
-  @override
-  State<_MyGroupView> createState() => _MyGroupViewState();
-}
-
-class _MyGroupViewState extends State<_MyGroupView> {
-  late Future<List<Team>> _myTeamsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _myTeamsFuture = _fetchMyTeams();
-  }
-
-  Future<List<Team>> _fetchMyTeams() async {
-    final token = await TokenStorageService.getToken();
-    return TeamService.fetchMyTeams(token: token!);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Team>>(
-      future: _myTeamsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-          return const _EmptyGroupView(message: '아직 내 모임이 없어요!\n이웃 모임을 둘러보세요');
-        }
-
-        final teams = snapshot.data!;
-        return ListView.builder(
-          padding: const EdgeInsets.only(top: 20),
-          itemCount: teams.length,
-          itemBuilder: (context, index) {
-            final team = teams[index];
-            return GroupCard(
-              teamId: team.teamId,
-              title: team.teamName,
-              location:
-                  '${team.address.province} ${team.address.city} ${team.address.district}',
-              recentUpdate: 0,
-              imagePath: '${index % 4 + 1}',
-              memberCount: team.memberCount,
-            );
-          },
-        );
-      },
     );
   }
 }

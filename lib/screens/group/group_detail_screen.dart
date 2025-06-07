@@ -17,6 +17,7 @@ class GroupDetailScreen extends StatefulWidget {
   final int recentUpdate;
   final String imagePath;
   final int memberCount;
+  final bool isJoined;
 
   const GroupDetailScreen({
     super.key,
@@ -26,6 +27,7 @@ class GroupDetailScreen extends StatefulWidget {
     required this.imagePath,
     required this.memberCount,
     required this.teamId,
+    required this.isJoined,
   });
 
   @override
@@ -141,13 +143,19 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-        child: DefaultButton(
-          content: '모임 가입하기',
-          onPressed: isJoined ? null : () => _joinTeam().then((_) {}),
-        ),
-      ),
+      bottomNavigationBar:
+          widget.isJoined
+              ? null
+              : Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 20.0,
+                ),
+                child: DefaultButton(
+                  content: '모임 가입하기',
+                  onPressed: () => _joinTeam().then((_) {}),
+                ),
+              ),
     );
   }
 }
