@@ -11,7 +11,7 @@ class NearestMeeting with _$NearestMeeting {
     required Member sender,
     required Member receiver,
     required DateTime startTime,
-    required int memoId,
+    int? memoId,
     String? walk,
     String? health,
     String? medic,
