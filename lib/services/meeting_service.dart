@@ -49,4 +49,20 @@ class MeetingService {
       logger.e('약속 수락/거절 실패: $e');
     }
   }
+
+  static Future<void> rejectMeeting({
+    required int meetingId,
+    required String token,
+  }) async {
+    try {
+      await APIService.instance.request(
+        '/meetings/$meetingId',
+        DioMethod.patch,
+        token: token,
+      );
+    } catch (e) {
+      logger.e('🛑 미팅 중단 실패: $e');
+      rethrow;
+    }
+  }
 }

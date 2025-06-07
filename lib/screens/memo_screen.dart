@@ -1,5 +1,6 @@
 import 'package:carely/models/nearest_meeting.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/services/meeting_service.dart';
 import 'package:carely/services/memo_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
@@ -263,7 +264,34 @@ class _MemoScreenState extends State<MemoScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20.0),
                         child: TextButton(
-                          onPressed: () async {},
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => const ActivityStopDialog(),
+                            );
+
+                            if (confirm != true) return;
+
+                            final token = await TokenStorageService.getToken();
+                            if (token == null) return;
+
+                            try {
+                              await MeetingService.rejectMeeting(
+                                meetingId: widget.meeting.meetingId,
+                                token: token,
+                              );
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('활동이 중단되었습니다')),
+                              );
+
+                              Navigator.of(context).pop(); // MemoScreen 닫기
+                            } catch (_) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('활동 중단에 실패했습니다')),
+                              );
+                            }
+                          },
                           style: TextButton.styleFrom(
                             minimumSize: Size(
                               ScreenSize.width(context, 336),
@@ -443,6 +471,54 @@ class LoadingDialog extends StatelessWidget {
             const Text(
               '저장 중이에요...',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ActivityStopDialog extends StatelessWidget {
+  const ActivityStopDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      backgroundColor: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              '활동 중단',
+              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '정말로 활동을 중단하시겠습니까?',
+              style: TextStyle(fontSize: 15.0, color: Colors.black87),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('취소', style: TextStyle(color: Colors.grey)),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text(
+                    '중단',
+                    style: TextStyle(color: AppColors.red300),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
