@@ -7,6 +7,7 @@ import 'package:carely/widgets/default_app_bar.dart';
 import 'package:carely/widgets/default_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class MemoScreen extends StatefulWidget {
@@ -202,8 +203,14 @@ class _MemoScreenState extends State<MemoScreen> {
                                     widget.meeting.receiver.memberId;
 
                                 if (token != null) {
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    barrierColor: Colors.black.withOpacity(0.3),
+                                    builder: (_) => const LoadingDialog(),
+                                  );
+
                                   try {
-                                    // 1. 저장 요청
                                     await MemoService.updateMemo(
                                       memberId: memberId,
                                       memoText: _memoText,
@@ -226,7 +233,6 @@ class _MemoScreenState extends State<MemoScreen> {
                                           toilet: updated.toilet,
                                           comm: updated.comm,
                                         );
-
                                         summary = _buildSummary(
                                           _meeting,
                                           selectedCategory,
@@ -234,16 +240,19 @@ class _MemoScreenState extends State<MemoScreen> {
                                       });
                                     }
 
+                                    Navigator.of(context).pop();
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text('메모가 저장되었습니다')),
                                     );
                                   } catch (_) {
+                                    Navigator.of(context).pop();
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text('메모 저장에 실패했습니다')),
                                     );
                                   }
                                 }
                               },
+
                               isEnable: _memoText.trim().isNotEmpty,
                               width: 300,
                             ),
@@ -405,6 +414,38 @@ class SkillButton extends StatelessWidget {
           elevation: 2,
         ),
         child: Image.asset(actualPath, width: 60.0, height: 60.0),
+      ),
+    );
+  }
+}
+
+class LoadingDialog extends StatelessWidget {
+  const LoadingDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Lottie.asset(
+              'assets/lottie/loading.json',
+              width: 120,
+              height: 120,
+              fit: BoxFit.contain,
+              repeat: true,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '저장 중이에요...',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
       ),
     );
   }
