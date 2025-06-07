@@ -485,37 +485,65 @@ class ActivityStopDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 40),
       backgroundColor: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
+        padding: const EdgeInsets.symmetric(vertical: 28.0, horizontal: 24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              '활동 중단',
-              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700),
+            Icon(
+              Icons.warning_amber_rounded,
+              color: AppColors.mainPrimary,
+              size: 48,
             ),
             const SizedBox(height: 16),
             const Text(
-              '정말로 활동을 중단하시겠습니까?',
-              style: TextStyle(fontSize: 15.0, color: Colors.black87),
+              '활동 중단하시겠어요?',
+              style: TextStyle(
+                fontSize: 17.0,
+                fontWeight: FontWeight.w700,
+                color: AppColors.gray900,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              '이 작업은 되돌릴 수 없어요.\n정말로 중단하시겠습니까?',
+              style: TextStyle(
+                fontSize: 14.5,
+                color: AppColors.gray600,
+                height: 1.5,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text('취소', style: TextStyle(color: Colors.grey)),
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.gray500,
+                      textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    child: const Text('취소'),
+                  ),
                 ),
-                const SizedBox(width: 8),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text(
-                    '중단',
-                    style: TextStyle(color: AppColors.red300),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.mainPrimary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text('중단'),
                   ),
                 ),
               ],
