@@ -31,4 +31,17 @@ class ChatService {
     final List<dynamic> data = response.data;
     return data.map((json) => ChatMessage.fromJson(json)).toList();
   }
+
+  Future<bool> deleteChatRoom(int chatRoomId) async {
+    try {
+      final response = await APIService.instance.request(
+        '/chat/$chatRoomId',
+        DioMethod.delete,
+      );
+      return response.data == true;
+    } catch (e) {
+      logger.w('채팅방 삭제 실패: $e');
+      return false;
+    }
+  }
 }

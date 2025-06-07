@@ -1,4 +1,7 @@
+import 'package:carely/models/team.dart';
 import 'package:carely/screens/group/group_detail_screen.dart';
+import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/services/team_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:flutter/material.dart';
@@ -16,16 +19,61 @@ class _GroupScreenState extends State<GroupScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
+  late Future<Map<String, List<Team>>> _groupDataFuture;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _groupDataFuture = _fetchGroupedTeams();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<Map<String, List<Team>>> _fetchGroupedTeams() async {
+    final token = await TokenStorageService.getToken();
+
+    final myTeams = await TeamService.fetchMyTeams(token: token!);
+    final neighborTeams = await TeamService.fetchNeighborTeams(token: token);
+
+    final myTeamIds = myTeams.map((t) => t.teamId).toSet();
+
+    final filteredNeighborTeams =
+        neighborTeams
+            .where((team) => !myTeamIds.contains(team.teamId))
+            .toList();
+
+    return {'my': myTeams, 'neighbor': filteredNeighborTeams};
+  }
+
+  Widget _buildTeamListView(List<Team> teams, {required bool isJoined}) {
+    if (teams.isEmpty) {
+      return _EmptyGroupView(
+        message: isJoined ? '아직 내 모임이 없어요!\n이웃 모임을 둘러보세요' : '이웃 모임이 없어요',
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(top: 20),
+      itemCount: teams.length,
+      itemBuilder: (context, index) {
+        final team = teams[index];
+        return GroupCard(
+          teamId: team.teamId,
+          title: team.teamName,
+          location:
+              '${team.address.province} ${team.address.city} ${team.address.district}',
+          recentUpdate: 0,
+          imagePath: '${index % 4 + 1}',
+          memberCount: team.memberCount,
+          isJoined: isJoined,
+        );
+      },
+    );
   }
 
   @override
@@ -45,65 +93,41 @@ class _GroupScreenState extends State<GroupScreen>
           tabs: const [Tab(text: '내 모임'), Tab(text: '이웃 모임 둘러보기')],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _EmptyGroupView(message: '아직 내 모임이 없어요!\n이웃 모임을 둘러보세요'),
-          // _EmptyGroupView(message: '이웃 모임이 없어요'),
-          _GroupSearchView(),
-        ],
-      ),
-    );
-  }
-}
+      body: FutureBuilder<Map<String, List<Team>>>(
+        future: _groupDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-class _GroupSearchView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          GroupCard(
-            title: '도움의 손길',
-            location: '경기도 용인시 수지구',
-            recentUpdate: 12,
-            imagePath: '1',
-            memberCount: 10,
-          ),
-          GroupCard(
-            title: '함께하는 이웃들',
-            location: '서울특별시 강남구',
-            recentUpdate: 24,
-            imagePath: '2',
-            memberCount: 24,
-          ),
-          GroupCard(
-            title: '행복한 돌봄',
-            location: '부산광역시 해운대구',
-            recentUpdate: 3,
-            imagePath: '3',
-            memberCount: 18,
-          ),
-          GroupCard(
-            title: '어르신 안심 모임',
-            location: '대전광역시 서구',
-            recentUpdate: 1,
-            imagePath: '4',
-            memberCount: 8,
-          ),
-        ],
+          if (snapshot.hasError || !snapshot.hasData) {
+            return const Center(child: Text('모임 데이터를 불러오지 못했어요.'));
+          }
+
+          final myTeams = snapshot.data!['my']!;
+          final neighborTeams = snapshot.data!['neighbor']!;
+
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _buildTeamListView(myTeams, isJoined: true),
+              _buildTeamListView(neighborTeams, isJoined: false),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
 class GroupCard extends StatelessWidget {
+  final int teamId;
   final String title;
   final String location;
   final int recentUpdate;
   final String imagePath;
   final int memberCount;
+  final bool isJoined;
 
   const GroupCard({
     super.key,
@@ -112,6 +136,8 @@ class GroupCard extends StatelessWidget {
     required this.recentUpdate,
     required this.imagePath,
     required this.memberCount,
+    required this.teamId,
+    required this.isJoined,
   });
 
   @override
@@ -122,11 +148,13 @@ class GroupCard extends StatelessWidget {
             MaterialPageRoute(
               builder:
                   (context) => GroupDetailScreen(
+                    teamId: teamId,
                     title: title,
                     location: location,
                     recentUpdate: recentUpdate,
                     imagePath: imagePath,
                     memberCount: memberCount,
+                    isJoined: isJoined,
                   ),
             ),
           ),

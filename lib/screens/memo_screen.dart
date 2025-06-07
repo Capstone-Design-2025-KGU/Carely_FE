@@ -1,5 +1,7 @@
 import 'package:carely/models/nearest_meeting.dart';
+import 'package:carely/providers/nearest_meeting_provider.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/services/meeting_service.dart';
 import 'package:carely/services/memo_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
@@ -7,6 +9,8 @@ import 'package:carely/widgets/default_app_bar.dart';
 import 'package:carely/widgets/default_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class MemoScreen extends StatefulWidget {
@@ -202,8 +206,14 @@ class _MemoScreenState extends State<MemoScreen> {
                                     widget.meeting.receiver.memberId;
 
                                 if (token != null) {
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    barrierColor: Colors.black.withOpacity(0.3),
+                                    builder: (_) => const LoadingDialog(),
+                                  );
+
                                   try {
-                                    // 1. 저장 요청
                                     await MemoService.updateMemo(
                                       memberId: memberId,
                                       memoText: _memoText,
@@ -226,7 +236,6 @@ class _MemoScreenState extends State<MemoScreen> {
                                           toilet: updated.toilet,
                                           comm: updated.comm,
                                         );
-
                                         summary = _buildSummary(
                                           _meeting,
                                           selectedCategory,
@@ -234,16 +243,19 @@ class _MemoScreenState extends State<MemoScreen> {
                                       });
                                     }
 
+                                    Navigator.of(context).pop();
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text('메모가 저장되었습니다')),
                                     );
                                   } catch (_) {
+                                    Navigator.of(context).pop();
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text('메모 저장에 실패했습니다')),
                                     );
                                   }
                                 }
                               },
+
                               isEnable: _memoText.trim().isNotEmpty,
                               width: 300,
                             ),
@@ -254,7 +266,34 @@ class _MemoScreenState extends State<MemoScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20.0),
                         child: TextButton(
-                          onPressed: () async {},
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => const ActivityStopDialog(),
+                            );
+
+                            if (confirm != true) return;
+
+                            final token = await TokenStorageService.getToken();
+                            if (token == null) return;
+
+                            try {
+                              await MeetingService.rejectMeeting(
+                                meetingId: widget.meeting.meetingId,
+                                token: token,
+                              );
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('활동이 중단되었습니다')),
+                              );
+
+                              Navigator.of(context).pop(); // MemoScreen 닫기
+                            } catch (_) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('활동 중단에 실패했습니다')),
+                              );
+                            }
+                          },
                           style: TextButton.styleFrom(
                             minimumSize: Size(
                               ScreenSize.width(context, 336),
@@ -405,6 +444,120 @@ class SkillButton extends StatelessWidget {
           elevation: 2,
         ),
         child: Image.asset(actualPath, width: 60.0, height: 60.0),
+      ),
+    );
+  }
+}
+
+class LoadingDialog extends StatelessWidget {
+  const LoadingDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Lottie.asset(
+              'assets/lottie/loading.json',
+              width: 120,
+              height: 120,
+              fit: BoxFit.contain,
+              repeat: true,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '저장 중이에요...',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ActivityStopDialog extends StatelessWidget {
+  const ActivityStopDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 40),
+      backgroundColor: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 28.0, horizontal: 24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              color: AppColors.mainPrimary,
+              size: 48,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '활동 중단하시겠어요?',
+              style: TextStyle(
+                fontSize: 17.0,
+                fontWeight: FontWeight.w700,
+                color: AppColors.gray900,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              '이 작업은 되돌릴 수 없어요.\n정말로 중단하시겠습니까?',
+              style: TextStyle(
+                fontSize: 14.5,
+                color: AppColors.gray600,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.gray500,
+                      textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    child: const Text('취소'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context, true);
+                      Provider.of<NearestMeetingProvider>(
+                        context,
+                        listen: false,
+                      ).clear();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.mainPrimary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text('중단'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

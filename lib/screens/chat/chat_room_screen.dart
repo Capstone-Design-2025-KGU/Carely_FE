@@ -47,29 +47,52 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     int senderId,
     MemberType senderType,
   ) {
+    final memberId =
+        Provider.of<MemberProvider>(context, listen: false).member?.memberId;
+
     final List<Widget> widgets = [];
+
     for (int i = 0; i < chats.length; i++) {
+      final chat = chats[i];
+
       widgets.add(
-        ChatRoomCard(
-          chatRoom: chats[i],
-          senderId: senderId,
-          onChatUpdated: () {
-            final memberId =
-                Provider.of<MemberProvider>(
-                  context,
-                  listen: false,
-                ).member?.memberId;
-            if (memberId != null) {
-              loadChatRoom(memberId);
+        Dismissible(
+          key: Key(chat.chatRoomId.toString()),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            color: AppColors.red300,
+            child: const Icon(Icons.delete, color: Colors.white),
+          ),
+          onDismissed: (_) async {
+            final success = await ChatService.instance.deleteChatRoom(
+              chat.chatRoomId,
+            );
+            if (success && memberId != null) {
+              await loadChatRoom(memberId); // 리스트 새로고침
+            } else {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('채팅방 삭제에 실패했습니다.')));
             }
           },
-          senderType: senderType,
+          child: ChatRoomCard(
+            chatRoom: chat,
+            senderId: senderId,
+            onChatUpdated: () {
+              if (memberId != null) loadChatRoom(memberId);
+            },
+            senderType: senderType,
+          ),
         ),
       );
+
       if (i != chats.length - 1) {
-        widgets.add(SizedBox(height: 28.0));
+        widgets.add(const SizedBox(height: 28.0));
       }
     }
+
     return widgets;
   }
 

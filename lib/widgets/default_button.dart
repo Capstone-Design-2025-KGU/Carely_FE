@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class DefaultButton extends StatelessWidget {
   final String content;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool isEnable;
   final int? width;
 

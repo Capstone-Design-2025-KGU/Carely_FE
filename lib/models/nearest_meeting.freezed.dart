@@ -25,7 +25,7 @@ mixin _$NearestMeeting {
   Member get sender => throw _privateConstructorUsedError;
   Member get receiver => throw _privateConstructorUsedError;
   DateTime get startTime => throw _privateConstructorUsedError;
-  int get memoId => throw _privateConstructorUsedError;
+  int? get memoId => throw _privateConstructorUsedError;
   String? get walk => throw _privateConstructorUsedError;
   String? get health => throw _privateConstructorUsedError;
   String? get medic => throw _privateConstructorUsedError;
@@ -55,7 +55,7 @@ abstract class $NearestMeetingCopyWith<$Res> {
     Member sender,
     Member receiver,
     DateTime startTime,
-    int memoId,
+    int? memoId,
     String? walk,
     String? health,
     String? medic,
@@ -87,7 +87,7 @@ class _$NearestMeetingCopyWithImpl<$Res, $Val extends NearestMeeting>
     Object? sender = null,
     Object? receiver = null,
     Object? startTime = null,
-    Object? memoId = null,
+    Object? memoId = freezed,
     Object? walk = freezed,
     Object? health = freezed,
     Object? medic = freezed,
@@ -118,10 +118,10 @@ class _$NearestMeetingCopyWithImpl<$Res, $Val extends NearestMeeting>
                     : startTime // ignore: cast_nullable_to_non_nullable
                         as DateTime,
             memoId:
-                null == memoId
+                freezed == memoId
                     ? _value.memoId
                     : memoId // ignore: cast_nullable_to_non_nullable
-                        as int,
+                        as int?,
             walk:
                 freezed == walk
                     ? _value.walk
@@ -192,7 +192,7 @@ abstract class _$$NearestMeetingImplCopyWith<$Res>
     Member sender,
     Member receiver,
     DateTime startTime,
-    int memoId,
+    int? memoId,
     String? walk,
     String? health,
     String? medic,
@@ -225,7 +225,7 @@ class __$$NearestMeetingImplCopyWithImpl<$Res>
     Object? sender = null,
     Object? receiver = null,
     Object? startTime = null,
-    Object? memoId = null,
+    Object? memoId = freezed,
     Object? walk = freezed,
     Object? health = freezed,
     Object? medic = freezed,
@@ -256,10 +256,10 @@ class __$$NearestMeetingImplCopyWithImpl<$Res>
                 : startTime // ignore: cast_nullable_to_non_nullable
                     as DateTime,
         memoId:
-            null == memoId
+            freezed == memoId
                 ? _value.memoId
                 : memoId // ignore: cast_nullable_to_non_nullable
-                    as int,
+                    as int?,
         walk:
             freezed == walk
                 ? _value.walk
@@ -303,7 +303,7 @@ class _$NearestMeetingImpl implements _NearestMeeting {
     required this.sender,
     required this.receiver,
     required this.startTime,
-    required this.memoId,
+    this.memoId,
     this.walk,
     this.health,
     this.medic,
@@ -324,7 +324,7 @@ class _$NearestMeetingImpl implements _NearestMeeting {
   @override
   final DateTime startTime;
   @override
-  final int memoId;
+  final int? memoId;
   @override
   final String? walk;
   @override
@@ -404,7 +404,7 @@ abstract class _NearestMeeting implements NearestMeeting {
     required final Member sender,
     required final Member receiver,
     required final DateTime startTime,
-    required final int memoId,
+    final int? memoId,
     final String? walk,
     final String? health,
     final String? medic,
@@ -425,7 +425,7 @@ abstract class _NearestMeeting implements NearestMeeting {
   @override
   DateTime get startTime;
   @override
-  int get memoId;
+  int? get memoId;
   @override
   String? get walk;
   @override
