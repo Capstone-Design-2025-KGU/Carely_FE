@@ -1,4 +1,8 @@
+import 'package:carely/models/address.dart';
+import 'package:carely/models/team.dart';
 import 'package:carely/screens/group/group_detail_screen.dart';
+import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/services/team_service.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:flutter/material.dart';
@@ -57,43 +61,58 @@ class _GroupScreenState extends State<GroupScreen>
   }
 }
 
-class _GroupSearchView extends StatelessWidget {
+class _GroupSearchView extends StatefulWidget {
+  @override
+  State<_GroupSearchView> createState() => _GroupSearchViewState();
+}
+
+class _GroupSearchViewState extends State<_GroupSearchView> {
+  late Future<List<Team>> _teamFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _teamFuture = _fetchTeams();
+  }
+
+  Future<List<Team>> _fetchTeams() async {
+    final token = await TokenStorageService.getToken();
+    return TeamService.fetchNeighborTeams(token: token!);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          GroupCard(
-            title: '도움의 손길',
-            location: '경기도 용인시 수지구',
-            recentUpdate: 12,
-            imagePath: '1',
-            memberCount: 10,
-          ),
-          GroupCard(
-            title: '함께하는 이웃들',
-            location: '서울특별시 강남구',
-            recentUpdate: 24,
-            imagePath: '2',
-            memberCount: 24,
-          ),
-          GroupCard(
-            title: '행복한 돌봄',
-            location: '부산광역시 해운대구',
-            recentUpdate: 3,
-            imagePath: '3',
-            memberCount: 18,
-          ),
-          GroupCard(
-            title: '어르신 안심 모임',
-            location: '대전광역시 서구',
-            recentUpdate: 1,
-            imagePath: '4',
-            memberCount: 8,
-          ),
-        ],
-      ),
+    return FutureBuilder<List<Team>>(
+      future: _teamFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return const Center(child: Text('이웃 모임을 불러오지 못했습니다.'));
+        }
+
+        final teams = snapshot.data!;
+        if (teams.isEmpty) {
+          return const _EmptyGroupView(message: '이웃 모임이 없어요');
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.only(top: 20),
+          itemCount: teams.length,
+          itemBuilder: (context, index) {
+            final team = teams[index];
+            return GroupCard(
+              title: team.teamName,
+              location:
+                  '${team.address.province} ${team.address.city} ${team.address.district}',
+              recentUpdate: 0, // 추후 추가 예정
+              imagePath: '${index % 4 + 1}', // 1~4 반복
+              memberCount: team.memberCount,
+            );
+          },
+        );
+      },
     );
   }
 }
