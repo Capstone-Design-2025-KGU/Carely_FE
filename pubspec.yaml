@@ -38,6 +38,7 @@ dependencies:
   flutter_svg: ^2.0.17
   kpostal: ^1.1.0
   speech_to_text: ^7.0.0
+  lottie: ^3.3.1
 
 dev_dependencies:
   flutter_test:
@@ -100,6 +101,7 @@ flutter:
     - assets/images/markers/Blue.png
     - assets/images/markers/Green.png
     - assets/images/mesh-gradient.png
+    - assets/lottie/loading.json
     - .env
 
 fonts:

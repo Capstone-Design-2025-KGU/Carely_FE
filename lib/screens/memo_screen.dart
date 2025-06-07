@@ -1,4 +1,5 @@
 import 'package:carely/models/nearest_meeting.dart';
+import 'package:carely/providers/nearest_meeting_provider.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
 import 'package:carely/services/meeting_service.dart';
 import 'package:carely/services/memo_service.dart';
@@ -9,6 +10,7 @@ import 'package:carely/widgets/default_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class MemoScreen extends StatefulWidget {
@@ -534,7 +536,13 @@ class ActivityStopDialog extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context, true),
+                    onPressed: () {
+                      Navigator.pop(context, true);
+                      Provider.of<NearestMeetingProvider>(
+                        context,
+                        listen: false,
+                      ).clear();
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.mainPrimary,
                       foregroundColor: Colors.white,
