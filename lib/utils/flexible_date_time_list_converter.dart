@@ -6,21 +6,37 @@ class FlexibleDateTimeConverter implements JsonConverter<DateTime?, dynamic> {
   @override
   DateTime? fromJson(dynamic json) {
     if (json == null) return null;
-    if (json is List && json.length >= 7) {
-      return DateTime(
-        json[0],
-        json[1],
-        json[2],
-        json[3],
-        json[4],
-        json[5],
-        (json[6] / 1000000).round(),
-      );
+    if (json is List) {
+      if (json.length >= 3) {
+        // 3개 요소: [year, month, day]
+        if (json.length == 3) {
+          return DateTime(
+            json[0], // year
+            json[1], // month
+            json[2], // day
+          );
+        }
+        // 6개 이상 요소: [year, month, day, hour, minute, second, ...]
+        else if (json.length >= 6) {
+          return DateTime(
+            json[0], // year
+            json[1], // month
+            json[2], // day
+            json[3], // hour
+            json[4], // minute
+            json[5], // second
+            json.length > 6
+                ? (json[6] / 1000000).round()
+                : 0, // microsecond (optional)
+          );
+        }
+      }
     } else if (json is String) {
       return DateTime.parse(json);
     } else {
       throw Exception('Unexpected DateTime format: $json');
     }
+    return null;
   }
 
   @override

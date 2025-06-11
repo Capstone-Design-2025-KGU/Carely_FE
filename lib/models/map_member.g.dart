@@ -18,7 +18,6 @@ _$MapMemberImpl _$$MapMemberImplFromJson(Map<String, dynamic> json) =>
         json['memberType'] as String,
       ),
       profileImage: json['profileImage'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
       distance: (json['distance'] as num).toDouble(),
       withTime: (json['withTime'] as num).toInt(),
       address:
@@ -41,7 +40,6 @@ Map<String, dynamic> _$$MapMemberImplToJson(_$MapMemberImpl instance) =>
       'story': instance.story,
       'memberType': const MemberTypeConverter().toJson(instance.memberType),
       'profileImage': instance.profileImage,
-      'createdAt': instance.createdAt.toIso8601String(),
       'distance': instance.distance,
       'withTime': instance.withTime,
       'address': instance.address?.toJson(),

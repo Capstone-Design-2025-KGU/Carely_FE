@@ -8,11 +8,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:carely/screens/map/marker_utils.dart';
 import 'package:carely/utils/logger_config.dart';
 import 'package:carely/screens/map/user_info_card.dart';
-import 'package:carely/screens/map/dummy_data.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:carely/screens/map/location_service.dart';
 import 'package:carely/screens/map/filter_utilities.dart';
-import 'package:carely/screens/map/clustering/cluster_item.dart';
+import 'package:carely/screens/map/clustering/cluster_item.dart'
+    hide MemberType;
 import 'package:carely/screens/map/clustering/cluster_manager.dart'
     as mycluster;
 import 'package:carely/screens/map/clustering/cluster_helper.dart';
@@ -20,6 +20,10 @@ import 'package:carely/screens/map/clustering/custom_cluster_icon.dart';
 import 'package:carely/screens/map/clustering/cluster_circle_offset.dart';
 import 'package:carely/screens/map/clustering/avoid_cluster_overlap.dart';
 import 'dart:math';
+import 'package:carely/services/map/map_services.dart';
+import 'package:carely/models/neighbor_member.dart' hide MemberType;
+import 'package:carely/models/map_member.dart';
+import 'package:carely/screens/profile_screen.dart';
 
 class MapScreen extends StatefulWidget {
   static String id = 'map-screen';
@@ -47,8 +51,8 @@ class _MapScreenState extends State<MapScreen>
   double _currentSheetSize = 0.09;
   double _currentZoom = 14.5;
   bool _isClusterSelected = false;
-  List<ClusterItem> _allClusterItems = [];
-  List<ClusterItem> _selectedClusterItems = [];
+  final List<ClusterItem> _allClusterItems = [];
+  List<NeighborMember> _selectedClusterItems = [];
 
   Map<String, BitmapDescriptor> normalMarkerIcons = {};
   Map<String, BitmapDescriptor> selectedMarkerIcons = {};
@@ -66,39 +70,15 @@ class _MapScreenState extends State<MapScreen>
   };
 
   final LocationService _locationService = LocationService();
+  List<NeighborMember> neighbors = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _draggableController = DraggableScrollableController();
     _initializeLocation();
-    _allClusterItems =
-        dummyUsers.map((user) {
-          JobType jobType;
-          switch (user.jobType) {
-            case 'family':
-              jobType = JobType.family;
-              break;
-            case 'volunteer':
-              jobType = JobType.volunteer;
-              break;
-            case 'caregiver':
-              jobType = JobType.caregiver;
-              break;
-            default:
-              jobType = JobType.family;
-          }
-          return ClusterItem(
-            id: user.id,
-            position: user.location,
-            jobType: jobType,
-            data: {'user': user},
-            // 마커가 줌 레벨에 상관없이 고정되도록 설정
-            anchor: const Offset(0.5, 1.0),
-            iconSize: const Size(40, 60),
-          );
-        }).toList();
-
+    _fetchNeighborsFromApi();
     _draggableController.addListener(() {
       setState(() {
         _currentSheetSize = _draggableController.size;
@@ -149,6 +129,7 @@ class _MapScreenState extends State<MapScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) return const Center(child: CircularProgressIndicator());
     return Scaffold(
       body: Stack(
         children: [
@@ -157,7 +138,13 @@ class _MapScreenState extends State<MapScreen>
             builder: (context, snapshot) {
               return GoogleMap(
                 initialCameraPosition: CameraPosition(
-                  target: dummyUsers[0].location,
+                  target:
+                      neighbors.isNotEmpty
+                          ? LatLng(
+                            neighbors[0].latitude,
+                            neighbors[0].longitude,
+                          )
+                          : const LatLng(37.5665, 126.9780),
                   zoom: 14.5,
                 ),
                 markers: snapshot.data ?? {},
@@ -228,7 +215,7 @@ class _MapScreenState extends State<MapScreen>
                                 setState(() {
                                   _searchText = value.trim();
                                 });
-                                _searchUser(value);
+                                _searchNeighbor(value);
                               },
                             ),
                           ),
@@ -394,12 +381,31 @@ class _MapScreenState extends State<MapScreen>
                     ),
                     const SizedBox(height: 10),
                     if (_selectedClusterItems.isNotEmpty)
-                      ..._selectedClusterItems.map(
-                        (item) => Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: UserInfoCard(userId: item.id),
+                      if (_isClusterSelected)
+                        Column(
+                          children:
+                              _selectedClusterItems
+                                  .map(
+                                    (item) => Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: UserInfoCard(
+                                        memberId: item.memberId,
+                                        neighborData: item,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                        )
+                      else if (_selectedClusterItems.length == 1)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: UserInfoCard(
+                            memberId: _selectedClusterItems.first.memberId,
+                            neighborData: _selectedClusterItems.first,
+                          ),
                         ),
-                      ),
                   ],
                 ),
               );
@@ -474,37 +480,51 @@ class _MapScreenState extends State<MapScreen>
   }
 
   Future<Set<Marker>> _buildMarkersWithClusterIcons() async {
+    logger.i(
+      '🗺️ 마커 생성 시작 - neighbors: ${neighbors.length}, _allClusterItems: ${_allClusterItems.length}',
+    );
+
     Set<Marker> markers = {};
     List<ClusterItem> filtered =
         _allClusterItems.where((item) {
           if (_searchText.isNotEmpty) {
             final user = item.data['user'];
             if (user == null ||
-                !user.name.toLowerCase().contains(_searchText.toLowerCase())) {
+                !user['name'].toLowerCase().contains(
+                  _searchText.toLowerCase(),
+                )) {
               return false;
             }
           }
           if (_selectedFilters.isNotEmpty) {
-            final user = item.data['user'];
-            if (user == null) return false;
-            JobType jobType = item.jobType;
-            if (!_selectedFilters.contains(_getMemberTypeFromJobType(jobType)))
+            if (!_selectedFilters.contains(item.memberType)) {
               return false;
+            }
           }
           return true;
         }).toList();
 
+    logger.i('🗺️ 필터링 후 아이템: ${filtered.length}개');
+
     if (_currentZoom <= 14.2) {
+      logger.i('🗺️ 클러스터링 모드 - 줌: $_currentZoom');
       final bounds = await _mapController?.getVisibleRegion();
       if (bounds != null) {
         final diag = ClusterHelper.distance(bounds.southwest, bounds.northeast);
         final clusterRadius = diag / 8;
-        Map<JobType, List<ClusterWithRadius>> clustersByType = {};
-        for (var type in JobType.values) {
-          final itemsOfType = filtered.where((e) => e.jobType == type).toList();
+        Map<MemberType, List<ClusterWithRadius>> clustersByType = {};
+        for (var type in MemberType.values) {
+          final itemsOfType =
+              filtered.where((e) => e.memberType == type).toList();
           final clusters = ClusterHelper.cluster(itemsOfType, clusterRadius);
           clustersByType[type] = avoidClusterOverlap(clusters);
         }
+
+        int totalClusters = clustersByType.values
+            .map((list) => list.length)
+            .reduce((a, b) => a + b);
+        logger.i('🗺️ 클러스터 생성 완료: $totalClusters개');
+
         List<LatLng> allCenters = [];
         clustersByType.values
             .expand((list) => list)
@@ -520,12 +540,12 @@ class _MapScreenState extends State<MapScreen>
                     allCenters.length
                 : 0;
         LatLng mapCenter = LatLng(avgLat, avgLng);
-        final angleStep = 2 * pi / JobType.values.length;
+        final angleStep = 2 * pi / MemberType.values.length;
         final baseOffset = 0.004;
         final offsetDistance = baseOffset * (14 / _currentZoom);
         int idx = 0;
-        Map<JobType, List<ClusterWithRadius>> offsetClustersByType = {};
-        for (var type in JobType.values) {
+        Map<MemberType, List<ClusterWithRadius>> offsetClustersByType = {};
+        for (var type in MemberType.values) {
           double angle = angleStep * idx;
           double offsetLat = offsetDistance * cos(angle);
           double offsetLng = offsetDistance * sin(angle);
@@ -544,7 +564,7 @@ class _MapScreenState extends State<MapScreen>
                   .toList();
           idx++;
         }
-        for (var type in JobType.values) {
+        for (var type in MemberType.values) {
           for (var group in offsetClustersByType[type]!) {
             int count = group.items.length;
             if (count == 0) continue;
@@ -556,12 +576,18 @@ class _MapScreenState extends State<MapScreen>
                 icon: icon,
                 onTap: () {
                   setState(() {
-                    _selectedClusterItems = group.items;
+                    _selectedClusterItems =
+                        group.items.map((item) {
+                          final originalNeighbor = neighbors.firstWhere(
+                            (n) => n.memberId.toString() == item.id,
+                            orElse: () => neighbors.first,
+                          );
+                          return originalNeighbor;
+                        }).toList();
                     _selectedMarkerId = null;
                     _isClusterSelected = true;
                   });
 
-                  // 클러스터에 포함된 아이템이 3개 이상이면 바로 0.65 위치로 올라오도록 설정
                   double targetSize =
                       group.items.length >= 3
                           ? _clusterMaxChildSize
@@ -579,34 +605,29 @@ class _MapScreenState extends State<MapScreen>
         }
       }
     } else {
+      logger.i('🗺️ 개별 마커 모드 - 줌: $_currentZoom');
       // 클러스터링이 해제된 경우, 개별 마커 위치를 오직 원본 사용자 location에 고정
       for (var item in _allClusterItems) {
         final user = item.data['user'];
         if (user == null) continue;
         // 필터 및 검색 조건 적용
         if (_searchText.isNotEmpty &&
-            !user.name.toLowerCase().contains(_searchText.toLowerCase())) {
+            !user['name'].toLowerCase().contains(_searchText.toLowerCase())) {
           continue;
         }
         if (_selectedFilters.isNotEmpty &&
-            !_selectedFilters.contains(
-              _getMemberTypeFromJobType(item.jobType),
-            )) {
+            !_selectedFilters.contains(item.memberType)) {
           continue;
         }
-        String typeKey = user.jobType;
         bool isSelected = _selectedMarkerId == item.id;
 
-        // 마커 아이콘 크기 설정 (선택시 크게, 기본은 작게)
         int markerSize = isSelected ? 45 : 40;
 
-        // 작업해야 할 마커 종류
-        final String jobType = user.jobType;
+        final String memberType = user['memberType'];
 
-        // 마커 이미지 로드
-        final markerIcon = await MarkerUtils.loadJobTypeMarker(
+        final markerIcon = await MarkerUtils.loadmemberTypeMarker(
           context,
-          jobType,
+          memberType,
           isSelected: isSelected,
           size: Size(markerSize.toDouble(), markerSize.toDouble()),
         );
@@ -623,11 +644,13 @@ class _MapScreenState extends State<MapScreen>
             onTap: () {
               setState(() {
                 _selectedMarkerId = item.id;
-                _selectedClusterItems =
-                    _allClusterItems
-                        .where((clusterItem) => clusterItem.id == item.id)
-                        .toList();
                 _isClusterSelected = false;
+                _selectedClusterItems = [
+                  neighbors.firstWhere(
+                    (n) => n.memberId.toString() == item.id,
+                    orElse: () => neighbors.first,
+                  ),
+                ];
               });
               _draggableController.animateTo(
                 _maxChildSize,
@@ -643,75 +666,12 @@ class _MapScreenState extends State<MapScreen>
       }
     }
 
+    logger.i('🗺️ 마커 생성 완료: ${markers.length}개');
     return markers;
   }
 
-  JobType _memberTypeToJobType(MemberType? memberType) {
-    switch (memberType) {
-      case MemberType.family:
-        return JobType.family;
-      case MemberType.volunteer:
-        return JobType.volunteer;
-      case MemberType.caregiver:
-        return JobType.caregiver;
-      default:
-        return JobType.family;
-    }
-  }
-
-  MemberType? _getMemberTypeFromJobType(JobType? jobType) {
-    if (jobType == null) return null;
-    switch (jobType) {
-      case JobType.family:
-        return MemberType.family;
-      case JobType.volunteer:
-        return MemberType.volunteer;
-      case JobType.caregiver:
-        return MemberType.caregiver;
-    }
-  }
-
-  void _searchUser(String searchText) {
-    if (searchText.isEmpty) {
-      setState(() {
-        _selectedClusterItems = [];
-      });
-      return;
-    }
-
-    final foundUser =
-        dummyUsers
-            .where(
-              (user) =>
-                  user.name.toLowerCase().contains(searchText.toLowerCase()),
-            )
-            .toList();
-
-    if (foundUser.isNotEmpty) {
-      setState(() {
-        _selectedClusterItems = [
-          ClusterItem(
-            id: foundUser.first.id,
-            position: foundUser.first.location,
-            jobType: _memberTypeToJobType(
-              _getMemberTypeFromString(foundUser.first.jobType),
-            ),
-            data: {'user': foundUser.first},
-          ),
-        ];
-      });
-
-      _animateCameraToPosition(foundUser.first.location);
-      _draggableController.animateTo(
-        _clusterMaxChildSize,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
-  }
-
-  MemberType? _getMemberTypeFromString(String typeString) {
-    switch (typeString) {
+  MemberType _stringToMemberType(String type) {
+    switch (type.toLowerCase()) {
       case 'family':
         return MemberType.family;
       case 'volunteer':
@@ -719,7 +679,42 @@ class _MapScreenState extends State<MapScreen>
       case 'caregiver':
         return MemberType.caregiver;
       default:
-        return null;
+        return MemberType.family;
+    }
+  }
+
+  void _searchNeighbor(String searchText) {
+    if (searchText.isEmpty) {
+      setState(() {
+        _selectedClusterItems = [];
+      });
+      return;
+    }
+
+    final found =
+        neighbors
+            .where(
+              (n) =>
+                  n.memberId.toString() == searchText ||
+                  n.name.toLowerCase().contains(searchText.toLowerCase()),
+            )
+            .toList();
+
+    if (found.isNotEmpty) {
+      setState(() {
+        _selectedClusterItems = [found.first];
+      });
+      _animateCameraToPosition(
+        LatLng(
+          double.parse(found.first.latitude.toString()),
+          double.parse(found.first.longitude.toString()),
+        ),
+      );
+      _draggableController.animateTo(
+        _clusterMaxChildSize,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
   }
 
@@ -731,6 +726,90 @@ class _MapScreenState extends State<MapScreen>
     setState(() {
       _selectedFilters.clear();
     });
-    _animateCameraToPosition(dummyUsers[0].location);
+    _animateCameraToPosition(
+      neighbors.isNotEmpty
+          ? LatLng(
+            double.parse(neighbors.first.latitude.toString()),
+            double.parse(neighbors.first.longitude.toString()),
+          )
+          : const LatLng(37.5665, 126.9780),
+    );
+  }
+
+  Future<void> _fetchNeighborsFromApi() async {
+    try {
+      logger.i('🔍 지도용 이웃 목록 API 호출 시작');
+      final data = await MapServices.fetchNeighbors();
+      logger.i('✅ 지도용 이웃 목록 API 응답: ${data.length}명의 이웃');
+
+      if (data.isNotEmpty) {
+        logger.i('📋 첫 번째 이웃: ${data.first}');
+        logger.i(
+          '📋 첫 번째 이웃 위치: ${data.first.latitude}, ${data.first.longitude}',
+        );
+      } else {
+        logger.w('⚠️ 이웃 데이터가 비어있습니다');
+      }
+
+      // neighbors를 _allClusterItems로 변환
+      _allClusterItems.clear();
+      logger.i('🔄 ClusterItem 변환 시작: ${data.length}명의 neighbor');
+
+      for (int i = 0; i < data.length; i++) {
+        final neighbor = data[i];
+        try {
+          logger.i(
+            '📋 neighbor $i: memberId=${neighbor.memberId}, name=${neighbor.name}, lat=${neighbor.latitude}, lng=${neighbor.longitude}',
+          );
+
+          _allClusterItems.add(
+            ClusterItem(
+              id: neighbor.memberId.toString(),
+              position: LatLng(
+                double.parse(neighbor.latitude.toString()),
+                double.parse(neighbor.longitude.toString()),
+              ),
+              memberType: _stringToMemberType(neighbor.memberType.name),
+              data: {
+                'user': {
+                  'name': neighbor.name,
+                  'memberType': neighbor.memberType.name,
+                  'withTime': neighbor.withTime ?? 0,
+                  'distance': neighbor.distance,
+                },
+              },
+            ),
+          );
+          logger.i('✅ ClusterItem 생성 성공: ${neighbor.memberId}');
+        } catch (e) {
+          logger.e('❌ ClusterItem 생성 실패 - neighbor $i: $e');
+          logger.e('❌ 실패한 neighbor 데이터: $neighbor');
+        }
+      }
+      logger.i('🔄 _allClusterItems 업데이트 완료: ${_allClusterItems.length}개 아이템');
+
+      setState(() {
+        neighbors = data;
+        isLoading = false;
+      });
+      logger.i('🔄 지도 UI 업데이트 완료: ${neighbors.length}명의 이웃');
+    } catch (e) {
+      logger.e('❌ 지도용 이웃 목록 API 호출 실패: $e');
+      setState(() => isLoading = false);
+    }
+  }
+
+  void _onUserInfoCardTap(int memberId) async {
+    final detail = await MapServices.fetchMemberDetail(memberId);
+    if (detail != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ProfileScreen(member: detail)),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('멤버 정보를 불러올 수 없습니다.')));
+    }
   }
 }

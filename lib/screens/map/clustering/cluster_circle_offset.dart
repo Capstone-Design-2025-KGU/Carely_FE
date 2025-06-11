@@ -1,11 +1,13 @@
 import 'dart:math' as Math;
+import 'package:carely/screens/onboarding/type_select_screen.dart';
+import 'package:carely/utils/member_type.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:carely/screens/map/clustering/cluster_helper.dart';
 import 'package:carely/screens/map/clustering/cluster_item.dart';
 
 /// 직업별 클러스터 원이 겹치지 않도록 오프셋을 적용
-Map<JobType, ClusterGroup> offsetClusterCircle(
-  Map<JobType, ClusterGroup> clusters,
+Map<MemberType, ClusterGroup> offsetClusterCircle(
+  Map<MemberType, ClusterGroup> clusters,
 ) {
   // 중심점 계산 (모든 클러스터의 평균)
   final nonEmpty = clusters.values.where((g) => g.items.isNotEmpty).toList();
@@ -24,7 +26,7 @@ Map<JobType, ClusterGroup> offsetClusterCircle(
   final angleStep = 360 / clusters.length;
   final offsetDistance = 0.0007; // 위도/경도 단위(약 200m), 필요시 조정
   int idx = 0;
-  Map<JobType, ClusterGroup> result = {};
+  Map<MemberType, ClusterGroup> result = {};
   for (var entry in clusters.entries) {
     final jobType = entry.key;
     final group = entry.value;

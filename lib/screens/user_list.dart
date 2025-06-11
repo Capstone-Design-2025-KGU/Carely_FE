@@ -1,14 +1,15 @@
+import 'package:carely/utils/logger_config.dart';
 import 'package:flutter/material.dart';
 import 'package:carely/screens/map/user_info_card.dart';
-import 'package:carely/screens/map/dummy_data.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:carely/screens/map/filter_utilities.dart';
 import 'package:carely/screens/map/location_service.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:carely/services/map/map_services.dart';
+import 'package:carely/models/neighbor_member.dart' hide MemberType;
 import 'package:location/location.dart' as loc;
-import 'package:carely/utils/logger_config.dart';
 
 class UserListScreen extends StatefulWidget {
   static String id = 'user-list-screen';
@@ -25,6 +26,8 @@ class _UserListScreenState extends State<UserListScreen> {
   String? _currentAddress;
   LatLng? _currentPosition;
   final LocationService _locationService = LocationService();
+  List<NeighborMember> neighbors = [];
+  bool isLoading = true;
 
   // 필터 버튼 색상 정의
   final Map<MemberType, Color> filterColors = {
@@ -44,6 +47,7 @@ class _UserListScreenState extends State<UserListScreen> {
   void initState() {
     super.initState();
     _initializeLocation();
+    _fetchNeighborsFromApi();
   }
 
   @override
@@ -76,7 +80,7 @@ class _UserListScreenState extends State<UserListScreen> {
         logger.i('저장된 위치 정보 사용: ${_locationService.lastKnownAddress}');
         return;
       }
-      
+
       setState(() {
         _currentAddress = '현재 위치를 불러오는 중...';
       });
@@ -140,15 +144,60 @@ class _UserListScreenState extends State<UserListScreen> {
     }
   }
 
+  Future<void> _fetchNeighborsFromApi() async {
+    try {
+      logger.i('🔍 이웃 목록 API 호출 시작');
+      final data = await MapServices.fetchNeighbors();
+      logger.i('✅ 이웃 목록 API 응답: ${data.length}명의 이웃');
+
+      setState(() {
+        neighbors = data;
+        isLoading = false;
+      });
+      logger.i('🔄 UI 업데이트 완료: ${neighbors.length}명의 이웃');
+    } catch (e) {
+      logger.e('❌ 이웃 목록 API 호출 실패: $e');
+      setState(() => isLoading = false);
+    }
+  }
+
+  List<NeighborMember> get filteredNeighbors {
+    var list = neighbors;
+    if (_searchText.isNotEmpty) {
+      list =
+          list
+              .where(
+                (n) =>
+                    n.memberId.toString().contains(_searchText) ||
+                    n.name.toLowerCase().contains(_searchText.toLowerCase()),
+              )
+              .toList();
+    }
+    if (_selectedFilters.isNotEmpty) {
+      list =
+          list.where((n) => _selectedFilters.contains(n.memberType)).toList();
+    }
+    return list;
+  }
+
+  MemberType _memberTypeFromString(String type) {
+    switch (type.toLowerCase()) {
+      case 'family':
+        return MemberType.family;
+      case 'volunteer':
+        return MemberType.volunteer;
+      case 'caregiver':
+        return MemberType.caregiver;
+      default:
+        return MemberType.family;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<UserData> filteredUsers = FilterUtils.applyFilters(
-      items: dummyUsers,
-      searchText: _searchText,
-      typeFilters: _selectedFilters,
-      nameSelector: (user) => user.name,
-      typeSelector: (user) => FilterUtils.getMemberTypeFromString(user.jobType),
-    );
+    if (isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       body: Column(
@@ -236,7 +285,7 @@ class _UserListScreenState extends State<UserListScreen> {
                 // 필터 리셋 버튼 (항상 표시)
                 _buildResetFilterButton(),
                 const SizedBox(width: 8),
-                // 간병인 필터
+                // 간병인 필터 (가족 구성원 타입)
                 _buildFilterChip(
                   label: '간병인',
                   isSelected: _selectedFilters.contains(MemberType.family),
@@ -251,7 +300,6 @@ class _UserListScreenState extends State<UserListScreen> {
                   },
                 ),
                 const SizedBox(width: 8),
-                // 자원봉사자 필터
                 _buildFilterChip(
                   label: '자원봉사자',
                   isSelected: _selectedFilters.contains(MemberType.volunteer),
@@ -266,7 +314,6 @@ class _UserListScreenState extends State<UserListScreen> {
                   },
                 ),
                 const SizedBox(width: 8),
-                // 요양보호사 필터
                 _buildFilterChip(
                   label: '요양보호사',
                   isSelected: _selectedFilters.contains(MemberType.caregiver),
@@ -312,7 +359,7 @@ class _UserListScreenState extends State<UserListScreen> {
           // 사용자 목록
           Expanded(
             child:
-                filteredUsers.isEmpty
+                filteredNeighbors.isEmpty
                     ? Center(
                       child: Text(
                         '검색 결과가 없습니다.',
@@ -321,9 +368,13 @@ class _UserListScreenState extends State<UserListScreen> {
                     )
                     : ListView.builder(
                       padding: const EdgeInsets.all(16),
-                      itemCount: filteredUsers.length,
+                      itemCount: filteredNeighbors.length,
                       itemBuilder: (context, index) {
-                        return UserInfoCard(userId: filteredUsers[index].id);
+                        final neighbor = filteredNeighbors[index];
+                        return UserInfoCard(
+                          memberId: neighbor.memberId,
+                          neighborData: neighbor,
+                        );
                       },
                     ),
           ),

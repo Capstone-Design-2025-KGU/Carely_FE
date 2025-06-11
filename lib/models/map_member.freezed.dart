@@ -31,8 +31,6 @@ mixin _$MapMember {
   @MemberTypeConverter()
   MemberType get memberType => throw _privateConstructorUsedError;
   String? get profileImage => throw _privateConstructorUsedError;
-  @FlexibleDateTimeConverter()
-  DateTime get createdAt => throw _privateConstructorUsedError;
   double get distance => throw _privateConstructorUsedError;
   int get withTime => throw _privateConstructorUsedError;
   Address? get address => throw _privateConstructorUsedError;
@@ -62,7 +60,6 @@ abstract class $MapMemberCopyWith<$Res> {
     String? story,
     @MemberTypeConverter() MemberType memberType,
     String? profileImage,
-    @FlexibleDateTimeConverter() DateTime createdAt,
     double distance,
     int withTime,
     Address? address,
@@ -96,7 +93,6 @@ class _$MapMemberCopyWithImpl<$Res, $Val extends MapMember>
     Object? story = freezed,
     Object? memberType = null,
     Object? profileImage = freezed,
-    Object? createdAt = null,
     Object? distance = null,
     Object? withTime = null,
     Object? address = freezed,
@@ -144,11 +140,6 @@ class _$MapMemberCopyWithImpl<$Res, $Val extends MapMember>
                     ? _value.profileImage
                     : profileImage // ignore: cast_nullable_to_non_nullable
                         as String?,
-            createdAt:
-                null == createdAt
-                    ? _value.createdAt
-                    : createdAt // ignore: cast_nullable_to_non_nullable
-                        as DateTime,
             distance:
                 null == distance
                     ? _value.distance
@@ -221,7 +212,6 @@ abstract class _$$MapMemberImplCopyWith<$Res>
     String? story,
     @MemberTypeConverter() MemberType memberType,
     String? profileImage,
-    @FlexibleDateTimeConverter() DateTime createdAt,
     double distance,
     int withTime,
     Address? address,
@@ -256,7 +246,6 @@ class __$$MapMemberImplCopyWithImpl<$Res>
     Object? story = freezed,
     Object? memberType = null,
     Object? profileImage = freezed,
-    Object? createdAt = null,
     Object? distance = null,
     Object? withTime = null,
     Object? address = freezed,
@@ -304,11 +293,6 @@ class __$$MapMemberImplCopyWithImpl<$Res>
                 ? _value.profileImage
                 : profileImage // ignore: cast_nullable_to_non_nullable
                     as String?,
-        createdAt:
-            null == createdAt
-                ? _value.createdAt
-                : createdAt // ignore: cast_nullable_to_non_nullable
-                    as DateTime,
         distance:
             null == distance
                 ? _value.distance
@@ -347,7 +331,6 @@ class _$MapMemberImpl implements _MapMember {
     this.story,
     @MemberTypeConverter() required this.memberType,
     this.profileImage,
-    @FlexibleDateTimeConverter() required this.createdAt,
     required this.distance,
     required this.withTime,
     this.address,
@@ -376,9 +359,6 @@ class _$MapMemberImpl implements _MapMember {
   @override
   final String? profileImage;
   @override
-  @FlexibleDateTimeConverter()
-  final DateTime createdAt;
-  @override
   final double distance;
   @override
   final int withTime;
@@ -389,7 +369,7 @@ class _$MapMemberImpl implements _MapMember {
 
   @override
   String toString() {
-    return 'MapMember(memberId: $memberId, username: $username, name: $name, birth: $birth, age: $age, story: $story, memberType: $memberType, profileImage: $profileImage, createdAt: $createdAt, distance: $distance, withTime: $withTime, address: $address, skill: $skill)';
+    return 'MapMember(memberId: $memberId, username: $username, name: $name, birth: $birth, age: $age, story: $story, memberType: $memberType, profileImage: $profileImage, distance: $distance, withTime: $withTime, address: $address, skill: $skill)';
   }
 
   @override
@@ -409,8 +389,6 @@ class _$MapMemberImpl implements _MapMember {
                 other.memberType == memberType) &&
             (identical(other.profileImage, profileImage) ||
                 other.profileImage == profileImage) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
             (identical(other.distance, distance) ||
                 other.distance == distance) &&
             (identical(other.withTime, withTime) ||
@@ -431,7 +409,6 @@ class _$MapMemberImpl implements _MapMember {
     story,
     memberType,
     profileImage,
-    createdAt,
     distance,
     withTime,
     address,
@@ -462,7 +439,6 @@ abstract class _MapMember implements MapMember {
     final String? story,
     @MemberTypeConverter() required final MemberType memberType,
     final String? profileImage,
-    @FlexibleDateTimeConverter() required final DateTime createdAt,
     required final double distance,
     required final int withTime,
     final Address? address,
@@ -490,9 +466,6 @@ abstract class _MapMember implements MapMember {
   MemberType get memberType;
   @override
   String? get profileImage;
-  @override
-  @FlexibleDateTimeConverter()
-  DateTime get createdAt;
   @override
   double get distance;
   @override

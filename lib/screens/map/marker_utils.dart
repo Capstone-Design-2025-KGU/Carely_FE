@@ -13,7 +13,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MarkerUtils {
   // 직업별 색상 (마커 배경 등 활용)
-  static final Map<String, Color> jobTypeColors = {
+  static final Map<String, Color> memberTypeColors = {
     'family': AppColors.red200,
     'volunteer': AppColors.blue200,
     'caregiver': AppColors.green200,
@@ -62,18 +62,19 @@ class MarkerUtils {
   }
 
   /// 직업별 SVG 마커 로드
-  static Future<BitmapDescriptor> loadJobTypeMarker(
+  static Future<BitmapDescriptor> loadmemberTypeMarker(
     BuildContext context,
-    String jobType, {
+    String memberType, {
     bool isSelected = false,
     Size size = const Size(40, 60),
   }) async {
     final String markerType = isSelected ? 'selected' : 'normal';
-    final String cacheKey = '$jobType|$markerType|${size.width}x${size.height}';
+    final String cacheKey =
+        '$memberType|$markerType|${size.width}x${size.height}';
 
     // 직업 유형에 따른 마커 색상 결정
     String markerColor;
-    switch (jobType) {
+    switch (memberType) {
       case 'family':
         markerColor = 'Red';
         break;
@@ -92,7 +93,7 @@ class MarkerUtils {
     try {
       if (_markerCache.containsKey(cacheKey)) return _markerCache[cacheKey]!;
       logger.i(
-        '마커 PNG 경로: $markerPath (jobType: $jobType, markerType: $markerType, color: $markerColor)',
+        '마커 PNG 경로: $markerPath (memberType: $memberType, markerType: $markerType, color: $markerColor)',
       );
 
       final Uint8List pngBytes = await loadPngAsBytes(
@@ -106,7 +107,7 @@ class MarkerUtils {
       return descriptor;
     } catch (e) {
       logger.e(
-        'Error loading job type marker - Path: $markerPath, JobType: $jobType, Error: $e',
+        'Error loading member type marker - Path: $markerPath, memberType: $memberType, Error: $e',
       );
       return BitmapDescriptor.defaultMarker;
     }
@@ -151,8 +152,6 @@ class MarkerUtils {
 
   /// 모든 타입의 마커 아이콘 로드
   static Future<Map<String, Map<String, BitmapDescriptor>>> loadAllMarkerIcons({
-    // 기본 마커 크기를 키워봅니다. (예: 40 -> 64, 50 -> 80)
-    // 실제 앱에서는 다양한 디바이스 해상도를 고려하여 적절한 크기를 찾아야 합니다.
     int normalSize = 64,
     int selectedSize = 80,
     int clusterSize = 70,
@@ -172,19 +171,19 @@ class MarkerUtils {
     for (String type in iconAssets.keys) {
       String assetPath = iconAssets[type]!;
       futures.addAll([
-        loadJobTypeMarker(
+        loadmemberTypeMarker(
           currentContext,
           type,
           isSelected: false,
           size: Size(normalSize.toDouble(), normalSize.toDouble()),
         ).then((descriptor) => normalMarkerIcons[type] = descriptor),
-        loadJobTypeMarker(
+        loadmemberTypeMarker(
           currentContext,
           type,
           isSelected: true,
           size: Size(selectedSize.toDouble(), selectedSize.toDouble()),
         ).then((descriptor) => selectedMarkerIcons[type] = descriptor),
-        loadJobTypeMarker(
+        loadmemberTypeMarker(
           currentContext,
           type,
           isSelected: false,
