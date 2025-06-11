@@ -58,10 +58,16 @@ flutter:
     - assets/images/markers/
     - assets/images/caregiver/profile/
     - assets/images/caregiver/skills/
+    - assets/images/caregiver/profile_square/
+
     - assets/images/family/profile/
     - assets/images/family/skills/
+    - assets/images/family/profile_square/
+
     - assets/images/volunteer/profile/
     - assets/images/volunteer/skills/
+    - assets/images/volunteer/profile_square/
+
     - assets/images/temp-user-image.png
     - assets/images/no-chat-room.png
     - assets/images/

@@ -3,7 +3,9 @@ import 'package:carely/models/nearest_meeting.dart';
 import 'package:carely/models/recommended_member.dart';
 import 'package:carely/providers/nearest_meeting_provider.dart';
 import 'package:carely/screens/memo_screen.dart';
+import 'package:carely/screens/nav_screen.dart'; // 추가된 import
 import 'package:carely/services/auth/token_storage_service.dart';
+import 'package:carely/services/map/map_services.dart';
 import 'package:carely/services/member/recommended_member_service.dart';
 import 'package:carely/services/memory_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart'; // 추가된 import
 import 'package:carely/models/address.dart';
 import 'package:carely/providers/member_provider.dart';
 import 'package:carely/theme/colors.dart';
@@ -18,6 +21,8 @@ import 'package:carely/utils/member_color.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
+import 'package:carely/screens/map/marker_utils.dart';
+import 'package:carely/screens/map/location_service.dart'; // Add this import
 
 class HomeScreen extends StatefulWidget {
   static String id = 'home-screen';
@@ -31,11 +36,20 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<RecommendedMember>> _recommendedMembers;
   Future<List<Memory>>? _memory;
 
+  // Google Maps 관련 변수들 추가
+  GoogleMapController? _mapController;
+  final Set<Marker> _markers = {}; // 마커 세트
+  LatLng? _currentPosition; // User's current position
+  final LocationService _locationService =
+      LocationService(); // Location service
+
   @override
   void initState() {
     super.initState();
     _recommendedMembers = _loadRecommendedMembers();
     _memory = _loadMemories();
+    _initializeLocation(); // Initialize location
+    _loadNeighborsForMap(); // Load neighbors for the map
     Future.microtask(
       () =>
           Provider.of<NearestMeetingProvider>(
@@ -43,6 +57,55 @@ class _HomeScreenState extends State<HomeScreen> {
             listen: false,
           ).loadNearestMeeting(),
     );
+  }
+
+  void _initializeLocation() async {
+    await _locationService.initialize();
+    _locationService.onLocationChanged((newPosition, address) {
+      if (mounted) {
+        setState(() {
+          _currentPosition = newPosition;
+        });
+        _loadNeighborsForMap(); // Reload map data when location changes
+      }
+    });
+  }
+
+  Future<void> _loadNeighborsForMap() async {
+    try {
+      final neighbors = await MapServices.fetchNeighbors();
+      Set<Marker> newMarkers = {};
+      for (var neighbor in neighbors) {
+        final markerIcon = await MarkerUtils.loadmemberTypeMarker(
+          context,
+          neighbor.memberType.name,
+          isSelected: false,
+          size: const Size(40, 40),
+        );
+        newMarkers.add(
+          Marker(
+            markerId: MarkerId(neighbor.memberId.toString()),
+            position: LatLng(neighbor.latitude, neighbor.longitude),
+            icon: markerIcon,
+            anchor: const Offset(0.5, 1.0),
+          ),
+        );
+      }
+      if (mounted) {
+        setState(() {
+          _markers.clear();
+          _markers.addAll(newMarkers);
+          if (_currentPosition == null && neighbors.isNotEmpty) {
+            _currentPosition = LatLng(
+              neighbors.first.latitude,
+              neighbors.first.longitude,
+            );
+          }
+        });
+      }
+    } catch (e) {
+      // Handle error
+    }
   }
 
   Future<List<Memory>> _loadMemories() async {
@@ -168,8 +231,58 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   SizedBox(height: 36.0),
-                  MenuTitle(title: '내 주변 이웃 찾아보기'),
-                  //TODO: 지도 추가 필요
+                  MenuTitle(
+                    title: '내 주변 이웃 찾아보기',
+                    onMoreTap: () {
+                      Navigator.pushReplacementNamed(
+                        context,
+                        NavScreen.id,
+                        arguments: 1,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 7.0),
+                  Container(
+                    width: double.infinity,
+                    height: 240,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Stack(
+                      children: [
+                        _currentPosition == null
+                            ? const Center(child: CircularProgressIndicator())
+                            : GoogleMap(
+                              initialCameraPosition: CameraPosition(
+                                target: _currentPosition!,
+                                zoom: 15.5,
+                              ),
+                              markers: _markers,
+                              myLocationEnabled: true,
+                              myLocationButtonEnabled: false,
+                              zoomControlsEnabled: true,
+                              mapToolbarEnabled: false,
+                              compassEnabled: false,
+                              scrollGesturesEnabled: true,
+                              zoomGesturesEnabled: false,
+                              tiltGesturesEnabled: false,
+                              rotateGesturesEnabled: false,
+                              onMapCreated: (GoogleMapController controller) {
+                                _mapController = controller;
+                              },
+                            ),
+                      ],
+                    ),
+                  ),
+
                   SizedBox(height: 36.0),
                   MenuTitle(title: '함께한 추억'),
                   FutureBuilder<List<Memory>>(
@@ -676,11 +789,11 @@ class MemoryCard extends StatelessWidget {
   }
 }
 
-// ignore: must_be_immutable
 class MenuTitle extends StatelessWidget {
-  String title;
+  final String title;
+  final VoidCallback? onMoreTap;
 
-  MenuTitle({super.key, required this.title});
+  const MenuTitle({super.key, required this.title, this.onMoreTap});
 
   @override
   Widget build(BuildContext context) {
@@ -698,12 +811,15 @@ class MenuTitle extends StatelessWidget {
               color: AppColors.gray800,
             ),
           ),
-          Text(
-            '더보기',
-            style: TextStyle(
-              fontSize: 12.0,
-              fontWeight: FontWeight.w500,
-              color: AppColors.gray600,
+          GestureDetector(
+            onTap: onMoreTap,
+            child: Text(
+              '더보기',
+              style: TextStyle(
+                fontSize: 12.0,
+                fontWeight: FontWeight.w500,
+                color: AppColors.gray600,
+              ),
             ),
           ),
         ],

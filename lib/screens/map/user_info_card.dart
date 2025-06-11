@@ -115,73 +115,76 @@ class UserInfoCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 90,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.white,
-                              child: ClipOval(
-                                child: SvgPicture.asset(
-                                  'assets/images/${userData.memberType.name}/profile/${userData.profileImage ?? '1'}.svg',
-                                  fit: BoxFit.cover,
-                                  width: 60,
-                                  height: 60,
+                Positioned.fill(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 62,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                radius: 30,
+                                backgroundColor: Colors.white,
+                                child: ClipOval(
+                                  child: SvgPicture.asset(
+                                    'assets/images/${userData.memberType.name}/profile/${userData.profileImage ?? '1'}.svg',
+                                    fit: BoxFit.cover,
+                                    width: 60,
+                                    height: 60,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
+                              const SizedBox(width: 12),
 
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '${_getMemberTypeDisplayName(userData.memberType)} ${userData.name}님',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${_getMemberTypeDisplayName(userData.memberType)} ${userData.name}님',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  _buildTimeTogetherBadge(userData.withTime),
-                                ],
+                                    const SizedBox(height: 4),
+                                    _buildTimeTogetherBadge(userData.withTime),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Text(
-                              '${distance.toStringAsFixed(1)}km',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.gray300,
+                              Text(
+                                '${distance.toStringAsFixed(1)}km',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.gray300,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: _buildSkillItems(
-                            userData,
-                            userData.memberType,
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 2),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: _buildSkillItems(
+                              userData,
+                              userData.memberType,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -206,6 +209,13 @@ class UserInfoCard extends StatelessWidget {
 
   /// 직업 유형별 배지 생성
   Widget _buildTimeTogetherBadge(int withTime) {
+    String displayTime;
+    if (withTime < 60) {
+      displayTime = '${withTime}분';
+    } else {
+      displayTime = '${(withTime / 60).toStringAsFixed(0)}시간';
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
@@ -218,7 +228,7 @@ class UserInfoCard extends StatelessWidget {
           Icon(Icons.access_time, size: 12, color: AppColors.red300),
           const SizedBox(width: 3),
           Text(
-            '함께한 $withTime시간',
+            '함께한 $displayTime',
             style: TextStyle(
               color: AppColors.red300,
               fontSize: 12,
@@ -289,13 +299,13 @@ class UserInfoCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: 40,
-          height: 40,
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.white,
           ),
-          child: Center(child: Image.asset(imagePath, width: 40, height: 40)),
+          child: Center(child: Image.asset(imagePath, width: 48, height: 48)),
         ),
         const SizedBox(height: 1),
         Text(

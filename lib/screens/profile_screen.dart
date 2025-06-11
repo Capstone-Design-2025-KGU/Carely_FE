@@ -6,7 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:carely/services/memory_service.dart';
-import 'package:carely/models/other_memory.dart';
+import 'package:carely/models/memory.dart';
 import 'package:carely/utils/logger_config.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -19,13 +19,13 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isStoryExpanded = false;
-  late Future<List<OtherMemory>> _memoriesFuture;
+  late Future<List<Memory>> _memoriesFuture;
 
   @override
   void initState() {
     super.initState();
     logger.i('🔍 ProfileScreen 초기화 - memberId: ${widget.member.memberId}');
-    _memoriesFuture = MemoryService.fetchOtherMemories(widget.member.memberId);
+    _memoriesFuture = MemoryService.fetchMyMemories(widget.member.memberId);
   }
 
   Future<String> _getAddressFromLatLng(LatLng position) async {
@@ -179,7 +179,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           '${user.address!.province} ${user.address!.city} ${user.address!.district}';
     }
 
-    final String badgeLabel = 'Carely와 함께한 시간 ${user.withTime}';
+    final String badgeLabel;
+    if (user.withTime < 60) {
+      badgeLabel = 'Carely와 함께한 시간 ${user.withTime}분';
+    } else {
+      badgeLabel = 'Carely와 함께한 시간 ${(user.withTime / 60).toStringAsFixed(0)}시간';
+    }
     final IconData badgeIcon = Icons.access_time;
     final Color badgeIconColor = _getDarkerColor(memberType);
 
@@ -491,7 +496,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildCompanionsSection(BuildContext context, Color sectionColor) {
-    return FutureBuilder<List<OtherMemory>>(
+    return FutureBuilder<List<Memory>>(
       future: _memoriesFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -542,6 +547,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Image.asset(
+                        'assets/images/${memory.memberType.name}/profile/1.png',
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -557,11 +565,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              memory.oppoMemo,
+                              memory.oppoMemo ?? '아직 내용이 없어요',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.w400,
                                 color: AppColors.gray600,
                               ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
