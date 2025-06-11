@@ -127,7 +127,6 @@ Member _emptyMember() {
     isVisible: true,
     isVerified: false,
     profileImage: null,
-    createdAt: null,
     address: Address(
       province: '',
       city: '',

@@ -1,15 +1,19 @@
+import 'dart:async';
+
 import 'package:carely/models/nearest_meeting.dart';
 import 'package:carely/providers/nearest_meeting_provider.dart';
 import 'package:carely/services/auth/token_storage_service.dart';
 import 'package:carely/services/meeting_service.dart';
 import 'package:carely/services/memo_service.dart';
 import 'package:carely/theme/colors.dart';
+import 'package:carely/utils/logger_config.dart';
 import 'package:carely/utils/screen_size.dart';
 import 'package:carely/widgets/default_app_bar.dart';
 import 'package:carely/widgets/default_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
@@ -29,6 +33,7 @@ class _MemoScreenState extends State<MemoScreen> {
   late NearestMeeting _meeting;
   String selectedCategory = 'all';
   String summary = '';
+  late TextEditingController _memoController;
 
   @override
   void initState() {
@@ -36,6 +41,50 @@ class _MemoScreenState extends State<MemoScreen> {
     _speech = stt.SpeechToText();
     _meeting = widget.meeting;
     summary = _buildSummary(_meeting, selectedCategory);
+
+    _memoController = TextEditingController(); // 🎯 이거 추가
+    _initSpeechRecognition();
+  }
+
+  Future<void> _initSpeechRecognition() async {
+    final micStatus = await Permission.microphone.status;
+
+    if (micStatus != PermissionStatus.granted) {
+      final result = await Permission.microphone.request();
+      if (result != PermissionStatus.granted) {
+        logger.i('❌ 마이크 권한 거부됨');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('마이크 권한이 필요합니다. 설정에서 허용해주세요.')),
+          );
+        }
+        return;
+      }
+    }
+
+    final available = await _speech.initialize(
+      onStatus: (status) {
+        logger.i('🟢 Speech status: $status');
+        if (status == 'notListening' || status == 'done') {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop(); // 팝업 닫기
+          }
+          setState(() => _isListening = false);
+        }
+      },
+      onError: (error) => logger.i('❌ Speech error: $error'),
+    );
+
+    if (!available) {
+      logger.i('⚠️ Speech recognition unavailable');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('음성 인식을 사용할 수 없습니다.')));
+      }
+    } else {
+      logger.i('✅ 음성 인식 초기화 성공');
+    }
   }
 
   String _buildSummary(NearestMeeting meeting, String category) {
@@ -68,26 +117,30 @@ class _MemoScreenState extends State<MemoScreen> {
   }
 
   void _startListening() async {
-    if (!_speech.isAvailable && !_speech.isListening) {
-      bool available = await _speech.initialize();
-      if (available) {
-        setState(() => _isListening = true);
-        _speech.listen(
-          onResult: (result) {
-            setState(() {
-              _memoText = result.recognizedWords;
-            });
-          },
-        );
-      }
-    } else if (!_speech.isListening) {
+    if (!_isListening &&
+        await _speech.hasPermission &&
+        _speech.isNotListening) {
       setState(() => _isListening = true);
-      _speech.listen(
+
+      _showListeningDialog(); // 팝업 먼저 띄우고
+
+      await _speech.listen(
         onResult: (result) {
           setState(() {
             _memoText = result.recognizedWords;
+            _memoController.text = _memoText;
           });
+
+          // 결과가 확정되었으면 팝업 닫기
+          if (result.finalResult && mounted) {
+            Navigator.of(context, rootNavigator: true).maybePop();
+            setState(() => _isListening = false);
+          }
         },
+        listenOptions: stt.SpeechListenOptions(
+          partialResults: true,
+          listenMode: stt.ListenMode.dictation,
+        ),
       );
     }
   }
@@ -95,6 +148,40 @@ class _MemoScreenState extends State<MemoScreen> {
   void _stopListening() {
     _speech.stop();
     setState(() => _isListening = false);
+  }
+
+  void _showListeningDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      useRootNavigator: true, // ✅ 이걸 반드시 넣어야 MemoScreen이 안 닫힘
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                CircularProgressIndicator(color: AppColors.mainPrimary),
+                SizedBox(height: 20),
+                Text(
+                  '듣고 있어요...',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.mainPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -133,6 +220,7 @@ class _MemoScreenState extends State<MemoScreen> {
                         ),
                         SizedBox(height: 8.0),
                         TextField(
+                          controller: _memoController,
                           maxLines: 8,
                           maxLength: 1000,
                           cursorColor: AppColors.gray300,
@@ -350,66 +438,74 @@ class AICard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          height: 400.0,
-          child: Image.asset(
-            'assets/images/mesh-gradient.png',
-            fit: BoxFit.cover,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 28.0, horizontal: 20.0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SvgPicture.asset('assets/images/carely-ai.svg', width: 120.0),
-                  Text(
-                    categoryLabels[selectedCategory]!,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.mainPrimary,
-                    ),
-                  ),
-                ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return ConstrainedBox(
+          constraints: BoxConstraints(minHeight: 400.0),
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/mesh-gradient.png'),
+                fit: BoxFit.cover,
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    height: 80.0,
-                    child: Row(
-                      children:
-                          categoryLabels.keys.map((key) {
-                            return SkillButton(
-                              imagePath: key,
-                              isActive: selectedCategory == key,
-                              onPressed: () => onCategoryChanged(key),
-                            );
-                          }).toList(),
+            ),
+            padding: const EdgeInsets.symmetric(
+              vertical: 28.0,
+              horizontal: 20.0,
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/carely-ai.svg',
+                      width: 120.0,
+                    ),
+                    Text(
+                      categoryLabels[selectedCategory]!,
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.mainPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      height: 80.0,
+                      child: Row(
+                        children:
+                            categoryLabels.keys.map((key) {
+                              return SkillButton(
+                                imagePath: key,
+                                isActive: selectedCategory == key,
+                                onPressed: () => onCategoryChanged(key),
+                              );
+                            }).toList(),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Text(
-                summary,
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: AppColors.mainPrimary,
-                  fontWeight: FontWeight.w500,
+                Text(
+                  summary,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: AppColors.mainPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

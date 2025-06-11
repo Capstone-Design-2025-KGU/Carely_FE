@@ -27,8 +27,6 @@ class Member with _$Member {
     bool? isVerified,
     String? profileImage,
 
-    @FlexibleDateTimeConverter() DateTime? createdAt,
-
     Address? address,
     Skill? skill,
   }) = _Member;

@@ -56,19 +56,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return await RecommendedMemberService.fetchRecommendedMembers(token);
   }
 
-  String _displayMemberType(MemberType? type) {
-    switch (type) {
-      case MemberType.family:
-        return '가족 간병인';
-      case MemberType.volunteer:
-        return '자원봉사자';
-      case MemberType.caregiver:
-        return '예비 요양보호사';
-      default:
-        return '회원';
-    }
-  }
-
   String _pathMemberType(MemberType? type) {
     switch (type) {
       case MemberType.family:
@@ -137,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(height: 40.0),
                   (member != null && member.isVerified!)
                       ? MemberStatusCard(
-                        displayType: _displayMemberType(member.memberType),
+                        displayType: displayMemberType(member.memberType),
                         address: _formatAddress(member.address),
                         backgroundColor: getBackgroundColor(member.memberType),
                         highlightColor: getHighlightColor(member.memberType),
@@ -620,7 +607,7 @@ class MemoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: ScreenSize.height(context, 88.0),
+      height: ScreenSize.height(context, 92.0),
       decoration: BoxDecoration(
         color: AppColors.main50,
         borderRadius: BorderRadius.circular(8.0),
@@ -648,8 +635,9 @@ class MemoryCard extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  //TODO : 멤버 프로필 이미지 반영 필요
-                  Image.asset('assets/images/family/profile/1.png'),
+                  Image.asset(
+                    'assets/images/${memory.memberType.name}/profile/1.png',
+                  ),
                   SizedBox(width: 12.0),
                   Expanded(
                     child: Column(
@@ -657,8 +645,7 @@ class MemoryCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          //TODO : 멤버 타입 반영 필요
-                          '간병인 ${memory.oppoName}님',
+                          '${displayMemberType(memory.memberType)} ${memory.oppoName}님',
                           style: TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.w600,
@@ -667,7 +654,7 @@ class MemoryCard extends StatelessWidget {
                         ),
                         SizedBox(height: 4.0),
                         Text(
-                          memory.oppoMemo,
+                          memory.oppoMemo ?? '아직 내용이 없어요',
                           style: TextStyle(
                             fontSize: 12.0,
                             fontWeight: FontWeight.w400,
