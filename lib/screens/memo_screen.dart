@@ -154,7 +154,6 @@ class _MemoScreenState extends State<MemoScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      useRootNavigator: true, // ✅ 이걸 반드시 넣어야 MemoScreen이 안 닫힘
       builder: (context) {
         return Dialog(
           shape: RoundedRectangleBorder(
@@ -165,13 +164,19 @@ class _MemoScreenState extends State<MemoScreen> {
             padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                CircularProgressIndicator(color: AppColors.mainPrimary),
-                SizedBox(height: 20),
-                Text(
+              children: [
+                Lottie.asset(
+                  'assets/lottie/listening.json',
+                  width: 120,
+                  height: 120,
+                  repeat: true,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 20),
+                const Text(
                   '듣고 있어요...',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 12.0,
                     fontWeight: FontWeight.w600,
                     color: AppColors.mainPrimary,
                   ),

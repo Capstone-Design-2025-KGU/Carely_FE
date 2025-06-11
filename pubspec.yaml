@@ -103,6 +103,7 @@ flutter:
     - assets/images/markers/Green.png
     - assets/images/mesh-gradient.png
     - assets/lottie/loading.json
+    - assets/lottie/listening.json
     - .env
 
 fonts:
