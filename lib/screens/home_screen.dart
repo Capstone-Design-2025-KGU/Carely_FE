@@ -585,7 +585,7 @@ class MemberStatusCard extends StatelessWidget {
                   '이웃 인증 완료',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 16.0,
+                    fontSize: 14.0,
                     color: highlightColor,
                   ),
                 ),
