@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
               content: '테스터 계정으로 로그인',
               onPressed: () async {
                 const testUsername = 'flutter';
-                const testPassword = 'pass0';
+                const testPassword = 'pass1';
 
                 final token = await AuthService.instance.login(
                   testUsername,
@@ -58,39 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 20.0),
             DefaultButton(
               content: '조건희으로 로그인',
-              onPressed: () async {
-                const testUsername = 'user1';
-                const testPassword = 'pass1';
-
-                final token = await AuthService.instance.login(
-                  testUsername,
-                  testPassword,
-                );
-
-                if (token != null) {
-                  await TokenStorageService.saveToken(token);
-                  final member = await MemberService.instance.fetchMyInfo(
-                    token,
-                  );
-                  if (member != null) {
-                    Provider.of<MemberProvider>(
-                      context,
-                      listen: false,
-                    ).setMember(member);
-                    Navigator.pushReplacementNamed(context, NavScreen.id);
-                  } else {
-                    logger.e('멤버 정보를 찾을 수 없습니다');
-                    await TokenStorageService.deleteToken();
-                  }
-                } else {
-                  logger.e('토큰이 없습니다.');
-                  await TokenStorageService.deleteToken();
-                }
-              },
-            ),
-            SizedBox(height: 20.0),
-            DefaultButton(
-              content: '회원 2으로 로그인',
               onPressed: () async {
                 const testUsername = 'user2';
                 const testPassword = 'pass2';
@@ -127,6 +94,39 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: () async {
                 const testUsername = 'user3';
                 const testPassword = 'pass3';
+
+                final token = await AuthService.instance.login(
+                  testUsername,
+                  testPassword,
+                );
+
+                if (token != null) {
+                  await TokenStorageService.saveToken(token);
+                  final member = await MemberService.instance.fetchMyInfo(
+                    token,
+                  );
+                  if (member != null) {
+                    Provider.of<MemberProvider>(
+                      context,
+                      listen: false,
+                    ).setMember(member);
+                    Navigator.pushReplacementNamed(context, NavScreen.id);
+                  } else {
+                    logger.e('멤버 정보를 찾을 수 없습니다');
+                    await TokenStorageService.deleteToken();
+                  }
+                } else {
+                  logger.e('토큰이 없습니다.');
+                  await TokenStorageService.deleteToken();
+                }
+              },
+            ),
+            SizedBox(height: 20.0),
+            DefaultButton(
+              content: '회원 4으로 로그인',
+              onPressed: () async {
+                const testUsername = 'user4';
+                const testPassword = 'pass4';
 
                 final token = await AuthService.instance.login(
                   testUsername,

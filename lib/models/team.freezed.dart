@@ -24,6 +24,7 @@ mixin _$Team {
   int get teamId => throw _privateConstructorUsedError;
   String get teamName => throw _privateConstructorUsedError;
   Address get address => throw _privateConstructorUsedError;
+  String? get story => throw _privateConstructorUsedError;
   int get memberCount => throw _privateConstructorUsedError;
 
   /// Serializes this Team to a JSON map.
@@ -40,7 +41,13 @@ abstract class $TeamCopyWith<$Res> {
   factory $TeamCopyWith(Team value, $Res Function(Team) then) =
       _$TeamCopyWithImpl<$Res, Team>;
   @useResult
-  $Res call({int teamId, String teamName, Address address, int memberCount});
+  $Res call({
+    int teamId,
+    String teamName,
+    Address address,
+    String? story,
+    int memberCount,
+  });
 
   $AddressCopyWith<$Res> get address;
 }
@@ -63,6 +70,7 @@ class _$TeamCopyWithImpl<$Res, $Val extends Team>
     Object? teamId = null,
     Object? teamName = null,
     Object? address = null,
+    Object? story = freezed,
     Object? memberCount = null,
   }) {
     return _then(
@@ -82,6 +90,11 @@ class _$TeamCopyWithImpl<$Res, $Val extends Team>
                     ? _value.address
                     : address // ignore: cast_nullable_to_non_nullable
                         as Address,
+            story:
+                freezed == story
+                    ? _value.story
+                    : story // ignore: cast_nullable_to_non_nullable
+                        as String?,
             memberCount:
                 null == memberCount
                     ? _value.memberCount
@@ -111,7 +124,13 @@ abstract class _$$TeamImplCopyWith<$Res> implements $TeamCopyWith<$Res> {
   ) = __$$TeamImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int teamId, String teamName, Address address, int memberCount});
+  $Res call({
+    int teamId,
+    String teamName,
+    Address address,
+    String? story,
+    int memberCount,
+  });
 
   @override
   $AddressCopyWith<$Res> get address;
@@ -132,6 +151,7 @@ class __$$TeamImplCopyWithImpl<$Res>
     Object? teamId = null,
     Object? teamName = null,
     Object? address = null,
+    Object? story = freezed,
     Object? memberCount = null,
   }) {
     return _then(
@@ -151,6 +171,11 @@ class __$$TeamImplCopyWithImpl<$Res>
                 ? _value.address
                 : address // ignore: cast_nullable_to_non_nullable
                     as Address,
+        story:
+            freezed == story
+                ? _value.story
+                : story // ignore: cast_nullable_to_non_nullable
+                    as String?,
         memberCount:
             null == memberCount
                 ? _value.memberCount
@@ -168,6 +193,7 @@ class _$TeamImpl implements _Team {
     required this.teamId,
     required this.teamName,
     required this.address,
+    this.story,
     required this.memberCount,
   });
 
@@ -181,11 +207,13 @@ class _$TeamImpl implements _Team {
   @override
   final Address address;
   @override
+  final String? story;
+  @override
   final int memberCount;
 
   @override
   String toString() {
-    return 'Team(teamId: $teamId, teamName: $teamName, address: $address, memberCount: $memberCount)';
+    return 'Team(teamId: $teamId, teamName: $teamName, address: $address, story: $story, memberCount: $memberCount)';
   }
 
   @override
@@ -197,6 +225,7 @@ class _$TeamImpl implements _Team {
             (identical(other.teamName, teamName) ||
                 other.teamName == teamName) &&
             (identical(other.address, address) || other.address == address) &&
+            (identical(other.story, story) || other.story == story) &&
             (identical(other.memberCount, memberCount) ||
                 other.memberCount == memberCount));
   }
@@ -204,7 +233,7 @@ class _$TeamImpl implements _Team {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, teamId, teamName, address, memberCount);
+      Object.hash(runtimeType, teamId, teamName, address, story, memberCount);
 
   /// Create a copy of Team
   /// with the given fields replaced by the non-null parameter values.
@@ -225,6 +254,7 @@ abstract class _Team implements Team {
     required final int teamId,
     required final String teamName,
     required final Address address,
+    final String? story,
     required final int memberCount,
   }) = _$TeamImpl;
 
@@ -236,6 +266,8 @@ abstract class _Team implements Team {
   String get teamName;
   @override
   Address get address;
+  @override
+  String? get story;
   @override
   int get memberCount;
 
