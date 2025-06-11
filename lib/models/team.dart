@@ -10,7 +10,7 @@ class Team with _$Team {
     required int teamId,
     required String teamName,
     required Address address,
-    required String story,
+    String? story,
     required int memberCount,
   }) = _Team;
 

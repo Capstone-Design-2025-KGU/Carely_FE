@@ -67,6 +67,7 @@ class _GroupScreenState extends State<GroupScreen>
           title: team.teamName,
           location:
               '${team.address.province} ${team.address.city} ${team.address.district}',
+          story: team.story ?? '소개가 없어요',
           recentUpdate: 0,
           imagePath: '${index % 4 + 1}',
           memberCount: team.memberCount,
@@ -124,6 +125,7 @@ class GroupCard extends StatelessWidget {
   final int teamId;
   final String title;
   final String location;
+  final String story;
   final int recentUpdate;
   final String imagePath;
   final int memberCount;
@@ -138,6 +140,7 @@ class GroupCard extends StatelessWidget {
     required this.memberCount,
     required this.teamId,
     required this.isJoined,
+    required this.story,
   });
 
   @override
@@ -150,6 +153,7 @@ class GroupCard extends StatelessWidget {
                   (context) => GroupDetailScreen(
                     teamId: teamId,
                     title: title,
+                    story: story,
                     location: location,
                     recentUpdate: recentUpdate,
                     imagePath: imagePath,

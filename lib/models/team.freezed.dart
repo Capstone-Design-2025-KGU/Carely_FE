@@ -24,7 +24,7 @@ mixin _$Team {
   int get teamId => throw _privateConstructorUsedError;
   String get teamName => throw _privateConstructorUsedError;
   Address get address => throw _privateConstructorUsedError;
-  String get story => throw _privateConstructorUsedError;
+  String? get story => throw _privateConstructorUsedError;
   int get memberCount => throw _privateConstructorUsedError;
 
   /// Serializes this Team to a JSON map.
@@ -45,7 +45,7 @@ abstract class $TeamCopyWith<$Res> {
     int teamId,
     String teamName,
     Address address,
-    String story,
+    String? story,
     int memberCount,
   });
 
@@ -70,7 +70,7 @@ class _$TeamCopyWithImpl<$Res, $Val extends Team>
     Object? teamId = null,
     Object? teamName = null,
     Object? address = null,
-    Object? story = null,
+    Object? story = freezed,
     Object? memberCount = null,
   }) {
     return _then(
@@ -91,10 +91,10 @@ class _$TeamCopyWithImpl<$Res, $Val extends Team>
                     : address // ignore: cast_nullable_to_non_nullable
                         as Address,
             story:
-                null == story
+                freezed == story
                     ? _value.story
                     : story // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
             memberCount:
                 null == memberCount
                     ? _value.memberCount
@@ -128,7 +128,7 @@ abstract class _$$TeamImplCopyWith<$Res> implements $TeamCopyWith<$Res> {
     int teamId,
     String teamName,
     Address address,
-    String story,
+    String? story,
     int memberCount,
   });
 
@@ -151,7 +151,7 @@ class __$$TeamImplCopyWithImpl<$Res>
     Object? teamId = null,
     Object? teamName = null,
     Object? address = null,
-    Object? story = null,
+    Object? story = freezed,
     Object? memberCount = null,
   }) {
     return _then(
@@ -172,10 +172,10 @@ class __$$TeamImplCopyWithImpl<$Res>
                 : address // ignore: cast_nullable_to_non_nullable
                     as Address,
         story:
-            null == story
+            freezed == story
                 ? _value.story
                 : story // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
         memberCount:
             null == memberCount
                 ? _value.memberCount
@@ -193,7 +193,7 @@ class _$TeamImpl implements _Team {
     required this.teamId,
     required this.teamName,
     required this.address,
-    required this.story,
+    this.story,
     required this.memberCount,
   });
 
@@ -207,7 +207,7 @@ class _$TeamImpl implements _Team {
   @override
   final Address address;
   @override
-  final String story;
+  final String? story;
   @override
   final int memberCount;
 
@@ -254,7 +254,7 @@ abstract class _Team implements Team {
     required final int teamId,
     required final String teamName,
     required final Address address,
-    required final String story,
+    final String? story,
     required final int memberCount,
   }) = _$TeamImpl;
 
@@ -267,7 +267,7 @@ abstract class _Team implements Team {
   @override
   Address get address;
   @override
-  String get story;
+  String? get story;
   @override
   int get memberCount;
 

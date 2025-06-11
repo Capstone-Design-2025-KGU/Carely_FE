@@ -14,6 +14,7 @@ class GroupDetailScreen extends StatefulWidget {
   final int teamId;
   final String title;
   final String location;
+  final String story;
   final int recentUpdate;
   final String imagePath;
   final int memberCount;
@@ -28,6 +29,7 @@ class GroupDetailScreen extends StatefulWidget {
     required this.memberCount,
     required this.teamId,
     required this.isJoined,
+    required this.story,
   });
 
   @override
@@ -86,7 +88,29 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
             ),
             SizedBox(height: 36.0),
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text(
+                    '그룹 소개',
+                    style: TextStyle(
+                      color: AppColors.gray800,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                ),
+                Center(
+                  child: Text(
+                    widget.story,
+                    style: TextStyle(
+                      color: AppColors.gray600,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Row(
