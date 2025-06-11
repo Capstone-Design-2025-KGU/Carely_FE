@@ -10,7 +10,7 @@ class WebSocketService {
   static final WebSocketService instance =
       WebSocketService._privateConstructor();
 
-  final String _url = dotenv.env['WEBSOCKET_URL'] ?? 'http://10.0.2.2:8080/ws';
+  final String _url = dotenv.env['WEBSOCKET_URL'] ?? 'http://10.0.2.2:8080';
 
   StompClient? _stompClient; // ✅ nullable로 변경 (초기엔 null)
 
@@ -40,8 +40,15 @@ class WebSocketService {
     _stompClient!.activate();
   }
 
+  final Set<String> _subscribedTopics = {};
+
   void _subscribe(int chatRoomId, void Function(ChatMessage) onMessage) {
     final destination = '/topic/chatroom/$chatRoomId';
+    if (_subscribedTopics.contains(destination)) {
+      logger.i('[WS] 이미 구독 중: $destination');
+      return;
+    }
+
     logger.i('[WS] 구독 시작: $destination');
     _stompClient?.subscribe(
       destination: destination,
@@ -53,6 +60,8 @@ class WebSocketService {
         }
       },
     );
+
+    _subscribedTopics.add(destination);
   }
 
   void sendMessage(ChatMessage message) {
@@ -70,5 +79,6 @@ class WebSocketService {
   void disconnect() {
     _stompClient?.deactivate();
     _stompClient = null;
+    _subscribedTopics.clear(); // ✅ 구독 목록 초기화
   }
 }

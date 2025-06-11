@@ -23,7 +23,9 @@ Memory _$MemoryFromJson(Map<String, dynamic> json) {
 mixin _$Memory {
   int get memoryId => throw _privateConstructorUsedError;
   String get oppoName => throw _privateConstructorUsedError;
-  String get oppoMemo => throw _privateConstructorUsedError;
+  @MemberTypeConverter()
+  MemberType get memberType => throw _privateConstructorUsedError;
+  String? get oppoMemo => throw _privateConstructorUsedError;
 
   /// Serializes this Memory to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,7 +41,12 @@ abstract class $MemoryCopyWith<$Res> {
   factory $MemoryCopyWith(Memory value, $Res Function(Memory) then) =
       _$MemoryCopyWithImpl<$Res, Memory>;
   @useResult
-  $Res call({int memoryId, String oppoName, String oppoMemo});
+  $Res call({
+    int memoryId,
+    String oppoName,
+    @MemberTypeConverter() MemberType memberType,
+    String? oppoMemo,
+  });
 }
 
 /// @nodoc
@@ -59,7 +66,8 @@ class _$MemoryCopyWithImpl<$Res, $Val extends Memory>
   $Res call({
     Object? memoryId = null,
     Object? oppoName = null,
-    Object? oppoMemo = null,
+    Object? memberType = null,
+    Object? oppoMemo = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -73,11 +81,16 @@ class _$MemoryCopyWithImpl<$Res, $Val extends Memory>
                     ? _value.oppoName
                     : oppoName // ignore: cast_nullable_to_non_nullable
                         as String,
+            memberType:
+                null == memberType
+                    ? _value.memberType
+                    : memberType // ignore: cast_nullable_to_non_nullable
+                        as MemberType,
             oppoMemo:
-                null == oppoMemo
+                freezed == oppoMemo
                     ? _value.oppoMemo
                     : oppoMemo // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
           )
           as $Val,
     );
@@ -92,7 +105,12 @@ abstract class _$$MemoryImplCopyWith<$Res> implements $MemoryCopyWith<$Res> {
   ) = __$$MemoryImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int memoryId, String oppoName, String oppoMemo});
+  $Res call({
+    int memoryId,
+    String oppoName,
+    @MemberTypeConverter() MemberType memberType,
+    String? oppoMemo,
+  });
 }
 
 /// @nodoc
@@ -111,7 +129,8 @@ class __$$MemoryImplCopyWithImpl<$Res>
   $Res call({
     Object? memoryId = null,
     Object? oppoName = null,
-    Object? oppoMemo = null,
+    Object? memberType = null,
+    Object? oppoMemo = freezed,
   }) {
     return _then(
       _$MemoryImpl(
@@ -125,11 +144,16 @@ class __$$MemoryImplCopyWithImpl<$Res>
                 ? _value.oppoName
                 : oppoName // ignore: cast_nullable_to_non_nullable
                     as String,
+        memberType:
+            null == memberType
+                ? _value.memberType
+                : memberType // ignore: cast_nullable_to_non_nullable
+                    as MemberType,
         oppoMemo:
-            null == oppoMemo
+            freezed == oppoMemo
                 ? _value.oppoMemo
                 : oppoMemo // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
       ),
     );
   }
@@ -141,7 +165,8 @@ class _$MemoryImpl implements _Memory {
   const _$MemoryImpl({
     required this.memoryId,
     required this.oppoName,
-    required this.oppoMemo,
+    @MemberTypeConverter() required this.memberType,
+    this.oppoMemo,
   });
 
   factory _$MemoryImpl.fromJson(Map<String, dynamic> json) =>
@@ -152,11 +177,14 @@ class _$MemoryImpl implements _Memory {
   @override
   final String oppoName;
   @override
-  final String oppoMemo;
+  @MemberTypeConverter()
+  final MemberType memberType;
+  @override
+  final String? oppoMemo;
 
   @override
   String toString() {
-    return 'Memory(memoryId: $memoryId, oppoName: $oppoName, oppoMemo: $oppoMemo)';
+    return 'Memory(memoryId: $memoryId, oppoName: $oppoName, memberType: $memberType, oppoMemo: $oppoMemo)';
   }
 
   @override
@@ -168,13 +196,16 @@ class _$MemoryImpl implements _Memory {
                 other.memoryId == memoryId) &&
             (identical(other.oppoName, oppoName) ||
                 other.oppoName == oppoName) &&
+            (identical(other.memberType, memberType) ||
+                other.memberType == memberType) &&
             (identical(other.oppoMemo, oppoMemo) ||
                 other.oppoMemo == oppoMemo));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, memoryId, oppoName, oppoMemo);
+  int get hashCode =>
+      Object.hash(runtimeType, memoryId, oppoName, memberType, oppoMemo);
 
   /// Create a copy of Memory
   /// with the given fields replaced by the non-null parameter values.
@@ -194,7 +225,8 @@ abstract class _Memory implements Memory {
   const factory _Memory({
     required final int memoryId,
     required final String oppoName,
-    required final String oppoMemo,
+    @MemberTypeConverter() required final MemberType memberType,
+    final String? oppoMemo,
   }) = _$MemoryImpl;
 
   factory _Memory.fromJson(Map<String, dynamic> json) = _$MemoryImpl.fromJson;
@@ -204,7 +236,10 @@ abstract class _Memory implements Memory {
   @override
   String get oppoName;
   @override
-  String get oppoMemo;
+  @MemberTypeConverter()
+  MemberType get memberType;
+  @override
+  String? get oppoMemo;
 
   /// Create a copy of Memory
   /// with the given fields replaced by the non-null parameter values.

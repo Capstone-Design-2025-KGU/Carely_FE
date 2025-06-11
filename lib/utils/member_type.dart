@@ -26,3 +26,16 @@ class MemberTypeConverter implements JsonConverter<MemberType, String> {
     return object.name.toUpperCase();
   }
 }
+
+String displayMemberType(MemberType? type) {
+  switch (type) {
+    case MemberType.family:
+      return '가족 간병인';
+    case MemberType.volunteer:
+      return '자원봉사자';
+    case MemberType.caregiver:
+      return '예비 요양보호사';
+    default:
+      return '회원';
+  }
+}

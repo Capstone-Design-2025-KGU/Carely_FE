@@ -34,8 +34,6 @@ mixin _$Member {
   bool? get isVisible => throw _privateConstructorUsedError;
   bool? get isVerified => throw _privateConstructorUsedError;
   String? get profileImage => throw _privateConstructorUsedError;
-  @FlexibleDateTimeConverter()
-  DateTime? get createdAt => throw _privateConstructorUsedError;
   Address? get address => throw _privateConstructorUsedError;
   Skill? get skill => throw _privateConstructorUsedError;
 
@@ -65,7 +63,6 @@ abstract class $MemberCopyWith<$Res> {
     bool? isVisible,
     bool? isVerified,
     String? profileImage,
-    @FlexibleDateTimeConverter() DateTime? createdAt,
     Address? address,
     Skill? skill,
   });
@@ -100,7 +97,6 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
     Object? isVisible = freezed,
     Object? isVerified = freezed,
     Object? profileImage = freezed,
-    Object? createdAt = freezed,
     Object? address = freezed,
     Object? skill = freezed,
   }) {
@@ -161,11 +157,6 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
                     ? _value.profileImage
                     : profileImage // ignore: cast_nullable_to_non_nullable
                         as String?,
-            createdAt:
-                freezed == createdAt
-                    ? _value.createdAt
-                    : createdAt // ignore: cast_nullable_to_non_nullable
-                        as DateTime?,
             address:
                 freezed == address
                     ? _value.address
@@ -230,7 +221,6 @@ abstract class _$$MemberImplCopyWith<$Res> implements $MemberCopyWith<$Res> {
     bool? isVisible,
     bool? isVerified,
     String? profileImage,
-    @FlexibleDateTimeConverter() DateTime? createdAt,
     Address? address,
     Skill? skill,
   });
@@ -266,7 +256,6 @@ class __$$MemberImplCopyWithImpl<$Res>
     Object? isVisible = freezed,
     Object? isVerified = freezed,
     Object? profileImage = freezed,
-    Object? createdAt = freezed,
     Object? address = freezed,
     Object? skill = freezed,
   }) {
@@ -327,11 +316,6 @@ class __$$MemberImplCopyWithImpl<$Res>
                 ? _value.profileImage
                 : profileImage // ignore: cast_nullable_to_non_nullable
                     as String?,
-        createdAt:
-            freezed == createdAt
-                ? _value.createdAt
-                : createdAt // ignore: cast_nullable_to_non_nullable
-                    as DateTime?,
         address:
             freezed == address
                 ? _value.address
@@ -363,7 +347,6 @@ class _$MemberImpl implements _Member {
     this.isVisible,
     this.isVerified,
     this.profileImage,
-    @FlexibleDateTimeConverter() this.createdAt,
     this.address,
     this.skill,
   });
@@ -396,16 +379,13 @@ class _$MemberImpl implements _Member {
   @override
   final String? profileImage;
   @override
-  @FlexibleDateTimeConverter()
-  final DateTime? createdAt;
-  @override
   final Address? address;
   @override
   final Skill? skill;
 
   @override
   String toString() {
-    return 'Member(memberId: $memberId, username: $username, password: $password, name: $name, phoneNumber: $phoneNumber, birth: $birth, story: $story, memberType: $memberType, isVisible: $isVisible, isVerified: $isVerified, profileImage: $profileImage, createdAt: $createdAt, address: $address, skill: $skill)';
+    return 'Member(memberId: $memberId, username: $username, password: $password, name: $name, phoneNumber: $phoneNumber, birth: $birth, story: $story, memberType: $memberType, isVisible: $isVisible, isVerified: $isVerified, profileImage: $profileImage, address: $address, skill: $skill)';
   }
 
   @override
@@ -432,8 +412,6 @@ class _$MemberImpl implements _Member {
                 other.isVerified == isVerified) &&
             (identical(other.profileImage, profileImage) ||
                 other.profileImage == profileImage) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
             (identical(other.address, address) || other.address == address) &&
             (identical(other.skill, skill) || other.skill == skill));
   }
@@ -453,7 +431,6 @@ class _$MemberImpl implements _Member {
     isVisible,
     isVerified,
     profileImage,
-    createdAt,
     address,
     skill,
   );
@@ -485,7 +462,6 @@ abstract class _Member implements Member {
     final bool? isVisible,
     final bool? isVerified,
     final String? profileImage,
-    @FlexibleDateTimeConverter() final DateTime? createdAt,
     final Address? address,
     final Skill? skill,
   }) = _$MemberImpl;
@@ -516,9 +492,6 @@ abstract class _Member implements Member {
   bool? get isVerified;
   @override
   String? get profileImage;
-  @override
-  @FlexibleDateTimeConverter()
-  DateTime? get createdAt;
   @override
   Address? get address;
   @override

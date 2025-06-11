@@ -39,6 +39,7 @@ dependencies:
   kpostal: ^1.1.0
   speech_to_text: ^7.0.0
   lottie: ^3.3.1
+  permission_handler: ^12.0.0+1
 
 dev_dependencies:
   flutter_test:
@@ -54,6 +55,22 @@ flutter:
   assets:
     - assets/images/
     - assets/lottie/
+    - assets/images/markers/
+    - assets/images/caregiver/profile/
+    - assets/images/caregiver/skills/
+    - assets/images/family/profile/
+    - assets/images/family/skills/
+    - assets/images/volunteer/profile/
+    - assets/images/volunteer/skills/
+    - assets/images/temp-user-image.png
+    - assets/images/no-chat-room.png
+    - assets/images/
+    - assets/images/markers/Red.png
+    - assets/images/markers/Blue.png
+    - assets/images/markers/Green.png
+    - assets/images/mesh-gradient.png
+    - assets/lottie/loading.json
+    - assets/lottie/listening.json
     - .env
 
 fonts:

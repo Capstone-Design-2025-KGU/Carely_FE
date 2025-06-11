@@ -233,7 +233,7 @@ class ChatRoomCard extends StatelessWidget {
         ).then((_) => onChatUpdated());
       },
       child: SizedBox(
-        height: ScreenSize.height(context, 56.0),
+        height: ScreenSize.height(context, 60.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
