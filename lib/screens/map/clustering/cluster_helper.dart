@@ -1,3 +1,4 @@
+import 'package:carely/utils/member_type.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math';
 import 'package:carely/screens/map/clustering/cluster_item.dart';
@@ -43,18 +44,18 @@ class ClusterHelper {
     return ClusterGroup(LatLng(latAvg, lngAvg), items);
   }
 
-  static Map<JobType, ClusterGroup> clusterByJobTypeSingleCluster(
+  static Map<MemberType, ClusterGroup> clusterByMemberTypeSingleCluster(
     List<ClusterItem> items,
   ) {
-    Map<JobType, List<ClusterItem>> byType = {};
-    for (var type in JobType.values) {
+    Map<MemberType, List<ClusterItem>> byType = {};
+    for (var type in MemberType.values) {
       byType[type] = [];
     }
     for (var item in items) {
-      byType[item.jobType]?.add(item);
+      byType[item.memberType]?.add(item);
     }
-    Map<JobType, ClusterGroup> result = {};
-    for (var type in JobType.values) {
+    Map<MemberType, ClusterGroup> result = {};
+    for (var type in MemberType.values) {
       result[type] = singleCluster(byType[type]!);
     }
     return result;

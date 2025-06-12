@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:carely/screens/map/dummy_data.dart';
+import 'package:carely/models/map_member.dart';
 import 'package:carely/utils/member_type.dart';
 import 'package:carely/theme/colors.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:carely/services/memory_service.dart';
+import 'package:carely/models/memory.dart';
+import 'package:carely/utils/logger_config.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final String userId;
-  const ProfileScreen({super.key, required this.userId});
+  final MapMember member;
+  const ProfileScreen({super.key, required this.member});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -16,8 +19,14 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isStoryExpanded = false;
+  late Future<List<Memory>> _memoriesFuture;
 
-  get jobType => null;
+  @override
+  void initState() {
+    super.initState();
+    logger.i('🔍 ProfileScreen 초기화 - memberId: ${widget.member.memberId}');
+    _memoriesFuture = MemoryService.fetchMyMemories(widget.member.memberId);
+  }
 
   Future<String> _getAddressFromLatLng(LatLng position) async {
     try {
@@ -66,21 +75,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final UserData user = dummyUsers.firstWhere((u) => u.id == widget.userId);
-    final MemberType? memberType = _getMemberTypeFromString(user.jobType);
+    final user = widget.member;
+    final MemberType memberType = user.memberType;
     final Color jobSpecificColor = _getDarkerColor(memberType);
     final Color buttonColor = _getButtonColor(memberType);
-
-    final String story =
-        user.story ??
-        '저희 가족이 어머니를 집에서 모시며 간병을 시작한 지 벌써 3년이 되었습니다. 어머니께서는 67세로, 3년 전 뇌졸중을 겪고 반신 마비가 왔습니다. 그로 인해 왼쪽 팔다리에 불편함이 있으시지만, 꾸준한 재활 치료와 저희 가족의 사랑으로 조금씩 호전되고 계십니다. 어머니와 함께하는 모든 순간이 소중하고, 앞으로도 행복한 추억을 많이 만들고 싶습니다.';
-    final List<Map<String, String>> companions =
-        user.companions ??
-        [
-          {'name': '김**', 'date': '2024.10.27', 'msg': '전문적이세요! 너무 너무 감사합니다.'},
-          {'name': '박**', 'date': '2024.10.21', 'msg': '따뜻한 마음 감사합니다.'},
-          {'name': '이**', 'date': '2024.11.01', 'msg': '덕분에 큰 도움 되었어요.'},
-        ];
 
     return Scaffold(
       backgroundColor: jobSpecificColor,
@@ -112,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 bottomRight: Radius.circular(12),
               ),
               child: SvgPicture.asset(
-                'assets/images/${user.jobType}/profile_logo.svg',
+                'assets/images/${user.memberType.name}/profile_logo.svg',
                 width: 400,
                 height: 400,
                 fit: BoxFit.contain,
@@ -134,8 +132,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: _buildBottomContent(
                     user,
                     memberType,
-                    story,
-                    companions,
                     buttonColor,
                     jobSpecificColor,
                   ),
@@ -157,48 +153,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildBottomContent(
-    UserData user,
+    MapMember user,
     MemberType? memberType,
-    String story,
-    List<Map<String, String>> companions,
     Color buttonColor,
     Color sectionColor,
   ) {
+    final String story =
+        user.story ??
+        '저희 가족이 어머니를 집에서 모시며 간병을 시작한 지 벌써 3년이 되었습니다. 어머니께서는 67세로, 3년 전 뇌졸중을 겪고 반신 마비가 왔습니다. 그로 인해 왼쪽 팔다리에 불편함이 있으시지만, 꾸준한 재활 치료와 저희 가족의 사랑으로 조금씩 호전되고 계십니다. 어머니와 함께하는 모든 순간이 소중하고, 앞으로도 행복한 추억을 많이 만들고 싶습니다.';
     return Column(
       children: [
         _buildSkillsSection(user, memberType),
         const SizedBox(height: 24),
         _buildStorySection(story, buttonColor),
         const SizedBox(height: 24),
-        _buildCompanionsSection(context, companions, sectionColor),
+        _buildCompanionsSection(context, sectionColor),
       ],
     );
   }
 
-  Widget _buildTopSection(UserData user, MemberType? memberType) {
+  Widget _buildTopSection(MapMember user, MemberType? memberType) {
     String address = '주소 정보 없음';
-    if (user.location.latitude == 37.5865 &&
-        user.location.longitude == 126.9980) {
-      address = '경기도 용인시 수지구';
-    } else if (user.location.latitude == 37.5441 &&
-        user.location.longitude == 126.9555) {
-      address = '서울시 마포구';
-    } else if (user.location.latitude == 37.5878 &&
-        user.location.longitude == 126.9974) {
-      address = '경기도 성남시 분당구';
+    if (user.address != null) {
+      address =
+          '${user.address!.province} ${user.address!.city} ${user.address!.district}';
     }
 
     final String badgeLabel;
-    final IconData badgeIcon;
-    final Color badgeIconColor = _getDarkerColor(memberType);
-
-    if (memberType == MemberType.caregiver) {
-      badgeLabel = '인증 요양보호사';
-      badgeIcon = Icons.verified;
+    if (user.withTime < 60) {
+      badgeLabel = 'Carely와 함께한 시간 ${user.withTime}분';
     } else {
-      badgeLabel = 'Carely와 함께한 시간 ${user.togetherTime}';
-      badgeIcon = Icons.access_time;
+      badgeLabel = 'Carely와 함께한 시간 ${(user.withTime / 60).toStringAsFixed(0)}시간';
     }
+    final IconData badgeIcon = Icons.access_time;
+    final Color badgeIconColor = _getDarkerColor(memberType);
 
     return Container(
       padding: const EdgeInsets.only(top: 20, bottom: 24, left: 24, right: 24),
@@ -227,10 +215,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: SvgPicture.asset(
-                      user.squareProfileImagePath,
+                      'assets/images/${user.memberType.name}/profile_square/${user.profileImage ?? '1'}.svg',
+                      fit: BoxFit.cover,
                       width: 124,
                       height: 124,
-                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
@@ -253,7 +241,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '나이 ${user.age ?? '정보 없음'}세',
+                  '나이 ${user.age}세',
                   style: TextStyle(fontSize: 16, color: AppColors.gray700),
                 ),
                 const SizedBox(height: 2),
@@ -325,7 +313,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildSkillsSection(UserData user, MemberType? memberType) {
+  Widget _buildSkillsSection(MapMember user, MemberType? memberType) {
     final String title =
         memberType == MemberType.family ? '제가 모시는 분은,' : '제가 할 수 있는 일은,';
 
@@ -347,22 +335,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            height: 90,
-            child: _buildSkillItems(user, _getDarkerColor(memberType)),
-          ),
+          SizedBox(height: 90, child: _buildSkillItems(user, memberType)),
         ],
       ),
     );
   }
 
-  Widget _buildSkillItems(UserData user, Color iconColor) {
+  Widget _buildSkillItems(MapMember user, MemberType? memberType) {
     List<Widget> skillWidgets = [];
-    if (user.skills.isEmpty) {
+    if (user.skill == null) {
       return const Text('등록된 스킬이 없습니다.');
     }
-    user.skills.forEach((skillKey, skillLevel) {
-      String imagePath = 'assets/images/${user.jobType}/skills/$skillKey.png';
+
+    final skill = user.skill!;
+    final skills = {
+      'communication': skill.communication.name,
+      'meal': skill.meal.name,
+      'toilet': skill.toilet.name,
+      'bath': skill.bath.name,
+      'walk': skill.walk.name,
+    };
+
+    skills.forEach((skillKey, skillLevel) {
+      String imagePath =
+          'assets/images/${user.memberType.name}/skills/$skillKey.png';
+      String displayLevel = '';
+
+      if (memberType == MemberType.family) {
+        switch (skillLevel.toLowerCase()) {
+          case 'high':
+            displayLevel = '준수함';
+            break;
+          case 'middle':
+            displayLevel = '서투름';
+            break;
+          case 'low':
+            displayLevel = '도움 필요함';
+            break;
+          default:
+            displayLevel = skillLevel;
+        }
+      } else {
+        switch (skillLevel.toLowerCase()) {
+          case 'high':
+            displayLevel = '상급';
+            break;
+          case 'middle':
+            displayLevel = '중급';
+            break;
+          case 'low':
+            displayLevel = '하급';
+            break;
+          default:
+            displayLevel = skillLevel;
+        }
+      }
+
       skillWidgets.add(
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -393,7 +421,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                skillLevel,
+                displayLevel,
                 style: const TextStyle(
                   fontSize: 13,
                   color: AppColors.gray800,
@@ -406,10 +434,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     });
 
-    return Wrap(
-      spacing: 12.0,
-      runSpacing: 12.0,
-      alignment: WrapAlignment.center,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: skillWidgets,
     );
   }
@@ -469,122 +495,97 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildCompanionsSection(
-    BuildContext context,
-    List<Map<String, String>> companions,
-    Color cardThemeColor,
-  ) {
-    // 직업 유형별 배경색 설정
-    Color companionCardBackgroundColor = _getCompanionCardBackgroundColor(
-      cardThemeColor,
-    );
-    Color companionCardBorderColor = _getCompanionCardBorderColor(
-      cardThemeColor,
-    );
+  Widget _buildCompanionsSection(BuildContext context, Color sectionColor) {
+    return FutureBuilder<List<Memory>>(
+      future: _memoriesFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '함께한 사람',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.gray800,
-            ),
-          ),
-          const SizedBox(height: 12),
-          companions.isEmpty
-              ? _buildEmptyCompanionMessage(
-                companionCardBackgroundColor,
-                companionCardBorderColor,
-              )
-              : SizedBox(
-                height: 124,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: companions.length,
-                  itemBuilder: (context, index) {
-                    final companion = companions[index];
-                    return SizedBox(
-                      width: 138,
-                      child: Card(
-                        color: companionCardBackgroundColor,
-                        elevation: 3,
-                        shadowColor: Colors.black.withValues(alpha: 0.1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: companionCardBorderColor,
-                            width: 1,
-                          ),
-                        ),
-                        margin: const EdgeInsets.only(right: 12),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    companion['name'] ?? '이름 없음',
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.gray800,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    companion['date'] ?? '',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: AppColors.gray700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                companion['msg'] ?? '',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.gray800.withValues(
-                                    alpha: 0.9,
-                                  ),
-                                  height: 1.3,
-                                ),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('추억을 불러오는 중 오류가 발생했습니다: ${snapshot.error}'),
+          );
+        }
+
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('함께한 추억이 없습니다.'));
+        }
+
+        final companions = snapshot.data!;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              alignment: Alignment.centerLeft,
+              child: const Text(
+                '함께한 추억,',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.gray800,
                 ),
               ),
-        ],
-      ),
+            ),
+            const SizedBox(height: 12),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: companions.length,
+              itemBuilder: (context, index) {
+                final memory = companions[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: sectionColor, width: 1.5),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        'assets/images/${memory.memberType.name}/profile/1.png',
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              memory.oppoName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: AppColors.gray800,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              memory.oppoMemo ?? '아직 내용이 없어요',
+                              style: TextStyle(
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.w400,
+                                color: AppColors.gray600,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
-  }
-
-  MemberType? _getMemberTypeFromString(String jobType) {
-    switch (jobType) {
-      case 'family':
-        return MemberType.family;
-      case 'volunteer':
-        return MemberType.volunteer;
-      case 'caregiver':
-        return MemberType.caregiver;
-      default:
-        return null;
-    }
   }
 
   Color _getButtonColor(MemberType? memberType) {
@@ -611,53 +612,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
       default:
         return '';
     }
-  }
-
-  // 직업 유형별 함께한 사람 카드 배경색 설정
-  Color _getCompanionCardBackgroundColor(Color themeColor) {
-    if (themeColor == AppColors.red300) {
-      return AppColors.red100; // 가족 배경색
-    } else if (themeColor == AppColors.blue300) {
-      return AppColors.blue100; // 자원봉사자 배경색
-    } else if (themeColor == AppColors.green300) {
-      return AppColors.green100; // 요양보호사 배경색
-    } else {
-      return Color(0xFFFEF0F5); // 기본 배경색
-    }
-  }
-
-  // 직업 유형별 함께한 사람 카드 테두리 색상 설정
-  Color _getCompanionCardBorderColor(Color themeColor) {
-    return AppColors.gray100; // 가족 테두리 색상
-  }
-
-  // 함께한 사람이 없을 때 표시할 메시지 위젯
-  Widget _buildEmptyCompanionMessage(Color backgroundColor, Color borderColor) {
-    return Container(
-      width: double.infinity,
-      height: 124,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor, width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: const Center(
-        child: Text(
-          '아직 함께한 사람이 없습니다',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.gray600,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-    );
   }
 }
